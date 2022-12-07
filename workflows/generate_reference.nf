@@ -57,15 +57,18 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
 //     """
 // }
 
-
+//ch_smallrna_fasta = Channel.fromPath(params.smallrna_genome, checkIfExists: true)
             
 workflow GENERATE_REFERENCE_INDEX {
+
+    take:
+    smallrna_fasta
 
     main:
     
     // Generate small RNA index
     GENERATE_SMALL_RNA_BOWTIE_INDEX(
-        small_rna
+        smallrna_fasta
     )
 
     // // Generate genome index
