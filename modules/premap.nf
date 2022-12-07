@@ -16,6 +16,7 @@ process PREMAP {
     publishDir "${params.outdir}/premap", pattern: "*.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/premap", pattern: "*.bam.seqs.gz", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/premap", pattern: "*.unmapped.fastq.gz", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/premap", pattern: "*.premap.log", mode: 'copy', overwrite: true
 
     input:
     tuple val(sample_id), path(reads)
