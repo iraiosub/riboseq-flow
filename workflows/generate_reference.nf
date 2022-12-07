@@ -39,14 +39,12 @@ process GENERATE_GENOME_STAR_INDEX {
         
     
 
-
-
-workflow GENERATE_REFERENCE {
+workflow GENERATE_REFERENCE_INDEX {
 
     main:
     
-    // Download files and generate transcript fasta
-    run_annotation()
+    // Generate small RNA index
+    
 
     // Generate genome index
     GENERATE_GENOME_STAR_INDEX(

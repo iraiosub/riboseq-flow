@@ -9,6 +9,7 @@ process PREMAP {
     label "mid_memory"
 
     //container 'quay.io/biocontainers/clippy:1.5.0--pyhdfd78af_0'
+    // add conda!
 
     publishDir "${params.outdir}/premap", pattern: "*.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/premap", pattern: "*.bam.seqs.gz", mode: 'copy', overwrite: true
