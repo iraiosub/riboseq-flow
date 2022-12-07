@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 ch_input = Channel
             .fromPath( params.input )
             .splitCsv(header:true)
-            .map { row -> [ row.sample, file(row.reads, checkIfExists: true) ] }
+            .map { row -> [ row.sample, file(row.fastq, checkIfExists: true) ] }
             // .view()
 
 ch_genome_fasta = Channel.fromPath(params.fasta, checkIfExists: true)

@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 
 process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     tag "smallrna_index"
+    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
     cpus 4
     memory '16G'
@@ -25,35 +26,36 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
 
 
 
-process GENERATE_GENOME_STAR_INDEX {
-    tag "genome_index"
+// process GENERATE_GENOME_STAR_INDEX {
+//     tag "genome_index"
+//     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
-    cpus 8
-    memory '32G'
-    time '24h'
+//     cpus 8
+//     memory '32G'
+//     time '24h'
 
-    input:
-        path(genome_fa)
-        path(annotation_gtf)
+//     input:
+//         path(genome_fa)
+//         path(annotation_gtf)
 
-    output:
-        path("genome_index"), emit: genome_index
+//     output:
+//         path("genome_index"), emit: genome_index
 
-    script:
-    """
-    zcat $annotation_gtf > ${annotation_gtf.getSimpleName()}.gtf
-    mkdir genome_index
-    STAR --runThreadN ${task.cpus} \
-        --runMode genomeGenerate \
-        --genomeDir genome_index \
-        --genomeFastaFiles $genome_fa \
-        --sjdbGTFfile ${annotation_gff.getSimpleName()}.gtf \
-        --sjdbGTFfeatureExon exon \
-        --sjdbOverhang 100 \
-        --limitOutSJcollapsed 2000000 \
-        --limitGenomeGenerateRAM=200000000000
-    """
-}
+//     script:
+//     """
+//     zcat $annotation_gtf > ${annotation_gtf.getSimpleName()}.gtf
+//     mkdir genome_index
+//     STAR --runThreadN ${task.cpus} \
+//         --runMode genomeGenerate \
+//         --genomeDir genome_index \
+//         --genomeFastaFiles $genome_fa \
+//         --sjdbGTFfile ${annotation_gff.getSimpleName()}.gtf \
+//         --sjdbGTFfeatureExon exon \
+//         --sjdbOverhang 100 \
+//         --limitOutSJcollapsed 2000000 \
+//         --limitGenomeGenerateRAM=200000000000
+//     """
+// }
 
 
             
@@ -63,7 +65,7 @@ workflow GENERATE_REFERENCE_INDEX {
     
     // Generate small RNA index
     GENERATE_SMALL_RNA_BOWTIE_INDEX(
-        smallrna_genome
+        small_rna
     )
 
     // // Generate genome index
