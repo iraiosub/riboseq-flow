@@ -3,6 +3,28 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
+process GENERATE_SMALL_RNA_BOWTIE_INDEX {
+    tag "smallrna_index"
+
+    cpus 4
+    memory '16G'
+    time '4h'
+
+    input:
+        path(small_rna)
+
+    output:
+        path("smallrna_index"), emit: smallrna_index
+
+    script:
+    """
+    bowtie2-build --threads ${task.cpus} $small_rna smallrna_index
+
+    """
+}
+
+
+
 process GENERATE_GENOME_STAR_INDEX {
     tag "genome_index"
 
@@ -34,27 +56,25 @@ process GENERATE_GENOME_STAR_INDEX {
 }
 
 
-    
-//     --outFileNamePrefix {params.outdir} \
-        
-    
-
+            
 workflow GENERATE_REFERENCE_INDEX {
 
     main:
     
     // Generate small RNA index
-    
-
-    // Generate genome index
-    GENERATE_GENOME_STAR_INDEX(
-        run_annotation.out.genome_fa,
-        run_annotation.out.genome_gff
+    GENERATE_SMALL_RNA_BOWTIE_INDEX(
+        smallrna_genome
     )
+
+    // // Generate genome index
+    // GENERATE_GENOME_STAR_INDEX(
+    //     fasta, gtf
+    // )
     
 
     emit:
 
-    genome_star_index = GENERATE_GENOME_STAR_INDEX.out.genome_index
+    smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
+    // genome_star_index = GENERATE_GENOME_STAR_INDEX.out.genome_index
 
 }
