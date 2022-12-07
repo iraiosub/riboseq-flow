@@ -38,9 +38,10 @@ process PREMAP {
     bowtie2 $map_params \
         -U $reads \
         -p ${task.cpus} \
-        -x $smallrna_index \
-        --un-gz ${sample_id}.fastq.gz \
-        -S ${sample_id}.sam
+        -x ${smallrna_index[0].simpleName}  \
+        --un-gz ${sample_id}.unmapped.fastq.gz \
+        -S ${sample_id}.sam \
+        2> ${sample_id}.premap.log
 
     samtools sort -o ${sample_id}.bam -O bam -@ ${task.cpus} ${sample_id}.sam
     samtools index ${sample_id}.bam

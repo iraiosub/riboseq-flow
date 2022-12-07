@@ -4,7 +4,7 @@
 nextflow.enable.dsl=2
 
 process GENERATE_SMALL_RNA_BOWTIE_INDEX {
-    tag "smallrna_index"
+    tag "$smallrna_fasta"
     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
     cpus 4
@@ -12,14 +12,14 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     time '4h'
 
     input:
-        path(small_rna)
+        path(smallrna_fasta)
 
     output:
-        path("smallrna_index"), emit: smallrna_index
+        path("${smallrna_fasta.simpleName}.*.bt2"), emit: smallrna_index
 
     script:
     """
-    bowtie2-build --threads ${task.cpus} $small_rna smallrna_index
+    bowtie2-build --threads ${task.cpus} $smallrna_fasta ${smallrna_fasta.simpleName}
 
     """
 }
