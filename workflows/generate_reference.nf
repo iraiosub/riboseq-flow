@@ -60,13 +60,11 @@ process GENERATE_GENOME_STAR_INDEX {
         --sjdbGTFfeatureExon exon \
         --sjdbOverhang 100 \
         --limitOutSJcollapsed 2000000 \
-        --limitGenomeGenerateRAM=200000000000
-        --genomeChrBinNbits 12
-        
+        --limitGenomeGenerateRAM=200000000000        
 
     """
 }
-
+//        --genomeChrBinNbits 12
 
 //ch_smallrna_fasta = Channel.fromPath(params.smallrna_genome, checkIfExists: true)
             
