@@ -11,7 +11,7 @@ process MAP {
 
     //container 'quay.io/biocontainers/clippy:1.5.0--pyhdfd78af_0'
     // add conda!
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    conda '/camp/home/rebselj/.conda/envs/riboseq_env'
 
     publishDir "${params.outdir}/map", pattern: "*.Aligned.sortedByCoord.out.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/map", pattern: "*.Aligned.toTranscriptome.out.bam", mode: 'copy', overwrite: true

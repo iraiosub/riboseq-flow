@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 
 process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     tag "$smallrna_fasta"
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    conda '/camp/home/rebselj/.conda/envs/riboseq_env'
 
     cpus 4
     memory '16G'
@@ -28,13 +28,9 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
 
 process GENERATE_GENOME_STAR_INDEX {
     tag "$star_index"
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    conda '/camp/home/rebselj/.conda/envs/riboseq_env'
 
-    cpus 8
-    memory '256G'
-    time '12h'
-
-    publishDir "${params.outdir}/star_index", pattern: "$star_index", mode: 'copy', overwrite: true
+    label "high_memory"
 
     input:
     path(genome_fasta)
@@ -61,7 +57,7 @@ process GENERATE_GENOME_STAR_INDEX {
         --sjdbGTFfeatureExon exon \
         --sjdbOverhang 100 \
         --limitOutSJcollapsed 2000000 \
-        --limitGenomeGenerateRAM=200000000000
+        --limitGenomeGenerateRAM=260000000000
         
 
     """
