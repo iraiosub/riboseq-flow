@@ -30,7 +30,10 @@ process GENERATE_GENOME_STAR_INDEX {
     tag "$star_index"
     conda '/camp/home/rebselj/.conda/envs/riboseq_env'
 
-    label "high_memory"
+    //label "high_memory"
+    cpus 8
+    memory '260G'
+    time '4h'
 
     input:
     path(genome_fasta)
@@ -57,7 +60,8 @@ process GENERATE_GENOME_STAR_INDEX {
         --sjdbGTFfeatureExon exon \
         --sjdbOverhang 100 \
         --limitOutSJcollapsed 2000000 \
-        --limitGenomeGenerateRAM=260000000000
+        --limitGenomeGenerateRAM=200000000000
+        --genomeChrBinNbits 12
         
 
     """
