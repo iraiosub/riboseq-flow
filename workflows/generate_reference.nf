@@ -30,9 +30,9 @@ process GENERATE_GENOME_STAR_INDEX {
     tag "$star_index"
     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
-    cpus 4
-    memory '64G'
-    time '24h'
+    cpus 8
+    memory '256G'
+    time '12h'
 
     publishDir "${params.outdir}/star_index", pattern: "$star_index", mode: 'copy', overwrite: true
 
@@ -44,12 +44,6 @@ process GENERATE_GENOME_STAR_INDEX {
     path("$star_index"), emit: star_index
 
     script:
-    
-    //zcat $annotation_gtf > ${annotation_gtf.getSimpleName()}.gtf
-    //mkdir genome_index
-    
-    // cat $genome_gtf > ${genome_gtf.getSimpleName()}.gtf
-    //--limitGenomeGenerateRAM=2000000000000
 
     def memory = task.memory ? "--limitGenomeGenerateRAM ${task.memory.toBytes() - 100000000}" : ''
 
@@ -57,7 +51,6 @@ process GENERATE_GENOME_STAR_INDEX {
     samtools faidx $genome_fasta
     NUM_BASES=`awk '{sum = sum + \$2}END{if ((log(sum)/log(2))/2 - 1 > 14) {printf "%.0f", 14} else {printf "%.0f", (log(sum)/log(2))/2 - 1}}' ${genome_fasta}.fai`
 
-    
     mkdir star_index
     STAR --runThreadN ${task.cpus} \
         --runMode genomeGenerate \
