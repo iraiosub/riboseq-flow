@@ -27,20 +27,20 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
 
 
 process GENERATE_GENOME_STAR_INDEX {
-    tag "$star_index"
+    tag "$genome_fasta"
     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
-    //label "high_memory"
-    cpus 8
-    memory '251G'
-    time '4h'
+    label "high_memory"
+    // cpus 8
+    // memory '251G'
+    // time '4h'
 
     input:
     path(genome_fasta)
     path(genome_gtf)
 
     output:
-    path("$star_index"), emit: star_index
+    path("star_index"), emit: star_index
 
     script:
 
@@ -53,7 +53,7 @@ process GENERATE_GENOME_STAR_INDEX {
     mkdir star_index
     STAR --runThreadN ${task.cpus} \
         --runMode genomeGenerate \
-        --genomeDir star_index \
+        --genomeDir star_index/ \
         --genomeFastaFiles $genome_fasta \
         --genomeSAindexNbases \$NUM_BASES \
         --sjdbGTFfile $genome_gtf \
