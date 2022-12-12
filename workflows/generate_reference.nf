@@ -48,18 +48,18 @@ process GENERATE_GENOME_STAR_INDEX {
 
     """
     samtools faidx $genome_fasta
-    NUM_BASES=`awk '{sum = sum + \$2}END{if ((log(sum)/log(2))/2 - 1 > 14) {printf "%.0f", 14} else {printf "%.0f", (log(sum)/log(2))/2 - 1}}' ${genome_fasta}.fai`
-
+    # NUM_BASES=`awk '{sum = sum + \$2}END{if ((log(sum)/log(2))/2 - 1 > 14) {printf "%.0f", 14} else {printf "%.0f", (log(sum)/log(2))/2 - 1}}' ${genome_fasta}.fai`
+    # --genomeSAindexNbases \$NUM_BASES \
+    
     mkdir star_index
     STAR --runThreadN ${task.cpus} \
         --runMode genomeGenerate \
         --genomeDir star_index/ \
         --genomeFastaFiles $genome_fasta \
-        --genomeSAindexNbases \$NUM_BASES \
         --sjdbGTFfile $genome_gtf \
         --sjdbGTFfeatureExon exon \
+        --genomeSAindexNbases 14 \
         --sjdbOverhang 100 \
-        --limitOutSJcollapsed 2000000 \
         --limitGenomeGenerateRAM=200000000000        
 
     """
