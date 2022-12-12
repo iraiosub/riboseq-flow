@@ -59,7 +59,7 @@ process GENERATE_GENOME_STAR_INDEX {
         --genomeFastaFiles $genome_fasta \\
         --sjdbGTFfile $genome_gtf \\
         --sjdbGTFfeatureExon exon \\
-        --genomeSAindexNbases \$NUM_BASES \ \\
+        --genomeSAindexNbases \$NUM_BASES \\
         --sjdbOverhang 100 \\
         --limitGenomeGenerateRAM=200000000000        
 
