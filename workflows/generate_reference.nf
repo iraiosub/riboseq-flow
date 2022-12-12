@@ -32,7 +32,7 @@ process GENERATE_GENOME_STAR_INDEX {
 
     //label "high_memory"
     cpus 8
-    memory '256G'
+    memory '251G'
     time '4h'
 
     input:
