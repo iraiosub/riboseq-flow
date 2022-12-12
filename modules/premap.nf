@@ -11,7 +11,7 @@ process PREMAP {
 
     //container 'quay.io/biocontainers/clippy:1.5.0--pyhdfd78af_0'
     // add conda!
-    conda '/camp/home/rebselj/.conda/envs/riboseq_env'
+    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
     publishDir "${params.outdir}/premap", pattern: "*.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/premap", pattern: "*.bam.seqs.gz", mode: 'copy', overwrite: true
