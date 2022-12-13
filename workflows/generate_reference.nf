@@ -26,36 +26,46 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
 
 
 
-// process GENERATE_GENOME_STAR_INDEX {
-//     tag "genome_index"
-//     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+process GENERATE_GENOME_STAR_INDEX {
+    tag "$genome_fasta"
+    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
-//     cpus 8
-//     memory '32G'
-//     time '24h'
+    label "high_memory"
+    // cpus 8
+    // memory '251G'
+    // time '4h'
 
-//     input:
-//         path(genome_fa)
-//         path(annotation_gtf)
+    input:
+    path(genome_fasta)
+    path(genome_gtf)
 
-//     output:
-//         path("genome_index"), emit: genome_index
+    output:
+    path("star_index"), emit: star_index
 
-//     script:
-//     """
-//     zcat $annotation_gtf > ${annotation_gtf.getSimpleName()}.gtf
-//     mkdir genome_index
-//     STAR --runThreadN ${task.cpus} \
-//         --runMode genomeGenerate \
-//         --genomeDir genome_index \
-//         --genomeFastaFiles $genome_fa \
-//         --sjdbGTFfile ${annotation_gff.getSimpleName()}.gtf \
-//         --sjdbGTFfeatureExon exon \
-//         --sjdbOverhang 100 \
-//         --limitOutSJcollapsed 2000000 \
-//         --limitGenomeGenerateRAM=200000000000
-//     """
-// }
+    script:
+
+    def memory = task.memory ? "--limitGenomeGenerateRAM ${task.memory.toBytes() - 100000000}" : ''
+
+    //  --limitGenomeGenerateRAM=200000000000  
+
+    """
+    samtools faidx $genome_fasta
+    NUM_BASES=`awk '{sum = sum + \$2}END{if ((log(sum)/log(2))/2 - 1 > 14) {printf "%.0f", 14} else {printf "%.0f", (log(sum)/log(2))/2 - 1}}' ${genome_fasta}.fai`
+    
+    mkdir star_index
+    STAR \\
+        --runThreadN ${task.cpus} \\
+        --runMode genomeGenerate \\
+        --genomeDir star_index/ \\
+        --genomeFastaFiles $genome_fasta \\
+        --sjdbGTFfile $genome_gtf \\
+        --sjdbGTFfeatureExon exon \\
+        --genomeSAindexNbases \$NUM_BASES \\
+        --sjdbOverhang 100 \\
+        $memory
+              
+    """
+}
 
 //ch_smallrna_fasta = Channel.fromPath(params.smallrna_genome, checkIfExists: true)
             
@@ -71,15 +81,15 @@ workflow GENERATE_REFERENCE_INDEX {
         smallrna_fasta
     )
 
-    // // Generate genome index
-    // GENERATE_GENOME_STAR_INDEX(
-    //     fasta, gtf
-    // )
-    
+    // Generate genome index
+    GENERATE_GENOME_STAR_INDEX(
+        genome_fasta, genome_gtf
+    )
 
     emit:
 
     smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
-    // genome_star_index = GENERATE_GENOME_STAR_INDEX.out.genome_index
+    genome_star_index = GENERATE_GENOME_STAR_INDEX.out.star_index
+
 
 }
