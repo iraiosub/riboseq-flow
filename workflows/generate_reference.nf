@@ -73,6 +73,9 @@ workflow GENERATE_REFERENCE_INDEX {
 
     take:
     smallrna_fasta
+    genome_fasta
+    genome_gtf
+
 
     main:
     
