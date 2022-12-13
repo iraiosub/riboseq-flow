@@ -30,10 +30,10 @@ process GENERATE_GENOME_STAR_INDEX {
     tag "$genome_fasta"
     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
-    label "high_memory"
-    // cpus 8
-    // memory '251G'
-    // time '4h'
+    // label "high_memory"
+    cpus 8
+    memory '128G'
+    time '8h'
 
     input:
     path(genome_fasta)
@@ -47,6 +47,7 @@ process GENERATE_GENOME_STAR_INDEX {
     def memory = task.memory ? "--limitGenomeGenerateRAM ${task.memory.toBytes() - 100000000}" : ''
 
     //  --limitGenomeGenerateRAM=200000000000  
+    // --genomeSAindexNbases \$NUM_BASES
 
     """
     samtools faidx $genome_fasta
@@ -60,7 +61,7 @@ process GENERATE_GENOME_STAR_INDEX {
         --genomeFastaFiles $genome_fasta \\
         --sjdbGTFfile $genome_gtf \\
         --sjdbGTFfeatureExon exon \\
-        --genomeSAindexNbases \$NUM_BASES \\
+        --genomeSAindexNbases 14 \\
         --sjdbOverhang 100 \\
         $memory
               
@@ -73,8 +74,8 @@ workflow GENERATE_REFERENCE_INDEX {
 
     take:
     smallrna_fasta
-    genome_fasta
-    genome_gtf
+    // genome_fasta
+    // genome_gtf
 
 
     main:
@@ -84,15 +85,15 @@ workflow GENERATE_REFERENCE_INDEX {
         smallrna_fasta
     )
 
-    // Generate genome index
-    GENERATE_GENOME_STAR_INDEX(
-        genome_fasta, genome_gtf
-    )
+    // // Generate genome index
+    // GENERATE_GENOME_STAR_INDEX(
+    //     genome_fasta, genome_gtf
+    // )
 
     emit:
 
     smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
-    genome_star_index = GENERATE_GENOME_STAR_INDEX.out.star_index
+    // genome_star_index = GENERATE_GENOME_STAR_INDEX.out.star_index
 
 
 }
