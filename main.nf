@@ -19,7 +19,7 @@ include { PREMAP } from './modules/premap.nf'
 
 workflow {
 
-    GENERATE_REFERENCE_INDEX(ch_smallrna_fasta)
+    GENERATE_REFERENCE_INDEX(ch_smallrna_fasta, ch_genome_fasta, ch_genome_gtf)
 
     PREMAP(ch_input, GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index)
 
