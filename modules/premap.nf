@@ -6,12 +6,9 @@ nextflow.enable.dsl=2
 process PREMAP {
 
     tag "${sample_id}"
-    label "mid_memory"
+    label 'process_medium'
 
-
-    //container 'quay.io/biocontainers/clippy:1.5.0--pyhdfd78af_0'
-    // add conda!
-    conda '/camp/home/rebselj/.conda/envs/riboseq_env'
+    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
     publishDir "${params.outdir}/premap", pattern: "*.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/premap", pattern: "*.bam.seqs.gz", mode: 'copy', overwrite: true
@@ -33,7 +30,6 @@ process PREMAP {
 
     map_params = params.bowtie2_args
 
-    //  cmd = "STAR $args && samtools index -@ ${task.cpus} ${sample_id}.Aligned.sortedByCoord.out.bam"
     
     """
     bowtie2 $map_params \
@@ -51,5 +47,3 @@ process PREMAP {
 
     """
 }
-
-//32g,6h
