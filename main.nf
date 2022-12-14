@@ -42,6 +42,8 @@ workflow {
     } else {
         MAP(ch_input, GENERATE_REFERENCE_INDEX.out.genome_star_index)
     }
-
+    
+     DEDUPLICATE(MAP.out.aligned_genome, MAP.out.aligned_transcriptome)
 
 }
+
