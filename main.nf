@@ -31,6 +31,7 @@ ch_smallrna_fasta = Channel.fromPath(params.smallrna_genome, checkIfExists: true
 include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
 include { PREMAP } from './modules/premap.nf'
 include { MAP } from './modules/map.nf'
+include { DEDUPLICATE } from './workflows/dedup.nf'
 
 workflow {
 
