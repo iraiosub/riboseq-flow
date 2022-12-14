@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 
 process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     tag "$smallrna_fasta"
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    conda '/camp/home/rebselj/.conda/envs/riboseq_env'
 
     cpus 4
     memory '16G'
@@ -28,7 +28,7 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
 
 process GENERATE_GENOME_STAR_INDEX {
     tag "$genome_fasta"
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    conda '/camp/home/rebselj/.conda/envs/riboseq_env'
 
     // label "high_memory"
     cpus 8
