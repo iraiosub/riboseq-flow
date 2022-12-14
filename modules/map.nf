@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 process MAP {
  
     tag "${sample_id}"
-    label "high_memory"
+    label 'process_high'
 
 
     //container 'quay.io/biocontainers/clippy:1.5.0--pyhdfd78af_0'

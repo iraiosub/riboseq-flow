@@ -7,9 +7,10 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     tag "$smallrna_fasta"
     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
-    cpus 4
-    memory '16G'
-    time '4h'
+    // cpus 4
+    // memory '16G'
+    // time '4h'
+    label 'process_medium'
 
     input:
         path(smallrna_fasta)
@@ -19,7 +20,7 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
 
     script:
     """
-    bowtie2-build --threads ${task.cpus} $smallrna_fasta ${smallrna_fasta.simpleName}
+    bowtie2-build --threads $task.cpus $smallrna_fasta ${smallrna_fasta.simpleName}
 
     """
 }
@@ -30,10 +31,10 @@ process GENERATE_GENOME_STAR_INDEX {
     tag "$genome_fasta"
     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
-    // label "high_memory"
-    cpus 8
-    memory '128G'
-    time '8h'
+    label 'process_high'
+    // cpus 8
+    // memory '64G'
+    // time '8h'
 
     input:
     path(genome_fasta)
@@ -46,8 +47,7 @@ process GENERATE_GENOME_STAR_INDEX {
 
     def memory = task.memory ? "--limitGenomeGenerateRAM ${task.memory.toBytes() - 100000000}" : ''
 
-    //  --limitGenomeGenerateRAM=200000000000  
-    // --genomeSAindexNbases \$NUM_BASES
+    // --limitGenomeGenerateRAM 8369034848
 
     """
     samtools faidx $genome_fasta
@@ -55,27 +55,25 @@ process GENERATE_GENOME_STAR_INDEX {
     
     mkdir star_index
     STAR \\
-        --runThreadN ${task.cpus} \\
+        --runThreadN $task.cpus \\
         --runMode genomeGenerate \\
         --genomeDir star_index/ \\
         --genomeFastaFiles $genome_fasta \\
         --sjdbGTFfile $genome_gtf \\
         --sjdbGTFfeatureExon exon \\
-        --genomeSAindexNbases 14 \\
+        --genomeSAindexNbases \$NUM_BASES \\
         --sjdbOverhang 100 \\
         $memory
               
     """
 }
-
-//ch_smallrna_fasta = Channel.fromPath(params.smallrna_genome, checkIfExists: true)
             
 workflow GENERATE_REFERENCE_INDEX {
 
     take:
     smallrna_fasta
-    // genome_fasta
-    // genome_gtf
+    genome_fasta
+    genome_gtf
 
 
     main:
@@ -85,15 +83,15 @@ workflow GENERATE_REFERENCE_INDEX {
         smallrna_fasta
     )
 
-    // // Generate genome index
-    // GENERATE_GENOME_STAR_INDEX(
-    //     genome_fasta, genome_gtf
-    // )
+    // Generate genome index
+    GENERATE_GENOME_STAR_INDEX(
+        genome_fasta, genome_gtf
+    )
 
     emit:
 
     smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
-    // genome_star_index = GENERATE_GENOME_STAR_INDEX.out.star_index
+    genome_star_index = GENERATE_GENOME_STAR_INDEX.out.star_index
 
 
 }
