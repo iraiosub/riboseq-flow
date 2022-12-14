@@ -19,9 +19,9 @@ process DEDUPLICATE_GENOME {
     tuple val(sample_id), path(aligned_genome)
 
     output:
-    tuple val(sample_id), path("*.sorted.bam"), emit: dedup_genome_bam
-    tuple val(sample_id), path("*.bai"), emit: dedup_genome_bai
-    tuple val(sample_id), path("*.bed.gz"), emit: dedup_genome_bed
+    tuple val(sample_id), path("*.sorted.bam"), emit: genome_bam
+    tuple val(sample_id), path("*.bai"), emit: genome_bai
+    tuple val(sample_id), path("*.bed.gz"), emit: genome_bed
 
 
     script:
@@ -31,7 +31,7 @@ process DEDUPLICATE_GENOME {
     samtools sort -@ ${task.cpus} ${sample_id}.unsorted.bam > ${sample_id}.sorted.bam
     samtools index ${sample_id}.sorted.bam > ${sample_id}.bai
     rm ${sample_id}.unsorted.bam        
-    bam2bed < ${sample_id}.sorted.bam | cut -f1-3,6 -d$'\t' > ${sample_id}.bed
+    bam2bed < ${sample_id}.sorted.bam | cut -f1-3,6 -d "\t" > ${sample_id}.bed
     gzip ${sample_id}.bed
     """
 //samtools: #-q 20 is probably unnecessary as we don't allow multimapping reads.
@@ -54,9 +54,9 @@ process DEDUPLICATE_TRANSCRIPTOME {
     tuple val(sample_id), path(aligned_transcriptome)
 
     output:
-    tuple val(sample_id), path("*.sorted.bam"), emit: dedup_transcriptome_bam
-    tuple val(sample_id), path("*.bai"), emit: dedup_transcriptome_bai
-    tuple val(sample_id), path("*.bed.gz"), emit: dedup_transcriptome_bed
+    tuple val(sample_id), path("*.sorted.bam"), emit: transcriptome_bam
+    tuple val(sample_id), path("*.bai"), emit: transcriptome_bai
+    tuple val(sample_id), path("*.bed.gz"), emit: transcriptome_bed
 
     script:
     """
@@ -69,7 +69,7 @@ process DEDUPLICATE_TRANSCRIPTOME {
     rm ${sample_id}.temp.bam
     rm ${sample_id}.temp.bai
     rm ${sample_id}.unsorted.bam
-    bam2bed < ${sample_id}.sorted.bam | cut -f1-3,6 -d$'\t' > ${sample_id}.bed
+    bam2bed < ${sample_id}.sorted.bam | cut -f1-3,6 -d "\t" > ${sample_id}.bed
     gzip ${sample_id}.bed
     """
 
@@ -95,13 +95,12 @@ workflow DEDUPLICATION {
 
     emit:
     //Genome dedup
-    dedup_genome_bam = DEDUPLICATE_GENOME.out.bam
-    dedup_genome_bai = DEDUPLICATE_GENOME.out.bai
-    dedup_genome_bed = DEDUPLICATE_GENOME.out.bed
+    dedup_genome_bam = DEDUPLICATE_GENOME.out.genome_bam
+    dedup_genome_bai = DEDUPLICATE_GENOME.out.genome_bai
+    dedup_genome_bed = DEDUPLICATE_GENOME.out.genome_bed
     //Transcriptome dedup
-    dedup_transcriptome_bam = DEDUPLICATE_TRANSCRIPTOME.out.bam
-    dedup_transcriptome_bai = DEDUPLICATE_TRANSCRIPTOME.out.bai
-    dedup_transcriptome_bed = DEDUPLICATE_TRANSCRIPTOME.out.bed
-
+    dedup_transcriptome_bam = DEDUPLICATE_TRANSCRIPTOME.out.transcriptome_bam
+    dedup_transcriptome_bai = DEDUPLICATE_TRANSCRIPTOME.out.transcriptome_bai
+    dedup_transcriptome_bed = DEDUPLICATE_TRANSCRIPTOME.out.transcriptome_bed
 
 }
