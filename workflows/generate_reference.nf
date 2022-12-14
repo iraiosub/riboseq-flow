@@ -21,6 +21,7 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     script:
     """
     bowtie2-build --threads $task.cpus $smallrna_fasta ${smallrna_fasta.simpleName}
+    
     """
 }
 

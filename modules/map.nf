@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 process MAP {
  
     tag "${sample_id}"
-    label "high_memory"
+    label 'process_high'
 
     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
