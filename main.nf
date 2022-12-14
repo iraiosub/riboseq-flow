@@ -19,7 +19,7 @@ ch_star_index = Channel.fromPath(params.star_index, checkIfExists: true)
 include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
 include { PREMAP } from './modules/premap.nf'
 include { MAP } from './modules/map.nf'
-include {DEDUPLICATION} from './modules/dedup.nf'
+include { DEDUPLICATE } from './workflows/dedup.nf'
 
 workflow {
 
@@ -29,12 +29,8 @@ workflow {
 
     MAP(PREMAP.out.unmapped, ch_star_index)
 
-    DEDUPLICATION(MAP.out.aligned_genome, MAP.out.aligned_transcriptome)
+    DEDUPLICATE(MAP.out.aligned_genome, MAP.out.aligned_transcriptome)
 
 }
-
-
-
-
 
 
