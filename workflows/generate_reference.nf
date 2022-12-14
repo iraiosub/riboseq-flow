@@ -68,7 +68,6 @@ process GENERATE_GENOME_STAR_INDEX {
     """
 }
 
-//ch_smallrna_fasta = Channel.fromPath(params.smallrna_genome, checkIfExists: true)
             
 workflow GENERATE_REFERENCE_INDEX {
 
