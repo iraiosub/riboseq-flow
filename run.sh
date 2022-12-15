@@ -12,4 +12,4 @@ ml Graphviz/2.38.0-foss-2016b
 
 cd /camp/project/proj-luscombe-ule/working/ira-jure/RiboSeq_NextFlow
 
-nextflow run main.nf -profile conda,crick --org GRCh38
+nextflow run main.nf -profile conda,crick -resume --org GRCh38

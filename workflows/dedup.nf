@@ -8,7 +8,7 @@ process DEDUPLICATE_GENOME {
     tag "${sample_id}"
     label 'process_medium'
 
-    conda '/camp/home/rebselj/.conda/envs/riboseq_env'
+    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
     publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.bai", mode: 'copy', overwrite: true
@@ -19,7 +19,7 @@ process DEDUPLICATE_GENOME {
     tuple val(sample_id), path(aligned_genome)
 
     output:
-    tuple val(sample_id), path("*.dedup.sorted.bam"), path("*.bai"), emit: genome_bam
+    tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bai"), emit: genome_bam
     tuple val(sample_id), path("*.dedup.bed.gz"), emit: genome_bed
 
 
@@ -28,12 +28,12 @@ process DEDUPLICATE_GENOME {
     """
     samtools view -q 20 -h $aligned_genome > ${sample_id}.um.bam  # -q 20 is probably unnecessary as we don't allow multimapping reads.
     umi_tools dedup --umi-separator ${params.umi_separator} -I ${sample_id}.um.bam -S ${sample_id}.unsorted.bam
-    samtools sort -@ ${task.cpus} ${sample_id}.unsorted.bam > ${sample_id}..dedup.sorted.bam
-    samtools index ${sample_id}..dedup.sorted.bam > ${sample_id}..dedup.sorted.bai
+    samtools sort -@ ${task.cpus} ${sample_id}.unsorted.bam > ${sample_id}.dedup.sorted.bam
+    samtools index ${sample_id}.dedup.sorted.bam > ${sample_id}.dedup.sorted.bai
     rm ${sample_id}.unsorted.bam 
     rm ${sample_id}.um.bam
 
-    bam2bed < ${sample_id}..dedup.sorted.bam | cut -f1-3,6 -d "\t" | gzip > ${sample_id}.dedup.bed.gz
+    bam2bed < ${sample_id}.dedup.sorted.bam | cut -f1-3,6 -d "\t" | gzip > ${sample_id}.dedup.bed.gz
  
     """
 
@@ -45,10 +45,10 @@ process DEDUPLICATE_TRANSCRIPTOME {
     tag "${sample_id}"
     label 'process_medium'
 
-    conda '/camp/home/rebselj/.conda/envs/riboseq_env'
+    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
     publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.sorted.bam", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.bai", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.sorted.bai", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.bed.gz", mode: 'copy', overwrite: true
 
 
@@ -56,7 +56,7 @@ process DEDUPLICATE_TRANSCRIPTOME {
     tuple val(sample_id), path(aligned_transcriptome)
 
     output:
-    tuple val(sample_id), path("*.tx.dedup.sorted.bam"), path("*.tx.dedup.bai"), emit: transcriptome_bam
+    tuple val(sample_id), path("*.tx.dedup.sorted.bam"), path("*.tx.dedup.sorted.bai"), emit: transcriptome_bam
     tuple val(sample_id), path("*.tx.dedup.bed.gz"), emit: transcriptome_bed
 
     script:
