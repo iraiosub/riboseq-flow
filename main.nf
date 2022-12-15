@@ -38,10 +38,10 @@ workflow {
     GENERATE_REFERENCE_INDEX(ch_smallrna_fasta, ch_genome_fasta, ch_genome_gtf)
 
     if (!params.skip_premap) {
-        PREMAP(ch_input, GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index)
-        MAP(PREMAP.out.unmapped, GENERATE_REFERENCE_INDEX.out.genome_star_index)
+        PREMAP(ch_input, GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index.collect())
+        MAP(PREMAP.out.unmapped, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
     } else {
-        MAP(ch_input, GENERATE_REFERENCE_INDEX.out.genome_star_index)
+        MAP(ch_input, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
     }
     
      DEDUPLICATE(MAP.out.aligned_genome, MAP.out.aligned_transcriptome)

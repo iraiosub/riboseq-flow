@@ -136,3 +136,4 @@ dmypy.json
 work/
 data/
 results/
+results_full_test/
