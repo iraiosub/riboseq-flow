@@ -4,8 +4,8 @@
 
 1. [Introduction](#introduction)
 2. [Pipeline summary](#pipeline-summary)
-3. [Quick start (testing)](#quick-start-testing)
-4. [Quick start (running)](#quick-start-running)
+3. [Quick start (test the pipeline)](#quick-start-testing)
+4. [Quick start (run the pipeline)](#quick-start-running)
 5. [Pipeline parameters](#pipeline-parameters)
 6. [Pipeline outputs](#pipeline-outputs)
 
@@ -17,10 +17,10 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 
 1. Adapter and quality trimming ([`Cutadapt`](https://cutadapt.readthedocs.io))
 2. Premapping to remove small RNA mapping reads ([`bowtie2`]())
-3. Mapping to genome and transcriptome ([`STAR`]())
+3. Mapping to the genome and transcriptome ([`STAR`]())
 4. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/))
 
-## Quick start (testing)
+## Quick start (test the pipeline)
 
 1. Ensure `Nextflow` and `Docker` or `Singularity` are installed on your system
 2. Pull the main version of the pipeline from the GitHub repository:
@@ -37,7 +37,7 @@ nextflow run ulelab/riboseq -r dev -profile conda,crick --org GRCh38
 
 4. Review the results
 
-## Quick start (running)
+## Quick start (run the pipeline)
 
 1. Ensure `Nextflow` and `Docker` or `Singularity` are installed on your system
 2. Pull the main version of the pipeline from the GitHub repository:
@@ -46,7 +46,8 @@ nextflow run ulelab/riboseq -r dev -profile conda,crick --org GRCh38
 nextflow pull ulelab/riboseq -r dev
 ```
 
-3. Prepare a `samplesheet.csv` with your sample names and paths to your FASTQ files, following the template:
+3. You will need to create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below.
+
 
 ```
 sample,fastq
@@ -55,7 +56,7 @@ sample2,/path/to/file2.fastq.gz
 sample3,/path/to/file3.fastq.gz
 ```
 
-4. Run the pipeline (the minimum parameters have been specified):
+4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
 nextflow run ulelab/riboseq -r dev \
@@ -66,9 +67,10 @@ nextflow run ulelab/riboseq -r dev \
 
 ## Pipeline parameters
 
-### Profiles
+### Core Nextflow arguments
 
-- `-profile` can be used to specify `test`, `docker`, `singularity` and `crick` depending on the system being used and resources available. Others can be found at [nf-core](https://github.com/nf-core/configs).
+- `-profile`: specifies a configuration profile. Profiles can give configuration presets for different compute environments. Options are `test`, `docker`, `singularity` and `crick` depending on the system being used and resources available. Others can be found at [nf-core](https://github.com/nf-core/configs).
+- `-resume`: specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files'contents as well.
 
 ### General parameters
 
