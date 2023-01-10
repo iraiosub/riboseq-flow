@@ -105,7 +105,6 @@ The pipeline outputs results in a number of subfolders:
 .
 ├── premap
 ├── map
-├── clusters
 ├── deduplicated_genome
 ├── deduplicated_transcriptome
 └── pipeline_info
