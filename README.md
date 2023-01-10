@@ -1,2 +1,2 @@
 # riboseq
-A NextFlow DSL2 pipeline to perform Ribo-seq analysis
+A Nextflow DSL2 pipeline to perform Ribo-seq analysis
