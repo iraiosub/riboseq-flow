@@ -10,9 +10,9 @@ ml Nextflow/21.10.3
 ml Singularity/3.6.4
 ml Graphviz/2.38.0-foss-2016b
 
-GITHUBDIR=/camp/project/proj-luscombe-ule/working/ira-jure/RiboSeq_NextFlow
+nextflow pull ulelab/riboseq -r dev
 
-nextflow run main.nf \
+nextflow run ulelab/riboseq -r dev \
 -profile conda,crick \
 -resume \
 --org GRCh38 \
