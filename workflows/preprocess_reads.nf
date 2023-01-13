@@ -9,10 +9,11 @@ include { UMITOOLS_EXTRACT } from '../modules/umitools.nf'
 process KEEP_RAW_READS {
   
   input:
-  tuple val(sample_id),path(reads)
+  tuple val(sample_id), path(reads)
   
   output:
-
+  tuple val(sample_id), path("${sample_id}.fastq.gz"), emit: fastq
+  
   script:
   """
   mv $reads > ${sample_id}.fastq.gz
@@ -58,7 +59,7 @@ workflow PREPROCESS_READS {
 
     emit:
 
-    ch_reads
+    fastq = ch_reads
 
 }
 

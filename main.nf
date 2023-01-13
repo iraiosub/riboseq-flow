@@ -33,7 +33,7 @@ if(params.org) {
 
     if(!params.fasta ) { exit 1, "--fasta is not specified." } 
     if(!params.gtf ) { exit 1, "--gtf is not specified." } 
-    if(!params.smallrna_fasta && params.premap ) {exit 1, "--smallrna_fasta is not specified." }
+    if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, "--smallrna_fasta is not specified." }
 
 }
 
@@ -43,7 +43,7 @@ ch_genome_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
 ch_genome_fai = Channel.fromPath(params.fai, checkIfExists: true)
 ch_genome_gtf = Channel.fromPath(params.gtf, checkIfExists: true)
 
-if (params.premap) {
+if (!params.skip_premap) {
     ch_smallrna_fasta = Channel.fromPath(params.smallrna_fasta, checkIfExists: true)
     if (ch_smallrna_fasta.isEmpty()) {exit 1, "File provided with --smallrna_fasta is empty: ${ch_smallrna_fasta.getName()}!"}
 }
