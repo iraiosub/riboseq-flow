@@ -25,7 +25,7 @@ process MAP {
 
     script:
     
-    //map_params = params.star_args
+    // map_params = params.star_args
     
     """
     STAR --runThreadN ${task.cpus} \
