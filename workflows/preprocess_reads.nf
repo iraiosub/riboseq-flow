@@ -6,26 +6,26 @@ nextflow.enable.dsl=2
 include { CUTADAPT } from '../modules/cutadapt.nf'
 include { UMITOOLS_EXTRACT } from '../modules/umitools.nf'
 
-process KEEP_RAW_READS {
+// process KEEP_RAW_READS {
 
-    tag "${sample_id}"
-    label 'process_medium'
+//     tag "${sample_id}"
+//     label 'process_medium'
 
-    // publishDir "${params.outdir}/trimmed", mode: 'copy', overwrite: true
+//     // publishDir "${params.outdir}/trimmed", mode: 'copy', overwrite: true
   
-    input:
-        tuple val(sample_id), path(reads)
+//     input:
+//         tuple val(sample_id), path(reads)
   
-    output:
-        tuple val(sample_id), path("*.fastq.gz"), emit: fastq
+//     output:
+//         tuple val(sample_id), path("*.fastq.gz"), emit: fastq
   
-    script:
-    """
-    zcat $reads > ${sample_id}.fastq
-    gzip ${sample_id}.fastq
+//     script:
+//     """
+//     zcat $reads > ${sample_id}.fastq
+//     gzip ${sample_id}.fastq
 
-    """
-}
+//     """
+// }
 
            
 workflow PREPROCESS_READS {
@@ -45,12 +45,8 @@ workflow PREPROCESS_READS {
 
             CUTADAPT(UMITOOLS_EXTRACT.out.fastq)
             ch_reads = CUTADAPT.out.fastq
-        }  else {
-
-            KEEP_RAW_READS(UMITOOLS_EXTRACT.out.fastq)
-            ch_reads = KEEP_RAW_READS.out.fastq
-        }
-
+            
+        }  
     } else {
 
         if (!params.skip_trimming) {
@@ -61,8 +57,10 @@ workflow PREPROCESS_READS {
         }  else {
 
             // keep the reads as they are
-            KEEP_RAW_READS(reads)
-            ch_reads = KEEP_RAW_READS.out.fastq
+            // KEEP_RAW_READS(reads)
+            // ch_reads = KEEP_RAW_READS.out.fastq
+
+            ch_reads = reads
         }
     }
 
