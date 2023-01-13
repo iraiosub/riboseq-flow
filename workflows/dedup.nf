@@ -33,8 +33,8 @@ process DEDUPLICATE_GENOME {
     rm ${sample_id}.unsorted.bam 
     rm ${sample_id}.um.bam
 
-    bam2bed < ${sample_id}.dedup.sorted.bam | cut -f1-3,6 -d "\t" | gzip > ${sample_id}.dedup.bed.gz
- 
+    bam2bed < ${sample_id}.dedup.sorted.bam | cut -f1-3,6 -d "\t" > ${sample_id}.dedup.bed
+    gzip ${sample_id}.dedup.bed
     """
 
 
@@ -71,7 +71,8 @@ process DEDUPLICATE_TRANSCRIPTOME {
     rm ${sample_id}.temp.bai
     rm ${sample_id}.unsorted.bam
 
-    bam2bed < ${sample_id}.tx.dedup.sorted.bam | cut -f1-3,6 -d "\t" | gzip > ${sample_id}.tx.dedup.bed.gz
+    bam2bed < ${sample_id}.tx.dedup.sorted.bam | cut -f1-3,6 -d "\t" > ${sample_id}.tx.dedup.bed
+    gzip ${sample_id}.tx.dedup.bed
     """
 
 }

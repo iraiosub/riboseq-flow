@@ -10,9 +10,9 @@ process MAP {
 
     conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
 
-    publishDir "${params.outdir}/map", pattern: "*.Aligned.sortedByCoord.out.bam", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/map", pattern: "*.Aligned.toTranscriptome.out.bam", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/map", pattern: "*.Log.final.out", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/mapped", pattern: "*.Aligned.sortedByCoord.out.bam", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/mapped", pattern: "*.Aligned.toTranscriptome.out.bam", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/mapped", pattern: "*.Log.final.out", mode: 'copy', overwrite: true
 
     input:
     tuple val(sample_id), path(unmapped)

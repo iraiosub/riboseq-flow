@@ -136,12 +136,12 @@ The pipeline outputs results in a number of subfolders:
 
 ### Files
 
-- `premap` contains files resulting from alignment to the small RNA genome (smallrna_genome):
+- `premapped` contains files resulting from alignment to the small RNA genome (smallrna_genome):
     - `*.bam` contains read alignments to the small RNA genome in BAM format
     - `*.bam.seqs.gz` contains the mapping locations and sequences of reads mapped to the small RNA genome
     - `*.unmapped.fastq.gz` contains the sequencing reads that did not map to the small RNA genome, in FASTQ format
     - `*.premap.log` is the bowtie2 log file
-- `map` contains files resulting from alignment to the genome and transcriptome:
+- `mapped` contains files resulting from alignment to the genome and transcriptome:
     - `*.Aligned.sortedByCoord.out.bam` contains read alignments to the genome in BAM format
     - `*.Aligned.toTranscriptome.out.bam` contains read alignments to the transcriptome in BAM format
     - `*.Log.final.out` is the STAR log output file
