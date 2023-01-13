@@ -12,7 +12,7 @@ process KEEP_RAW_READS {
     tuple val(sample_id), path(reads)
   
   output:
-    tuple val(sample_id), path("${sample_id}.fastq.gz"), emit: fastq
+    tuple val(sample_id), path("*.fastq.gz"), emit: fastq
   
   script:
   """
