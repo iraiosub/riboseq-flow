@@ -19,7 +19,6 @@ process UMITOOLS_EXTRACT {
     args = " --bc-pattern=" + params.umi_pattern
     args += " --extract-method=" + params.umi_extract_method
 
-    def args = task.ext.args ?: ''
     """
     umi_tools \
         extract \
