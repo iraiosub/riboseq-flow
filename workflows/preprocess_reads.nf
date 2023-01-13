@@ -16,8 +16,8 @@ process KEEP_RAW_READS {
   
   script:
   """
-  mv $reads ${sample_id}.fastq.gz
-  # touch instead?
+  zcat $reads > ${sample_id}.fastq
+  gzip ${sample_id}.fastq ${sample_id}.fastq.gz
   """
 }
 
