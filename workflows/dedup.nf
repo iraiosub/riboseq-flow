@@ -33,8 +33,8 @@ process DEDUPLICATE_GENOME {
     rm ${sample_id}.unsorted.bam 
     rm ${sample_id}.um.bam
 
-    bam2bed < ${sample_id}.dedup.sorted.bam | cut -f1-3,6 -d "\t" > ${sample_id}.dedup.bed
-    # bedtools bamtobed -i ${sample_id}.dedup.sorted.bam > ${sample_id}.dedup.bed
+    # bam2bed < ${sample_id}.dedup.sorted.bam | cut -f1-3,6 -d "\t" > ${sample_id}.dedup.bed
+    bedtools bamtobed -i ${sample_id}.dedup.sorted.bam > ${sample_id}.dedup.bed
     gzip ${sample_id}.dedup.bed
     """
 
