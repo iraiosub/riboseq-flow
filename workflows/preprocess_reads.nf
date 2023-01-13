@@ -11,7 +11,7 @@ process KEEP_RAW_READS {
     tag "${sample_id}"
     label 'process_medium'
 
-    publishDir "${params.outdir}/trimmed", mode: 'copy', overwrite: true
+    // publishDir "${params.outdir}/trimmed", mode: 'copy', overwrite: true
   
     input:
         tuple val(sample_id), path(reads)
@@ -21,10 +21,9 @@ process KEEP_RAW_READS {
   
     script:
     """
-    # zcat $reads > ${sample_id}.fastq
-    # gzip ${sample_id}.fastq
+    zcat $reads > ${sample_id}.fastq
+    gzip ${sample_id}.fastq
 
-    echo "works" > ${sample_id}.fastq
     """
 }
 
@@ -62,6 +61,7 @@ workflow PREPROCESS_READS {
         }  else {
 
             // keep the reads as they are
+            KEEP_RAW_READS(reads)
             ch_reads = KEEP_RAW_READS.out.fastq
         }
     }
