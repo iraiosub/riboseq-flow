@@ -49,7 +49,7 @@ if (!params.skip_premap) {
 } else {
 
     // Create empty channel so GENERATE_REFERENCE_INDEX doesn't break
-    ch_smallrna_fasta = Channel.empty()
+    ch_smallrna_fasta = Channel.value()
 }
 // ch_star_index = Channel.fromPath(params.star_index, checkIfExists: true)
 
