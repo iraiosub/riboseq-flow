@@ -21,8 +21,10 @@ process KEEP_RAW_READS {
   
     script:
     """
-    zcat $reads > ${sample_id}.fastq
-    gzip ${sample_id}.fastq
+    # zcat $reads > ${sample_id}.fastq
+    # gzip ${sample_id}.fastq
+
+    echo "works" > ${sample_id}.fastq
     """
 }
 
