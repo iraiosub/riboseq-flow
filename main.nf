@@ -31,9 +31,9 @@ if(params.org) {
 
 }  else {
 
-    if(!params.fasta ) { exit 1, "--fasta is not specified." } 
-    if(!params.gtf ) { exit 1, "--gtf is not specified." } 
-    if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, "--smallrna_fasta is not specified." }
+    if(!params.fasta ) { exit 1, '--fasta is not specified.' } 
+    if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
+    if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, '--smallrna_fasta is not specified.' }
 
 }
 
@@ -71,10 +71,11 @@ workflow {
     if (!params.skip_premap) {
 
         // Premap to the small RNA genome
-        PREMAP(PREPROCESS_READS.out.ch_reads, GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index.collect())
+        PREMAP(PREPROCESS_READS.out.fastq, GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index.collect())
         MAP(PREMAP.out.unmapped, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
+
     } else {
-        MAP(PREPROCESS_READS.out.ch_reads, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
+        MAP(PREPROCESS_READS.out.fastq, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
     }
     
     if (params.with_umi) {
