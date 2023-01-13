@@ -22,7 +22,7 @@ process KEEP_RAW_READS {
     script:
     """
     zcat $reads > ${sample_id}.fastq
-    gzip ${sample_id}.fastq ${sample_id}.fastq.gz
+    gzip ${sample_id}.fastq
     """
 }
 
