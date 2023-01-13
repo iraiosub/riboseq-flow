@@ -79,19 +79,35 @@ workflow GENERATE_REFERENCE_INDEX {
     main:
     
     // Generate small RNA index
-    GENERATE_SMALL_RNA_BOWTIE_INDEX(
-        smallrna_fasta
-    )
 
+    if(!params.skip_premap) {
+        
+        GENERATE_SMALL_RNA_BOWTIE_INDEX(smallrna_fasta)
+        smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
+        
+    } else {
+
+        smallrna_bowtie2_index = Channel.empty()
+    }
+   
     // Generate genome index
-    GENERATE_GENOME_STAR_INDEX(
-        genome_fasta, genome_gtf
-    )
+
+    if (!params.star_index) {
+
+        GENERATE_GENOME_STAR_INDEX(genome_fasta, genome_gtf)
+        genome_star_index = GENERATE_GENOME_STAR_INDEX.out.star_index
+
+    } else {
+
+        genome_star_index = params.star_index
+    }
+
+    
 
     emit:
 
-    smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
-    genome_star_index = GENERATE_GENOME_STAR_INDEX.out.star_index
+    smallrna_bowtie2_index
+    genome_star_index
 
 
 }

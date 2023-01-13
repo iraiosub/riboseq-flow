@@ -31,9 +31,9 @@ if(params.org) {
 
 }  else {
 
-    if(!params.fasta ) { exit 1, "--fasta is not specified." } 
-    if(!params.gtf ) { exit 1, "--gtf is not specified." } 
-    if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, "--smallrna_fasta is not specified." }
+    if(!params.fasta ) { exit 1, '--fasta is not specified.' } 
+    if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
+    if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, '--smallrna_fasta is not specified.' }
 
 }
 
@@ -46,6 +46,10 @@ ch_genome_gtf = Channel.fromPath(params.gtf, checkIfExists: true)
 if (!params.skip_premap) {
     ch_smallrna_fasta = Channel.fromPath(params.smallrna_fasta, checkIfExists: true)
     // if (ch_smallrna_fasta.isEmpty()) {exit 1, "File provided with --smallrna_fasta is empty: ${ch_smallrna_fasta.getName()}!"}
+} else {
+
+    // Create empty channel so GENERATE_REFERENCE_INDEX doesn't break
+    ch_smallrna_fasta = Channel.value()
 }
 // ch_star_index = Channel.fromPath(params.star_index, checkIfExists: true)
 
@@ -67,8 +71,9 @@ workflow {
     if (!params.skip_premap) {
 
         // Premap to the small RNA genome
-        PREMAP(PREPROCESS_READS.out.ch_reads, GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index.collect())
+        PREMAP(PREPROCESS_READS.out.fastq, GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index.collect())
         MAP(PREMAP.out.unmapped, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
+
     } else {
         MAP(PREPROCESS_READS.out.fastq, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
     }
