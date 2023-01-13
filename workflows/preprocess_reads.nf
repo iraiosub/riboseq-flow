@@ -7,18 +7,21 @@ include { CUTADAPT } from '../modules/cutadapt.nf'
 include { UMITOOLS_EXTRACT } from '../modules/umitools.nf'
 
 process KEEP_RAW_READS {
+
+    tag "${sample_id}"
+    label 'process_medium'
   
-  input:
-    tuple val(sample_id), path(reads)
+    input:
+        tuple val(sample_id), path(reads)
   
-  output:
-    tuple val(sample_id), path("*.fastq.gz"), emit: fastq
+    output:
+        tuple val(sample_id), path("*.fastq.gz"), emit: fastq
   
-  script:
-  """
-  zcat $reads > ${sample_id}.fastq
-  gzip ${sample_id}.fastq ${sample_id}.fastq.gz
-  """
+    script:
+    """
+    zcat $reads > ${sample_id}.fastq
+    gzip ${sample_id}.fastq ${sample_id}.fastq.gz
+    """
 }
 
            
