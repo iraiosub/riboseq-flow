@@ -21,6 +21,7 @@ process DEDUPLICATE_GENOME {
     output:
     tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bai"), emit: genome_bam
     tuple val(sample_id), path("*.dedup.bed.gz"), emit: genome_bed
+    tuple val(sample_id), path("*.dedup.bedops.bed"), emit: bedops
 
 
     script:
@@ -33,7 +34,7 @@ process DEDUPLICATE_GENOME {
     rm ${sample_id}.unsorted.bam 
     rm ${sample_id}.um.bam
 
-    # bam2bed < ${sample_id}.dedup.sorted.bam | cut -f1-3,6 -d "\t" > ${sample_id}.dedup.bed
+    bam2bed < ${sample_id}.dedup.sorted.bam | cut -f1-3,6 > ${sample_id}.dedup.bedops.bed
     bedtools bamtobed -i ${sample_id}.dedup.sorted.bam > ${sample_id}.dedup.bed
     gzip ${sample_id}.dedup.bed
     """
@@ -59,6 +60,7 @@ process DEDUPLICATE_TRANSCRIPTOME {
     output:
     tuple val(sample_id), path("*.tx.dedup.sorted.bam"), path("*.tx.dedup.sorted.bai"), emit: transcriptome_bam
     tuple val(sample_id), path("*.tx.dedup.bed.gz"), emit: transcriptome_bed
+    tuple val(sample_id), path("*.tx.dedup.bedops.bed"), emit: bedops
 
     script:
     """
@@ -72,7 +74,7 @@ process DEDUPLICATE_TRANSCRIPTOME {
     rm ${sample_id}.temp.bai
     rm ${sample_id}.unsorted.bam
 
-    # bam2bed < ${sample_id}.tx.dedup.sorted.bam | cut -f1-3,6 -d "\t" > ${sample_id}.tx.dedup.bed
+    bam2bed < ${sample_id}.tx.dedup.sorted.bam | cut -f1-3,6 > ${sample_id}.tx.dedup.bedops.bed
     bedtools bamtobed -i ${sample_id}.tx.dedup.sorted.bam > ${sample_id}.tx.dedup.bed
     gzip ${sample_id}.tx.dedup.bed
     """
