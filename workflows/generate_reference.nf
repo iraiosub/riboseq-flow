@@ -84,6 +84,10 @@ workflow GENERATE_REFERENCE_INDEX {
         
         GENERATE_SMALL_RNA_BOWTIE_INDEX(smallrna_fasta)
         smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
+        
+    } else {
+
+        smallrna_bowtie2_index = Channel.empty()
     }
    
     // Generate genome index

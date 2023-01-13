@@ -74,7 +74,7 @@ workflow {
         PREMAP(PREPROCESS_READS.out.ch_reads, GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index.collect())
         MAP(PREMAP.out.unmapped, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
     } else {
-        MAP(PREPROCESS_READS.out.fastq, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
+        MAP(PREPROCESS_READS.out.ch_reads, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
     }
     
     if (params.with_umi) {
