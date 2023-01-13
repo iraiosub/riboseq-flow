@@ -83,6 +83,7 @@ workflow GENERATE_REFERENCE_INDEX {
     if(!params.skip_premap) {
         
         GENERATE_SMALL_RNA_BOWTIE_INDEX(smallrna_fasta)
+        smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
     }
    
     // Generate genome index
@@ -101,7 +102,7 @@ workflow GENERATE_REFERENCE_INDEX {
 
     emit:
 
-    smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
+    smallrna_bowtie2_index
     genome_star_index
 
 
