@@ -39,7 +39,11 @@ workflow PREPROCESS_READS {
 
             CUTADAPT(UMITOOLS_EXTRACT.out.fastq)
             ch_reads = CUTADAPT.out
-        }  
+        }  else {
+
+            KEEP_RAW_READS(UMITOOLS_EXTRACT.out)
+            ch_reads = KEEP_RAW_READS.out
+        }
 
     } else {
 
@@ -59,7 +63,7 @@ workflow PREPROCESS_READS {
 
     emit:
 
-    fastq = ch_reads
+    ch_reads
 
 }
 
