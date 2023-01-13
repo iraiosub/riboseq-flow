@@ -6,33 +6,11 @@ nextflow.enable.dsl=2
 include { CUTADAPT } from '../modules/cutadapt.nf'
 include { UMITOOLS_EXTRACT } from '../modules/umitools.nf'
 
-// process KEEP_RAW_READS {
-
-//     tag "${sample_id}"
-//     label 'process_medium'
-
-//     // publishDir "${params.outdir}/trimmed", mode: 'copy', overwrite: true
-  
-//     input:
-//         tuple val(sample_id), path(reads)
-  
-//     output:
-//         tuple val(sample_id), path("*.fastq.gz"), emit: fastq
-  
-//     script:
-//     """
-//     zcat $reads > ${sample_id}.fastq
-//     gzip ${sample_id}.fastq
-
-//     """
-// }
-
            
 workflow PREPROCESS_READS {
 
     take:
     reads
-
 
     main:
     
@@ -47,6 +25,11 @@ workflow PREPROCESS_READS {
             ch_reads = CUTADAPT.out.fastq
             
         }  
+
+    } else if (!params.with_umi && !params.skip_umi_extract) {
+
+        error "The reads have no UMI, but UMI extract is enabled! Make sure you provide the appropriate UMI options."
+
     } else {
 
         if (!params.skip_trimming) {
@@ -56,15 +39,9 @@ workflow PREPROCESS_READS {
             
         }  else {
 
-            // keep the reads as they are
-            // KEEP_RAW_READS(reads)
-            // ch_reads = KEEP_RAW_READS.out.fastq
-
             ch_reads = reads
         }
     }
-
-
 
     emit:
 
