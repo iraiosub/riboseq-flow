@@ -16,7 +16,7 @@ process KEEP_RAW_READS {
   
   script:
   """
-  mv $reads > ${sample_id}.fastq.gz
+  mv $reads ${sample_id}.fastq.gz
   # touch instead?
   """
 }
