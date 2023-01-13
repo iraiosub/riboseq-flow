@@ -10,6 +10,8 @@ process KEEP_RAW_READS {
 
     tag "${sample_id}"
     label 'process_medium'
+
+    publishDir "${params.outdir}/trimmed", mode: 'copy', overwrite: true
   
     input:
         tuple val(sample_id), path(reads)

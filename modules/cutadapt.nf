@@ -16,6 +16,7 @@ process CUTADAPT {
         path("*.cutadapt.log"), emit: log
 
     script:
+
     args = " -j ${task.cpus}"
     args += " -a " + params.adapter_threeprime
     args += " -g " + params.adapter_fiveprime
@@ -24,6 +25,17 @@ process CUTADAPT {
     args += " --minimum-length " + params.min_readlength
     args += " -o ${sample_id}.trimmed.fastq.gz"
 
+    // if (params.adapter_threeprime && params.adapter_fiveprime)
+    //     """
+    //     cutadapt $args $reads > ${sample_id}.cutadapt.log
+    //     """
+    // else if (params.adapter_threeprime && !params.adapter_fiveprime)
+    //     """
+    //     cutadapt $args $reads > ${sample_id}.cutadapt.log
+    //     """
+    // else 
+    //     error "No adapter provided"
+    
     """
     cutadapt $args $reads > ${sample_id}.cutadapt.log
     """
