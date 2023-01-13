@@ -33,16 +33,16 @@ workflow PREPROCESS_READS {
     if (params.with_umi && !params.skip_umi_extract) {
 
         UMITOOLS_EXTRACT(reads)
-        ch_reads = UMITOOLS_EXTRACT.out
+        ch_reads = UMITOOLS_EXTRACT.out.fastq
 
         if (!params.skip_trimming) {
 
             CUTADAPT(UMITOOLS_EXTRACT.out.fastq)
-            ch_reads = CUTADAPT.out
+            ch_reads = CUTADAPT.out.fastq
         }  else {
 
-            KEEP_RAW_READS(UMITOOLS_EXTRACT.out)
-            ch_reads = KEEP_RAW_READS.out
+            KEEP_RAW_READS(UMITOOLS_EXTRACT.out.fastq)
+            ch_reads = KEEP_RAW_READS.out.fastq
         }
 
     } else {
@@ -50,12 +50,12 @@ workflow PREPROCESS_READS {
         if (!params.skip_trimming) {
 
             CUTADAPT(reads)
-            ch_reads = CUTADAPT.out
+            ch_reads = CUTADAPT.out.fastq
             
         }  else {
 
             // keep the reads as they are
-            ch_reads = KEEP_RAW_READS.out
+            ch_reads = KEEP_RAW_READS.out.fastq
         }
     }
 
