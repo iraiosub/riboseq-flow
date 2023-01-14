@@ -12,4 +12,4 @@ ml Graphviz/2.38.0-foss-2016b
 
 nextflow pull ulelab/riboseq -r dev
 
-nextflow run ulelab/riboseq -r dev -profile conda,crick -resume --org GRCh38
+nextflow run ulelab/riboseq -r dev -profile conda,crick,test -resume --org GRCh38

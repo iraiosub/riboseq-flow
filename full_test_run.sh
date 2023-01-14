@@ -15,6 +15,9 @@ nextflow pull ulelab/riboseq -r dev
 nextflow run ulelab/riboseq -r dev \
 -profile conda,crick \
 -resume \
+--skip_umi_extract \
+--with_umi \
+--umi_separator = 'rbc:' \
 --org GRCh38 \
---input $GITHUBDIR/data/samplesheet.csv \
---outdir $GITHUBDIR/results_full_test
+--input 'https://github.com/ulelab/riboseq/raw/dev/data/samplesheet.csv' \
+--outdir results_full_test
