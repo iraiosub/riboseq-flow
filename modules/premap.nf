@@ -8,7 +8,7 @@ process PREMAP {
     tag "${sample_id}"
     label 'process_medium'
 
-    conda 'bioconda::bowtie2=2.5.0'
+    conda 'bioconda::bowtie2=2.5.0 bioconda::samtools=1.16.1'
 
     publishDir "${params.outdir}/premapped", pattern: "*.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/premapped", pattern: "*.bam.seqs.gz", mode: 'copy', overwrite: true
