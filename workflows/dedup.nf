@@ -14,7 +14,6 @@ process DEDUPLICATE_GENOME {
     publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.bai", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.bed.gz", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.bedops.bed.gz", mode: 'copy', overwrite: true
 
 
     input:
@@ -23,7 +22,6 @@ process DEDUPLICATE_GENOME {
     output:
     tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bai"), emit: genome_bam
     tuple val(sample_id), path("*.dedup.bed.gz"), emit: genome_bed
-    tuple val(sample_id), path("*.dedup.bedops.bed"), emit: bedops
 
 
     script:
@@ -54,7 +52,6 @@ process DEDUPLICATE_TRANSCRIPTOME {
     publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.sorted.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.sorted.bai", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.bed.gz", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.bedops.bed.gz", mode: 'copy', overwrite: true
 
     input:
     tuple val(sample_id), path(aligned_transcriptome)
@@ -62,7 +59,6 @@ process DEDUPLICATE_TRANSCRIPTOME {
     output:
     tuple val(sample_id), path("*.tx.dedup.sorted.bam"), path("*.tx.dedup.sorted.bai"), emit: transcriptome_bam
     tuple val(sample_id), path("*.tx.dedup.bed.gz"), emit: transcriptome_bed
-    tuple val(sample_id), path("*.tx.dedup.bedops.bed"), emit: bedops
 
     script:
     """
