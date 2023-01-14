@@ -8,7 +8,7 @@ process MAP {
     tag "${sample_id}"
     label 'process_high'
 
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    conda 'bioconda::star=2.7.10a'
 
     publishDir "${params.outdir}/mapped", pattern: "*.Aligned.sortedByCoord.out.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/mapped", pattern: "*.Aligned.toTranscriptome.out.bam", mode: 'copy', overwrite: true

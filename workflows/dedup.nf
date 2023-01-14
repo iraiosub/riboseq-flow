@@ -8,7 +8,8 @@ process DEDUPLICATE_GENOME {
     tag "${sample_id}"
     label 'process_medium'
 
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    // conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    conda 'bioconda::umi_tools=1.1.2 conda bioconda::samtools=1.16.1 bioconda::bedtools=2.30.0'
 
     publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.bai", mode: 'copy', overwrite: true
@@ -48,7 +49,7 @@ process DEDUPLICATE_TRANSCRIPTOME {
     tag "${sample_id}"
     label 'process_medium'
 
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    conda 'bioconda::umi_tools=1.1.2 conda bioconda::samtools=1.16.1 bioconda::bedtools=2.30.0'
 
     publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.sorted.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.sorted.bai", mode: 'copy', overwrite: true

@@ -6,7 +6,10 @@ nextflow.enable.dsl=2
 process UMITOOLS_EXTRACT {
     tag "${sample_id}"
     label "process_low"
-    publishDir "${params.outdir}/umi_extract", mode: 'copy', overwrite: true
+
+    conda 'bioconda::umi_tools=1.1.2'
+
+    // publishDir "${params.outdir}/umi_extract", mode: 'copy', overwrite: true
 
     input:
         tuple val(sample_id), path(reads)

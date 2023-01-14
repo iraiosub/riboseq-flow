@@ -6,6 +6,9 @@ nextflow.enable.dsl=2
 process CUTADAPT {
     tag "${sample_id}"
     label 'process_high'
+
+    conda 'bioconda::cutadapt=4.2'
+
     publishDir "${params.outdir}/trimmed", mode: 'copy', overwrite: true
 
     input:

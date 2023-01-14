@@ -5,12 +5,12 @@ nextflow.enable.dsl=2
 
 process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     tag "$smallrna_fasta"
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
-
+    label 'process_medium'
     // cpus 4
     // memory '16G'
     // time '4h'
-    label 'process_medium'
+
+    conda 'bioconda::bowtie2=2.5.0'
 
     input:
         path(smallrna_fasta)
@@ -29,12 +29,17 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
 
 process GENERATE_GENOME_STAR_INDEX {
     tag "$genome_fasta"
-    conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
-
     label 'process_high'
     // cpus 8
     // memory '64G'
     // time '8h'
+
+    conda 'bioconda::star=2.7.10a'
+
+    if (params.save_reference) {
+
+        publishDir "${params.outdir}/star_index", mode: 'copy', overwrite: true
+    }
 
     input:
     path(genome_fasta)
