@@ -15,12 +15,12 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 
 ## Pipeline summary
 
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. UMI extraction ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/))
-3. Adapter and quality trimming ([`Cutadapt`](https://cutadapt.readthedocs.io))
-4. Premapping to remove small RNA mapping reads ([`bowtie2`]())
+1. UMI extraction ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/)) (Optional)
+2. Adapter and quality trimming ([`Cutadapt`](https://cutadapt.readthedocs.io)) (Optional)
+3. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+4. Premapping to remove small RNA mapping reads ([`bowtie2`]()) (Optional)
 5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
-6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`BEDTools`](https://github.com/arq5x/bedtools2/))
+6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
 7. Extensive quality control ([`R`](https://www.r-project.org/))
 8. Quantification
 
@@ -98,18 +98,18 @@ nextflow run ulelab/riboseq -r dev \
 
 - `--with_umi` enables UMI-based read deduplication
 - `--skip_umi_extract` skips UMI extraction from the read in case UMIs have been moved to the headers in advance
-- `--umi_extract_method` specify method to extract the UMI barcode, either 'string' or 'regex'
+- `--umi_extract_method` specify method to extract the UMI barcode, either `string` or `regex`
 - `--umi_pattern` specifies the UMI barcode pattern
 - `--umi_separator` specifies the UMI barcode separator
 
 ### Read trimming and filtering options
 
 - `--skip_trimming` skip the adapter and quality trimming step
-- `--adapter_threeprime` sequence of 3' adapter (equivalent to -a in `cutadapt`)
+- `--adapter_threeprime` sequence of 3' adapter (equivalent to -a in `cutadapt`) (default: `AGATCGGAAGAGC`)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to -g in `cutadapt`)
-- `--times_trimmed` number of times a read will be adaptor trimmed
-- `--min_readlength` minimum read length after trimming
-- `--min_quality` cutoff value for trimming low-quality ends from reads 
+- `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
+- `--min_readlength` minimum read length after trimming (default `16`)
+- `--min_quality` cutoff value for trimming low-quality ends from reads (default `10`)
 
 
 ### Read alignment options

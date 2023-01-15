@@ -21,25 +21,36 @@ process CUTADAPT {
     script:
 
     args = " -j ${task.cpus}"
-    args += " -a " + params.adapter_threeprime
-    args += " -g " + params.adapter_fiveprime
-    args += " -n " + params.times_trimmed
     args += " -q " + params.min_quality
     args += " --minimum-length " + params.min_readlength
     args += " -o ${sample_id}.trimmed.fastq.gz"
 
-    // if (params.adapter_threeprime && params.adapter_fiveprime)
-    //     """
-    //     cutadapt $args $reads > ${sample_id}.cutadapt.log
-    //     """
-    // else if (params.adapter_threeprime && !params.adapter_fiveprime)
-    //     """
-    //     cutadapt $args $reads > ${sample_id}.cutadapt.log
-    //     """
-    // else 
-    //     error "No adapter provided"
-    
-    """
-    cutadapt $args $reads > ${sample_id}.cutadapt.log
-    """
+    args1 = args + " -n " + params.times_trimmed
+    args1 += " -a " + params.adapter_threeprime
+
+    args2 = args + " -n " + params.times_trimmed
+    args2 += " -a " + params.adapter_fiveprime
+
+    if (params.adapter_fiveprime && params.adapter_fiveprime) {
+        args3 = args + " -g " + params.adapter_fiveprime
+        args3 += " -a " + params.adapter_fiveprime
+        args3 += " -n " + params.times_trimmed + 1
+    }
+
+
+    if (params.adapter_threeprime && params.adapter_fiveprime)
+        """
+        cutadapt $args3 $reads > ${sample_id}.cutadapt.log
+        """
+    else if (params.adapter_threeprime && !params.adapter_fiveprime)
+        """
+        cutadapt $args1 $reads > ${sample_id}.cutadapt.log
+        """
+    else if (params.adapter_threeprime && !params.adapter_fiveprime)
+        """
+        cutadapt $args2 $reads > ${sample_id}.cutadapt.log
+        """
+    else 
+        error "Read trimming is enabled, but adapter sequence is missing"
+
 }

@@ -19,6 +19,11 @@ if (!params.input) {
 }
 
 
+// Check if genome exists in the config file
+if (params.org  && !params.genomes.containsKey(params.org)) {
+    exit 1, "The provided genome '${params.org}' is not available. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
+}
+
 // Genome variables
 
 if(params.org) {
@@ -51,11 +56,12 @@ if (!params.skip_premap) {
     // Create empty channel so GENERATE_REFERENCE_INDEX doesn't break
     ch_smallrna_fasta = Channel.value()
 }
-// ch_star_index = Channel.fromPath(params.star_index, checkIfExists: true)
+
 
 
 include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
 include { PREPROCESS_READS } from './workflows/preprocess_reads.nf'
+include { FASTQC } from './modules/fastqc.nf'
 include { PREMAP } from './modules/premap.nf'
 include { MAP } from './modules/map.nf'
 include { DEDUPLICATE } from './workflows/dedup.nf'
@@ -67,6 +73,7 @@ workflow {
 
     // Extract UMIs and/or trim adapters
     PREPROCESS_READS(ch_input)
+    FASTQC(PREPROCESS_READS.out.fastq)
 
     if (!params.skip_premap) {
 
