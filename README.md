@@ -18,9 +18,9 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 1. UMI extraction ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/)) (Optional)
 2. Adapter and quality trimming ([`Cutadapt`](https://cutadapt.readthedocs.io)) (Optional)
 3. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-4. Premapping to remove small RNA mapping reads ([`bowtie2`]()) (Optional)
-5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
-6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
+4. Premapping to remove small RNA mapping reads ([`bowtie2`](), [`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/)) (Optional)
+5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR)))
+6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/), [`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
 7. Extensive quality control ([`R`](https://www.r-project.org/))
 8. Quantification
 
