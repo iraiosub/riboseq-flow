@@ -19,14 +19,15 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 2. Adapter and quality trimming ([`Cutadapt`](https://cutadapt.readthedocs.io)) (Optional)
 3. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 4. Premapping to remove small RNA mapping reads ([`bowtie2`](), [`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/)) (Optional)
-5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR)))
+5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR))
 6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/), [`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
 7. Extensive quality control ([`R`](https://www.r-project.org/))
 8. Quantification
 
 ## Quick start (test the pipeline with a minimal dataset)
 
-1. Ensure `Nextflow` and `Docker` or `Singularity` are installed on your system
+1. Ensure `Nextflow` and `Docker`/`Singularity`/`Conda` are installed on your system.
+
 **Note:** The pipeline has so far been tested on the Crick HPC (CAMP) with Nextflow version `21.10.3`.
 
 2. Pull the main version of the pipeline from the GitHub repository:
@@ -38,12 +39,12 @@ nextflow pull ulelab/riboseq -r dev
 3. Run the pipeline on the provided test dataset:
 
 ```
-nextflow run ulelab/riboseq -r dev -profile conda,crick,test
+nextflow run ulelab/riboseq -r dev -profile test,conda,crick
 ```
 
 4. Review the results
 
-**Note:** The test can easily be ran using the script [`run.sh`](https://github.com/ulelab/riboseq/blob/dev/run.sh) provided.
+**Note:** The test can conveniently be run using the script [`run.sh`](https://github.com/ulelab/riboseq/blob/dev/run.sh) provided.
 
 
 ## Quick start (run the pipeline)
