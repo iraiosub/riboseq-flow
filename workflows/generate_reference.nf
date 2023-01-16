@@ -34,7 +34,7 @@ process GENERATE_GENOME_STAR_INDEX {
     // memory '64G'
     // time '8h'
 
-    conda 'bioconda::star=2.7.10a'
+    conda 'bioconda::star=2.7.10a bioconda::samtools=1.16.1 conda-forge::gawk=5.1.0'
 
     if (params.save_reference) {
 
@@ -56,7 +56,7 @@ process GENERATE_GENOME_STAR_INDEX {
 
     """
     samtools faidx $genome_fasta
-    NUM_BASES=`awk '{sum = sum + \$2}END{if ((log(sum)/log(2))/2 - 1 > 14) {printf "%.0f", 14} else {printf "%.0f", (log(sum)/log(2))/2 - 1}}' ${genome_fasta}.fai`
+    NUM_BASES=`gawk '{sum = sum + \$2}END{if ((log(sum)/log(2))/2 - 1 > 14) {printf "%.0f", 14} else {printf "%.0f", (log(sum)/log(2))/2 - 1}}' ${genome_fasta}.fai`
     
     mkdir star_index
     STAR \\
