@@ -28,11 +28,11 @@ process PREMAP {
 
     script:
 
-    map_params = params.bowtie2_args
+    args = params.bowtie2_args
 
     
     """
-    bowtie2 $map_params \
+    bowtie2 $args \
         -U $reads \
         -p ${task.cpus} \
         -x ${smallrna_index[0].simpleName}  \

@@ -25,7 +25,7 @@ process MAP {
 
     script:
     
-    // map_params = params.star_args
+    args = params.star_args
     
     """
     STAR --runThreadN ${task.cpus} \
@@ -42,7 +42,8 @@ process MAP {
     --alignEndsType EndToEnd \
     --quantMode TranscriptomeSAM \
     --outSAMattributes Standard \
-    --quantTranscriptomeBan Singleend
+    --quantTranscriptomeBan Singleend \
+    $args
     
     """
 
