@@ -17,6 +17,7 @@ nextflow run ulelab/riboseq -r dev \
 -resume \
 --skip_umi_extract \
 --with_umi \
+--skip_trimming \
 --umi_separator = 'rbc:' \
 --org GRCh38 \
 --input ./data/samplesheet.csv \
