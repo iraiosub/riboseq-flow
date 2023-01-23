@@ -3,75 +3,9 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-process DEDUPLICATE_GENOME {
+include { UMITOOLS_DEDUPLICATE as DEDUPLICATE_GENOME } from '../modules/umitools.nf' addParams(dedup_mode: params.dedup_genome)
+include { UMITOOLS_DEDUPLICATE as DEDUPLICATE_TRANSCRIPTOME } from '../modules/umitools.nf' addParams(dedup_mode: params.dedup_transcriptome)
 
-    tag "${sample_id}"
-    label 'process_medium'
-
-    // conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
-    conda 'bioconda::umi_tools=1.1.2 conda bioconda::samtools=1.16.1 bioconda::bedtools=2.30.0'
-
-    publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.bai", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated_genome", pattern: "*.dedup.bed.gz", mode: 'copy', overwrite: true
-
-
-    input:
-    tuple val(sample_id), path(aligned_genome)
-
-    output:
-    tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bai"), emit: genome_bam
-    tuple val(sample_id), path("*.dedup.bed.gz"), emit: genome_bed
-
-
-    script:
-
-    """
-    # samtools view -q 20 -h $aligned_genome > ${sample_id}.um.bam  # -q 20 is probably unnecessary as we don't allow multimapping reads.
-    
-    umi_tools dedup --umi-separator ${params.umi_separator} -I $aligned_genome -S ${sample_id}.unsorted.bam
-    samtools sort -@ ${task.cpus} ${sample_id}.unsorted.bam > ${sample_id}.dedup.sorted.bam
-    samtools index ${sample_id}.dedup.sorted.bam > ${sample_id}.dedup.sorted.bai
-
-    # bam2bed < ${sample_id}.dedup.sorted.bam | cut -f1-3,6 > ${sample_id}.dedup.bedops.bed
-    bedtools bamtobed -i ${sample_id}.dedup.sorted.bam | bedtools sort > ${sample_id}.dedup.bed
-    gzip ${sample_id}.dedup.bed
-    """
-
-
-}
-
-process DEDUPLICATE_TRANSCRIPTOME {
-
-    tag "${sample_id}"
-    label 'process_medium'
-
-    conda 'bioconda::umi_tools=1.1.2 conda bioconda::samtools=1.16.1 bioconda::bedtools=2.30.0'
-
-    publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.sorted.bam", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.sorted.bai", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated_transcriptome", pattern: "*.tx.dedup.bed.gz", mode: 'copy', overwrite: true
-
-    input:
-    tuple val(sample_id), path(aligned_transcriptome)
-
-    output:
-    tuple val(sample_id), path("*.tx.dedup.sorted.bam"), path("*.tx.dedup.sorted.bai"), emit: transcriptome_bam
-    tuple val(sample_id), path("*.tx.dedup.bed.gz"), emit: transcriptome_bed
-
-    script:
-    """
-    
-    umi_tools dedup --umi-separator 'rbc:' -I $aligned_transcriptome -S ${sample_id}.unsorted.bam
-    samtools sort -@ ${task.cpus} ${sample_id}.unsorted.bam > ${sample_id}.tx.dedup.sorted.bam
-    samtools index ${sample_id}.tx.dedup.sorted.bam > ${sample_id}.tx.dedup.sorted.bai
-
-    # bam2bed < ${sample_id}.tx.dedup.sorted.bam | cut -f1-3,6 > ${sample_id}.tx.dedup.bedops.bed
-    bedtools bamtobed -i ${sample_id}.tx.dedup.sorted.bam | bedtools sort > ${sample_id}.tx.dedup.bed
-    gzip ${sample_id}.tx.dedup.bed
-    """
-
-}
 
 // Remove duplicate reads from BAM file based on UMIs
 
@@ -105,11 +39,6 @@ workflow DEDUPLICATE {
 
 }
 
-
-// // Co-ordinate sort, index and run stats on transcriptome BAM
-//             BAM_SORT_SAMTOOLS (
-//                 ch_transcriptome_bam
-//             )
 
 // 
 //             DEDUP_UMI_UMITOOLS_TRANSCRIPTOME (

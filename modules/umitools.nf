@@ -31,3 +31,43 @@ process UMITOOLS_EXTRACT {
         -L ${sample_id}.umi_extract.log
     """
 }
+
+
+process UMITOOLS_DEDUPLICATE {
+
+    tag "${sample_id}"
+    label 'process_medium'
+
+    // conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
+    conda 'bioconda::umi_tools=1.1.2 conda bioconda::samtools=1.16.1 bioconda::bedtools=2.30.0'
+
+    publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.bai", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.bed.gz", mode: 'copy', overwrite: true
+
+
+    input:
+    tuple val(sample_id), path(bam)
+
+    output:
+    tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bai"), emit: dedup_bam
+    tuple val(sample_id), path("*.dedup.bed.gz"), emit: genome_bed
+
+
+    script:
+
+    suffix = params.dedup_mode
+
+    """
+    # samtools view -q 20 -h $aligned_genome > ${sample_id}.um.bam  # -q 20 is probably unnecessary as we don't allow multimapping reads.
+    
+    umi_tools dedup --umi-separator ${params.umi_separator} -I $bam -S ${sample_id}.$suffix.dedup.unsorted.bam
+    samtools sort -@ ${task.cpus} ${sample_id}.$suffix.dedup.unsorted.bam > ${sample_id}.$suffix.dedup.sorted.bam
+    samtools index ${sample_id}.$suffix.dedup.sorted.bam > ${sample_id}.$suffix.dedup.sorted.bai
+
+    bedtools bamtobed -i ${sample_id}.$suffix.dedup.sorted.bam | bedtools sort > ${sample_id}.$suffix.dedup.bed
+    gzip ${sample_id}.$suffix.dedup.bed
+    """
+
+
+}
