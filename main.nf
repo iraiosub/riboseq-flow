@@ -58,13 +58,13 @@ if (!params.skip_premap) {
 }
 
 
-
 include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
 include { PREPROCESS_READS } from './workflows/preprocess_reads.nf'
 include { FASTQC } from './modules/fastqc.nf'
 include { PREMAP } from './modules/premap.nf'
 include { MAP } from './modules/map.nf'
 include { DEDUPLICATE } from './workflows/dedup.nf'
+include { MAPPING_LENGTH_ANALYSES } from './workflows/mapping_length_analyses.nf'
 
 workflow {
 
@@ -88,6 +88,12 @@ workflow {
     if (params.with_umi) {
         // Remove duplicate reads from BAM file based on UMIs
         DEDUPLICATE(MAP.out.aligned_genome, MAP.out.aligned_transcriptome)
+    }
+
+
+    if (!params.skip_qc) {
+    // Mapping length analysis
+    MAPPING_LENGTH_ANALYSES(MAP.out.aligned_genome.join(PREPROCESS_READS).join(DEDUPLICATE.out.dedup_genome_bam.join(PREMAP.out.unmapped)))
     }
 
     // Count reads from BAM alignments

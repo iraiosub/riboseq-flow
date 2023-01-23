@@ -121,7 +121,7 @@ If `--org` is not specified, the user must provide paths to all required annotat
 - `--min_quality` cutoff value for trimming low-quality ends from reads (default `20`)
 
 If you prepared your library using a TS (template-switch protocol) you may use the convenience option
-- `--ts_trimming` which will automatically trim the poly-A from the 3'end of reads, and the first 3 nucleotides corresponding to rGrGrG, without the need for the user to specify the adapter sequences. 
+- `--ts_trimming` which automatically trims the poly-A from the 3'end of reads, and the first 3 nucleotides corresponding to rGrGrG, without the need for the user to specify the adapter sequences. 
 
 
 ### Read alignment options
