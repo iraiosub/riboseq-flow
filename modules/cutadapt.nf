@@ -31,10 +31,16 @@ process CUTADAPT {
     args2 = args + " -n " + params.times_trimmed
     args2 += " -g " + params.adapter_fiveprime
 
-    if (params.adapter_fiveprime && params.adapter_fiveprime && params.times_trimmed < 2) {
+    if (params.adapter_fiveprime && params.adapter_fiveprime) {
         args3 = args + " -g " + params.adapter_fiveprime
         args3 += " -a " + params.adapter_threeprime
-        args3 += " -n " + params.times_trimmed + 1
+
+        if (params.times_trimmed < 2) {
+            args3 += " -n " + params.times_trimmed + 1
+        } else {
+            args3 += " -n " + params.times_trimmed
+        
+        }
     }
     
     if (params.ts_trimming) {
