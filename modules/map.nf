@@ -8,10 +8,10 @@ process MAP {
     tag "${sample_id}"
     label 'process_high'
 
-    conda 'bioconda::star=2.7.10a'
+    conda 'bioconda::star=2.7.10a bioconda::samtools=1.16.1'
 
-    publishDir "${params.outdir}/mapped", pattern: "*.Aligned.sortedByCoord.out.bam", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/mapped", pattern: "*.Aligned.toTranscriptome.out.bam", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/mapped", pattern: "*.Aligned.sortedByCoord.out.ba*", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/mapped", pattern: "*.Aligned.toTranscriptome.out.ba*", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/mapped", pattern: "*.Log.final.out", mode: 'copy', overwrite: true
 
     input:
@@ -20,7 +20,7 @@ process MAP {
 
     output:
     tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), emit: aligned_genome
-    tuple val(sample_id), path("*.Aligned.toTranscriptome.out.bam"), emit: aligned_transcriptome
+    tuple val(sample_id), path("*.Aligned.toTranscriptome.sorted.out.bam"), emit: aligned_transcriptome
     path("*.Log.final.out"), emit: log
 
     script:
@@ -44,6 +44,12 @@ process MAP {
     --outSAMattributes Standard \
     --quantTranscriptomeBan Singleend \
     $args
+
+    samtools index -@ ${task.cpus} ${sample_id}.Aligned.sortedByCoord.out.bam
+    samtools sort -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.out.bam > ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
+    # rm ${sample_id}.Aligned.toTranscriptome.out.bam
+
+    samtools index -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
     
     """
 

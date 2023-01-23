@@ -27,12 +27,11 @@ process DEDUPLICATE_GENOME {
     script:
 
     """
-    samtools view -q 20 -h $aligned_genome > ${sample_id}.um.bam  # -q 20 is probably unnecessary as we don't allow multimapping reads.
-    umi_tools dedup --umi-separator ${params.umi_separator} -I ${sample_id}.um.bam -S ${sample_id}.unsorted.bam
+    # samtools view -q 20 -h $aligned_genome > ${sample_id}.um.bam  # -q 20 is probably unnecessary as we don't allow multimapping reads.
+    
+    umi_tools dedup --umi-separator ${params.umi_separator} -I $aligned_genome -S ${sample_id}.unsorted.bam
     samtools sort -@ ${task.cpus} ${sample_id}.unsorted.bam > ${sample_id}.dedup.sorted.bam
     samtools index ${sample_id}.dedup.sorted.bam > ${sample_id}.dedup.sorted.bai
-    rm ${sample_id}.unsorted.bam 
-    rm ${sample_id}.um.bam
 
     # bam2bed < ${sample_id}.dedup.sorted.bam | cut -f1-3,6 > ${sample_id}.dedup.bedops.bed
     bedtools bamtobed -i ${sample_id}.dedup.sorted.bam | bedtools sort > ${sample_id}.dedup.bed
@@ -62,15 +61,10 @@ process DEDUPLICATE_TRANSCRIPTOME {
 
     script:
     """
-    samtools sort -@ ${task.cpus} $aligned_transcriptome > ${sample_id}.temp.bam
-    samtools index ${sample_id}.temp.bam > ${sample_id}.temp.bai
     
-    umi_tools dedup --umi-separator 'rbc:' -I ${sample_id}.temp.bam -S ${sample_id}.unsorted.bam
+    umi_tools dedup --umi-separator 'rbc:' -I $aligned_transcriptome -S ${sample_id}.unsorted.bam
     samtools sort -@ ${task.cpus} ${sample_id}.unsorted.bam > ${sample_id}.tx.dedup.sorted.bam
     samtools index ${sample_id}.tx.dedup.sorted.bam > ${sample_id}.tx.dedup.sorted.bai
-    rm ${sample_id}.temp.bam
-    rm ${sample_id}.temp.bai
-    rm ${sample_id}.unsorted.bam
 
     # bam2bed < ${sample_id}.tx.dedup.sorted.bam | cut -f1-3,6 > ${sample_id}.tx.dedup.bedops.bed
     bedtools bamtobed -i ${sample_id}.tx.dedup.sorted.bam | bedtools sort > ${sample_id}.tx.dedup.bed

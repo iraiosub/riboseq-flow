@@ -35,6 +35,7 @@ process GENERATE_GENOME_STAR_INDEX {
     // time '8h'
 
     conda 'bioconda::star=2.7.10a bioconda::samtools=1.16.1 conda-forge::gawk=5.1.0'
+    // container 'quay.io/biocontainers/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:a7908dfb0485a80ca94e4d17b0ac991532e4e989-0'
 
     if (params.save_reference) {
 
