@@ -29,28 +29,38 @@ process CUTADAPT {
     args1 += " -a " + params.adapter_threeprime
 
     args2 = args + " -n " + params.times_trimmed
-    args2 += " -a " + params.adapter_fiveprime
+    args2 += " -g " + params.adapter_fiveprime
 
-    if (params.adapter_fiveprime && params.adapter_fiveprime) {
+    if (params.adapter_fiveprime && params.adapter_fiveprime && params.times_trimmed < 2) {
         args3 = args + " -g " + params.adapter_fiveprime
-        args3 += " -a " + params.adapter_fiveprime
+        args3 += " -a " + params.adapter_threeprime
         args3 += " -n " + params.times_trimmed + 1
     }
+    
+    if (params.ts_trimming) {
+        ts_args = args + " -a " + params.ts_adapter_threeprime
+        ts_args +=  " -u " + trim_polyG
+        ts_args += " -n " + params.times_trimmed
+    }
 
-
-    if (params.adapter_threeprime && params.adapter_fiveprime)
+    if (params.ts_trimming)
+        """
+        cutadapt $ts_args $reads > ${sample_id}.cutadapt.log
+        """
+    else if (params.adapter_threeprime && params.adapter_fiveprime && !params.ts_trimming)
         """
         cutadapt $args3 $reads > ${sample_id}.cutadapt.log
         """
-    else if (params.adapter_threeprime && !params.adapter_fiveprime)
+    else if (params.adapter_threeprime && !params.adapter_fiveprime && !params.ts_trimming)
         """
         cutadapt $args1 $reads > ${sample_id}.cutadapt.log
         """
-    else if (params.adapter_threeprime && !params.adapter_fiveprime)
+    else if (params.adapter_threeprime && !params.adapter_fiveprime && !params.ts_trimming)
         """
         cutadapt $args2 $reads > ${sample_id}.cutadapt.log
         """
     else 
         error "Read trimming is enabled, but adapter sequence is missing"
+
 
 }

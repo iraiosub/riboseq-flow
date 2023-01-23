@@ -117,8 +117,11 @@ If `--org` is not specified, the user must provide paths to all required annotat
 - `--adapter_threeprime` sequence of 3' adapter (equivalent to -a in `cutadapt`) (default: `AGATCGGAAGAGC`)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to -g in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
-- `--min_readlength` minimum read length after trimming (default `16`)
-- `--min_quality` cutoff value for trimming low-quality ends from reads (default `10`)
+- `--min_readlength` minimum read length after trimming (default `20`)
+- `--min_quality` cutoff value for trimming low-quality ends from reads (default `20`)
+
+If you prepared your library using a TS (template-switch protocol) you may use the convenience option
+- `--ts_trimming` which will automatically trim the poly-A from the 3'end of reads, and the first 3 nucleotides corresponding to rGrGrG, without the need for the user to specify the adapter sequences. 
 
 
 ### Read alignment options
