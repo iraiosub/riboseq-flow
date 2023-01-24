@@ -13,7 +13,7 @@ process MAPPING_LENGTH_ANALYSIS {
     publishDir "${params.outdir}/mapping_length_analysis", pattern: "*.csv", mode: 'copy', overwrite: true
     
     input:
-    tuple val(sample_id), path(bam), path(fastq) // before deduplication; need to use join in the workflow to make sure samples arevmatched by ID!
+    tuple val(sample_id), path(bam), path(bai), path(fastq) // before deduplication; need to use join in the workflow to make sure samples arevmatched by ID! .bai not required, but necessary to keep cardinality
 
     output:
     tuple val(sample_id), path("*.csv"), emit: length_analysis
