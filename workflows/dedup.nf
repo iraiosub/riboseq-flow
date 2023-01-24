@@ -30,12 +30,12 @@ workflow DEDUPLICATE {
     emit:
 
     // Genome dedup
-    dedup_genome_bam = DEDUPLICATE_GENOME.out.genome_bam
-    dedup_genome_bed = DEDUPLICATE_GENOME.out.genome_bed
+    dedup_genome_bam = DEDUPLICATE_GENOME.out.dedup_bam
+    dedup_genome_bed = DEDUPLICATE_GENOME.out.dedup_bed
 
     // Transcriptome dedup
-    dedup_transcriptome_bam = DEDUPLICATE_TRANSCRIPTOME.out.transcriptome_bam
-    dedup_transcriptome_bed = DEDUPLICATE_TRANSCRIPTOME.out.transcriptome_bed
+    dedup_transcriptome_bam = DEDUPLICATE_TRANSCRIPTOME.out.dedup_bam
+    dedup_transcriptome_bed = DEDUPLICATE_TRANSCRIPTOME.out.dedup_bed
 
 }
 

@@ -51,7 +51,7 @@ process UMITOOLS_DEDUPLICATE {
 
     output:
     tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bai"), emit: dedup_bam
-    tuple val(sample_id), path("*.dedup.bed.gz"), emit: genome_bed
+    tuple val(sample_id), path("*.dedup.bed.gz"), emit: dedup_bed
 
 
     script:

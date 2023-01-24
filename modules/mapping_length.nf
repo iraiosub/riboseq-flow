@@ -8,7 +8,7 @@ process MAPPING_LENGTH_ANALYSIS {
     tag "${sample_id}"
     label 'process_high'
 
-    conda '???python 3 + '
+    conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
 
     publishDir "${params.outdir}/mapping_length_analysis", pattern: "*.Aligned.sortedByCoord.out.ba*", mode: 'copy', overwrite: true
     
