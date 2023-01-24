@@ -12,19 +12,20 @@ include { UMITOOLS_DEDUPLICATE as DEDUPLICATE_TRANSCRIPTOME } from '../modules/u
 workflow DEDUPLICATE {
 
     take:
-    aligned_genome
-    aligned_transcriptome
+    genome_bam
+    transcriptome_bam
 
     main:
 
     // Deduplication of sequences aligned to genome
     DEDUPLICATE_GENOME(
-        aligned_genome
+        genome_bam
+        
     )
 
     // Deduplication of sequences aligned to transcriptome
     DEDUPLICATE_TRANSCRIPTOME(
-        aligned_transcriptome
+        transcriptome_bam
     )
 
     emit:

@@ -11,7 +11,7 @@ process MAP {
     conda 'bioconda::star=2.7.10a bioconda::samtools=1.16.1'
 
     publishDir "${params.outdir}/mapped", pattern: "*.Aligned.sortedByCoord.out.ba*", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/mapped", pattern: "*.Aligned.toTranscriptome.out.ba*", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/mapped", pattern: "*.Aligned.toTranscriptome.sorted.out.ba*", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/mapped", pattern: "*.Log.final.out", mode: 'copy', overwrite: true
 
     input:
@@ -19,8 +19,8 @@ process MAP {
     path(genome_star_index)
 
     output:
-    tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), path("*.Aligned.sortedByCoord.out.bam.bai"), emit: aligned_genome
-    tuple val(sample_id), path("*.Aligned.toTranscriptome.sorted.out.bam"), path("*.Aligned.toTranscriptome.sorted.out.bam.bai"), emit: aligned_transcriptome
+    tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), path("*.Aligned.sortedByCoord.out.bam.bai"), emit: genome_bam
+    tuple val(sample_id), path("*.Aligned.toTranscriptome.sorted.out.bam"), path("*.Aligned.toTranscriptome.sorted.out.bam.bai"), emit: transcriptome_bam
     path("*.Log.final.out"), emit: log
 
     script:
