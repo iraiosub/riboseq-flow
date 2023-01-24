@@ -25,7 +25,6 @@ if (params.org  && !params.genomes.containsKey(params.org)) {
 }
 
 // Genome variables
-
 if(params.org) {
 
     params.fasta = params.genomes[ params.org ].fasta
@@ -92,11 +91,12 @@ workflow {
 
 
     if (!params.skip_qc) {
-    // Mapping length analysis
-    MAPPING_LENGTH_ANALYSES(MAP.out.genome_bam, PREPROCESS_READS.out.fastq, DEDUPLICATE.out.dedup_genome_bam, PREMAP.out.unmapped)
+        // Mapping length analysis
+        MAPPING_LENGTH_ANALYSES(MAP.out.genome_bam, PREPROCESS_READS.out.fastq, DEDUPLICATE.out.dedup_genome_bam, PREMAP.out.unmapped)
     }
 
     // Count reads from BAM alignments
+
 }
 
 
