@@ -10,7 +10,7 @@ process MAPPING_LENGTH_ANALYSIS {
 
     conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
 
-    publishDir "${params.outdir}/mapping_length_analysis", pattern: "*.Aligned.sortedByCoord.out.ba*", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/mapping_length_analysis", pattern: "*.csv", mode: 'copy', overwrite: true
     
     input:
     tuple val(sample_id), path(bam), path(fastq) // before deduplication; need to use join in the workflow to make sure samples arevmatched by ID!
