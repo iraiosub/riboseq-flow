@@ -8,6 +8,11 @@ include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP } from 
 include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP } from '../modules/mapping_length.nf' addParams(length_analysis_type: params.after_premap_length_analysis)
 
 
+ch_names = Channel
+            .fromPath( params.input )
+            .splitCsv(header:true)
+            .map { row -> [ row.sample ] }
+
 // Remove duplicate reads from BAM file based on UMIs
 
 workflow MAPPING_LENGTH_ANALYSES {
@@ -25,7 +30,7 @@ workflow MAPPING_LENGTH_ANALYSES {
 
     if (params.with_umi) {
 
-        MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP(dedup_bam).join(Channel.empty())
+        MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP(dedup_bam).join(ch_names)
         after_dedup_length_analysis = MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP.out.length_analysis
         
     } else {
