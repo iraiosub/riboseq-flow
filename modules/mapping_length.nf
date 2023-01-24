@@ -24,10 +24,10 @@ process MAPPING_LENGTH_ANALYSIS {
 
     if (analysis_type == 'after_dedup') 
         """
-        python3 mapping_length_analysis.py -b $bam -o ${sample_id}.$analysis_type.csv
+        python3 mapping_length_analysis.py -b $bam -o ${sample_id}.${analysis_type}.csv
         """
     else
         """
-        python3 mapping_length_analysis.py -f $fastq -b $bam -o ${sample_id}.$analysis_type.csv
+        python3 mapping_length_analysis.py -f $fastq -b $bam -o ${sample_id}.${analysis_type}.csv
         """
 }
