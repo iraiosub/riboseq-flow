@@ -93,7 +93,7 @@ workflow {
 
     if (!params.skip_qc) {
     // Mapping length analysis
-    MAPPING_LENGTH_ANALYSES(((MAP.out.aligned_genome.join(PREPROCESS_READS)).join(DEDUPLICATE.out.dedup_genome_bam).join(PREMAP.out.unmapped)))
+    MAPPING_LENGTH_ANALYSES(MAP.out.aligned_genome.join(PREPROCESS_READS.out.fastq).join(DEDUPLICATE.out.dedup_genome_bam.join(PREMAP.out.unmapped)))
     }
 
     // Count reads from BAM alignments
