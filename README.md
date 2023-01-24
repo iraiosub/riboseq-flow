@@ -21,8 +21,8 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 4. Premapping to remove small RNA mapping reads ([`bowtie2`](), [`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/)) (Optional)
 5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR))
 6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/), [`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
-7. Extensive quality control ([`R`](https://www.r-project.org/))
-8. Quantification
+7. Extensive quality control ([`mapping_length_analysis`](https://pypi.org/project/mapping-length-analysis/),[`R`](https://www.r-project.org/))
+8. Gene-level RPF quantification
 
 ## Quick start (test the pipeline with a minimal dataset)
 
@@ -159,10 +159,10 @@ The pipeline outputs results in a number of subfolders:
     - `*.Aligned.toTranscriptome.out.bam` contains read alignments to the transcriptome in BAM format
     - `*.Log.final.out` is the STAR log output file
 - `deduplicated` contains files resulting after deduplication based on genomic or transcriptomic location and UMIs:
-    - `*.dedup.sorted.bam` contains the UMI deduplicated alignments to the genome in BAM format
-    - `*.dedup.bed.gz` contains the the UMI deduplicated alignments to the genome in BED format
-    - `*.dedup.sorted.bam` contains the UMI deduplicated alignments to the transcriptome in BAM format
-    - `*.dedup.bed.gz` contains the the UMI deduplicated alignments to the transcriptomie in BED format
+    - `*.genome.dedup.sorted.bam` contains the UMI deduplicated alignments to the genome in BAM format
+    - `*.genome.dedup.bed.gz` contains the the UMI deduplicated alignments to the genome in BED format
+    - `*.transcriptome.dedup.sorted.bam` contains the UMI deduplicated alignments to the transcriptome in BAM format
+    - `*.transcriptome.dedup.bed.gz` contains the the UMI deduplicated alignments to the transcriptomie in BED format
 - `mapping_length_analysis` contains csv files with number of raw and mapped reads by length:
     - `*.after_premap.csv` 
     - `*.before_dedup.csv` 
