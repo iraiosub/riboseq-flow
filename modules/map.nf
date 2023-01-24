@@ -19,7 +19,7 @@ process MAP {
     path(genome_star_index)
 
     output:
-    tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), path("*.Aligned.sortedByCoord.out.bai"), emit: aligned_genome
+    tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), path("*.Aligned.sortedByCoord.out.bam.bai"), emit: aligned_genome
     tuple val(sample_id), path("*.Aligned.toTranscriptome.sorted.out.bam"), path("*.Aligned.toTranscriptome.sorted.out.bam.bai"), emit: aligned_transcriptome
     path("*.Log.final.out"), emit: log
 
