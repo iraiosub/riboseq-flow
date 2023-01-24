@@ -21,27 +21,27 @@ workflow MAPPING_LENGTH_ANALYSES {
 
     main:
 
-    MAPPING_LENGTH_ANALYSIS_BEFORE_DEDUP(bam, reads)
+    MAPPING_LENGTH_ANALYSIS_BEFORE_DEDUP(bam.join(reads))
 
     if (params.with_umi) {
 
-        MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP(dedup_bam, Channel.value())
+        MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP(dedup_bam, Channel.empty())
         after_dedup_length_analysis = MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP.out.length_analysis
         
     } else {
 
-        after_dedup_length_analysis = Channel.value()
+        after_dedup_length_analysis = Channel.empty()
     }
 
 
     if (!params.skip_premap) {
 
-         MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP(bam, unmapped_reads)
+         MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP(bam.join(unmapped_reads))
          after_premap_length_analysis = MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP.out.length_analysis
 
     } else {
 
-        after_premap_length_analysis = Channel.value()
+        after_premap_length_analysis = Channel.empty()
     }
 
    
