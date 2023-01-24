@@ -13,7 +13,7 @@ process MAPPING_LENGTH_ANALYSIS {
     publishDir "${params.outdir}/mapping_length_analysis", pattern: "*.Aligned.sortedByCoord.out.ba*", mode: 'copy', overwrite: true
     
     input:
-    tuple val(sample_id), path(bam), path(fastq) // before deduplication; need to use join here to make sure matched by ID!
+    tuple val(sample_id), path(bam), path(fastq) // before deduplication; need to use join in the workflow to make sure samples arevmatched by ID!
 
     output:
     tuple val(sample_id), path("*.csv"), emit: length_analysis
