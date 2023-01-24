@@ -87,13 +87,13 @@ workflow {
     
     if (params.with_umi) {
         // Remove duplicate reads from BAM file based on UMIs
-        DEDUPLICATE(MAP.out.aligned_genome, MAP.out.aligned_transcriptome)
+        DEDUPLICATE(MAP.out.genome_bam, MAP.out.transcriptome_bam)
     }
 
 
     if (!params.skip_qc) {
     // Mapping length analysis
-    MAPPING_LENGTH_ANALYSES(MAP.out.aligned_genome, PREPROCESS_READS.out.fastq, DEDUPLICATE.out.dedup_genome_bam, PREMAP.out.unmapped)
+    MAPPING_LENGTH_ANALYSES(MAP.out.genome_bam, PREPROCESS_READS.out.fastq, DEDUPLICATE.out.dedup_genome_bam, PREMAP.out.unmapped)
     }
 
     // Count reads from BAM alignments
