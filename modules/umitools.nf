@@ -47,7 +47,7 @@ process UMITOOLS_DEDUPLICATE {
 
 
     input:
-    tuple val(sample_id), path(bam)
+    tuple val(sample_id), path(bam), path(bai)
 
     output:
     tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bai"), emit: dedup_bam

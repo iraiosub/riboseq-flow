@@ -19,8 +19,8 @@ process MAP {
     path(genome_star_index)
 
     output:
-    tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), emit: aligned_genome
-    tuple val(sample_id), path("*.Aligned.toTranscriptome.sorted.out.bam"), emit: aligned_transcriptome
+    tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), path("*.Aligned.sortedByCoord.out.bai"), emit: aligned_genome
+    tuple val(sample_id), path("*.Aligned.toTranscriptome.sorted.out.bam"), path("*.Aligned.toTranscriptome.sorted.out.bam.bai"), emit: aligned_transcriptome
     path("*.Log.final.out"), emit: log
 
     script:
@@ -47,8 +47,6 @@ process MAP {
 
     samtools index -@ ${task.cpus} ${sample_id}.Aligned.sortedByCoord.out.bam
     samtools sort -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.out.bam > ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
-    # rm ${sample_id}.Aligned.toTranscriptome.out.bam
-
     samtools index -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
     
     """
