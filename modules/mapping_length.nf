@@ -28,6 +28,6 @@ process MAPPING_LENGTH_ANALYSIS {
         """
     else
         """
-        python3 mapping_length_analysis.py -f $fastq -b $bam -o ${sample_id}.${analysis_type}.csv
+        mapping_length_analysis -f $fastq -b $bam -o ${sample_id}.${analysis_type}.csv
         """
 }
