@@ -25,12 +25,12 @@ workflow MAPPING_LENGTH_ANALYSES {
 
     if (params.with_umi) {
 
-        MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP(dedup_bam, Channel.empty())
+        MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP(dedup_bam, Channel.value())
         after_dedup_length_analysis = MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP.out.length_analysis
         
     } else {
 
-        after_dedup_length_analysis = Channel.empty()
+        after_dedup_length_analysis = Channel.value()
     }
 
 
@@ -41,7 +41,7 @@ workflow MAPPING_LENGTH_ANALYSES {
 
     } else {
 
-        after_premap_length_analysis = Channel.empty()
+        after_premap_length_analysis = Channel.value()
     }
 
    
