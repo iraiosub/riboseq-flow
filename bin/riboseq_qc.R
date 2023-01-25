@@ -7,6 +7,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(Rsamtools))
 suppressPackageStartupMessages(library(patchwork))
 suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(optparse))
 
 # =========
 # Options and paths
