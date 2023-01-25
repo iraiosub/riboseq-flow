@@ -76,6 +76,7 @@ include { MAP } from './modules/map.nf'
 include { DEDUPLICATE } from './workflows/dedup.nf'
 include { MAPPING_LENGTH_ANALYSES } from './workflows/mapping_length_analyses.nf'
 include { RIBOSEQ_QC } from './modules/riboseq_qc.nf'
+include { GENE_LEVEL_COUNTS } from './modules/featurecounts.nf'
 
 workflow {
 
@@ -106,10 +107,20 @@ workflow {
         // Mapping length analysis
         MAPPING_LENGTH_ANALYSES(MAP.out.genome_bam, PREPROCESS_READS.out.fastq, DEDUPLICATE.out.dedup_genome_bam, PREMAP.out.unmapped)
 
+        if (params.with_umi && !params.skip_premap) {
+
         RIBOSEQ_QC(DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis), ch_transcript_info)
+
+        }
     }
 
-    // Count reads from BAM alignments
+    // Get counts from BAM alignments
+    if (params.with_umi) {
+        GENE_LEVEL_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
+    } else {
+        GENE_LEVEL_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
+
+    }
 
 }
 

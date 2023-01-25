@@ -20,7 +20,7 @@ process RIBOSEQ_QC {
         path("*.qc_results.pdf"), emit: plots
 
     script:
-
+            
         """
         riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --after_premap $after_premap_length_analysis --before_dedup $before_dedup_length_analysis --after_dedup $after_dedup_length_analysis
         """
@@ -33,7 +33,7 @@ process SUMMARISE_RIBOSEQ_QC {
     tag "${sample_id}"
     label 'process_medium'
 
-    conda 'R, tidyverse, patchwork'
+    conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
 
     publishDir "${params.outdir}/riboseq_qc", mode: 'copy', overwrite: true
 
