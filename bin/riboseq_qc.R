@@ -26,11 +26,13 @@ opt <- parse_args(opt_parser)
 
 get_info_from_bam <- function(bam, info) {
 
+  info.df <- fread(info)
+
   # add sample name
   bam.df <- data.frame(scanBam(bam)) %>%
       mutate(rl = str_length(seq)) %>%
       dplyr::rename(transcript_id = rname) %>%
-      inner_join(info) %>%
+      inner_join(info.df) %>%
       mutate(distance_from_start = pos - cds_start,
         distance_from_end = pos - cds_end) %>%
       mutate(frame = distance_from_start %% 3)
