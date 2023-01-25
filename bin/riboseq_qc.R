@@ -18,7 +18,7 @@ option_list <- list(make_option(c("-b", "--bam"), action = "store", type = "char
                     make_option(c("-o", "--output_prefix"), action = "store", type = "character", default=NA, help = "prefix for output files"),
                     make_option(c("", "--after_premap"), action = "store", type = "character", default=NA, help = "after_premap length analysis csv file"),
                     make_option(c("", "--before_dedup"), action = "store", type = "character", default=NA, help = "before_dedup length analysis csv file"),
-                    make_option(c("", "--after_dedup"), action = "store", type = "character", default=NA, help = "after_dedup length analysis csv file"),)
+                    make_option(c("", "--after_dedup"), action = "store", type = "character", default=NA, help = "after_dedup length analysis csv file"))
 
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
