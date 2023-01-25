@@ -106,9 +106,9 @@ p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > 18 & rl < 40),
 # =========
 
 original_fq <- read_csv(opt$before_dedup) %>%
-  dplyr::rename(length2 = length) %>%
-  mutate(length = length2 - 3) %>%
-  dplyr::select(-length2) %>%
+  # dplyr::rename(length2 = length) %>%    # these steps were done because rGrGrG hadnt been removed in that run
+  # mutate(length = length2 - 3) %>%
+  # dplyr::select(-length2) %>%
   dplyr::select(length, original_n = n)
 before_dedup <- read_csv(opt$before_dedup) %>%
   dplyr::select(length, before_dedup_bam = n_bam)
@@ -243,5 +243,5 @@ fig <- ((p1 + ggtitle(paste("Sample:", actual_name)) | useful_plot) +  plot_layo
   (premapping_plot | mapping_plot | duplication_plot)
 
 # Save results
-ggsave(paste0(actual_name, ".qc_results.pdf"), plot = fig)
+ggsave(paste0(actual_name, ".qc_results.pdf"), plot = fig, dpi = 200, height = 18, width = 12)
 fwrite(summary_df, paste0(actual_name, ".qc_results.tsv.gz"), sep = "\t")
