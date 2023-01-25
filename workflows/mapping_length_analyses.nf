@@ -48,7 +48,8 @@ workflow MAPPING_LENGTH_ANALYSES {
     emit:
 
     before_dedup_length_analysis = MAPPING_LENGTH_ANALYSIS_BEFORE_DEDUP.out.length_analysis
-    after_dedup_length_analysis
     after_premap_length_analysis
+    after_dedup_length_analysis
+    
 
 }

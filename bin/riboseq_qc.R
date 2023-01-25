@@ -6,6 +6,7 @@
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(Rsamtools))
 suppressPackageStartupMessages(library(patchwork))
+suppressPackageStartupMessages(library(data.table))
 
 # =========
 # Options and paths
@@ -13,48 +14,56 @@ suppressPackageStartupMessages(library(patchwork))
 
 option_list <- list(make_option(c("-b", "--bam"), action = "store", type = "character", default=NA, help = "bam file"),
                     make_option(c("-t", "--transcript_info"), action = "store", type = "character", default=NA, help = "longest protein coding transcript details"),
+                    make_option(c("-o", "--output_prefix"), action = "store", type = "character", default=NA, help = "prefix for output files"),
                     make_option(c("", "--after_premap"), action = "store", type = "character", default=NA, help = "after_premap length analysis csv file"),
                     make_option(c("", "--before_dedup"), action = "store", type = "character", default=NA, help = "before_dedup length analysis csv file"),
                     make_option(c("", "--after_dedup"), action = "store", type = "character", default=NA, help = "after_dedup length analysis csv file"),)
+
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
 
 get_info_from_bam <- function(bam, info) {
 
-    # add sample name
-    bam.df <- data.frame(scanBam(bam)) %>%
-        mutate(rl = str_length(seq)) %>%
-        dplyr::rename(transcript_id = rname) %>%
-        inner_join(info) %>%
-        mutate(distance_from_start = pos - cds_start,
-          distance_from_end = pos - cds_end) %>%
-        mutate(frame = distance_from_start %% 3)
+  # add sample name
+  bam.df <- data.frame(scanBam(bam)) %>%
+      mutate(rl = str_length(seq)) %>%
+      dplyr::rename(transcript_id = rname) %>%
+      inner_join(info) %>%
+      mutate(distance_from_start = pos - cds_start,
+        distance_from_end = pos - cds_end) %>%
+      mutate(frame = distance_from_start %% 3)
 
-    frame.df <- bam.df %>% 
-      group_by(frame, rl) %>%
-      mutate(n = n()) %>%
-      select(frame, read_length = rl, n) %>%
-      unique() %>%
-      ungroup()
+  frame.df <- bam.df %>% 
+    group_by(frame, rl) %>%
+    mutate(n = n()) %>%
+    select(frame, read_length = rl, n) %>%
+    unique() %>%
+    ungroup()
 
-    start_dist.df <- bam.df %>%
-      group_by(rl, distance_from_start) %>%
-      mutate(n = n()) %>%
-      select(rl, distance_from_start, n) %>%
-      unique() %>%
-      ungroup()
+  start_dist.df <- bam.df %>%
+    group_by(rl, distance_from_start) %>%
+    mutate(n = n()) %>%
+    select(rl, distance_from_start, n) %>%
+    unique() %>%
+    ungroup()
 
-    end_dist.df <- bam.df %>%
-      group_by(rl, distance_from_end) %>%
-      mutate(n = n()) %>%
-      select(rl, distance_from_end, n) %>%
-      unique() %>%
-      ungroup()
+  end_dist.df <- bam.df %>%
+    group_by(rl, distance_from_end) %>%
+    mutate(n = n()) %>%
+    select(rl, distance_from_end, n) %>%
+    unique() %>%
+    ungroup()
 
-    return(list(bam = bam.df, frame = frame.df, start_dist = start_dist.df, end_dist = end_dist.df))
+  return(list(bam = bam.df, frame = frame.df, start_dist = start_dist.df, end_dist = end_dist.df))
 
 }
+                  
+
+# Get sample name
+# actual_name <- str_remove(basename(opt$bam), "transcriptome.dedup.sorted.bam")
+actual_name <- opt$output_prefix
+message(paste0("Analysing ", actual_name))
 
 # =========
 # Frame, distance from start and end codon analyses
@@ -89,181 +98,147 @@ p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > 18 & rl < 40),
     ggtitle("Reads near stop codon")
 
 
-
-# # Make a list of bam files from --bam 
-# bams <- Sys.glob("C:/Users/ogw/Downloads/cristina_tso/*.bam")
-
-# sample_data <- read_csv("Copy of PM22312.csv")
-# info <- read_tsv("C:/Users/ogw/Downloads/longest_proteincoding_transcript_hs_details.txt")
-
-# sample_names <- str_replace(word(word(bams, -1, -1, sep="/"), 1, sep="\\."), "Aligned", "")
-
-# for(sample_name in sample_names){
-#   actual_name <- sample_data$`Sample Name`[which(sample_data$`Sample limsid`==word(sample_name, 1, sep="_"))]
-#   print(actual_name)  
-#   df <- data.frame(scanBam(paste0("C:/Users/ogw/Downloads/cristina_tso/",
-#                                   sample_name,
-#                                   "Aligned.sortedByCoord.out.bam")))
-
-
-
 # =========
 # Length analysis
 # =========
 
-  original_fq <- read_csv(opt$before_dedup) %>%
-    dplyr::rename(length2 = length) %>%
-    mutate(length = length2 - 3) %>%
-    dplyr::select(-length2) %>%
-    dplyr::select(length, original_n = n)
-  
-  before_dedup <- read_csv(opt$before_dedup) %>%
-    dplyr::select(length, before_dedup_bam = n_bam)
-  
+original_fq <- read_csv(opt$before_dedup) %>%
+  dplyr::rename(length2 = length) %>%
+  mutate(length = length2 - 3) %>%
+  dplyr::select(-length2) %>%
+  dplyr::select(length, original_n = n)
+before_dedup <- read_csv(opt$before_dedup) %>%
+  dplyr::select(length, before_dedup_bam = n_bam)
+
+
+length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
+  geom_bar(stat="identity") +
+  xlim(0,70) +
+  ggpubr::theme_pubr() +
+  ylab("N reads in original fastq") +
+  ggtitle("Read length distribution")  
+
+
+# =========
+# Premapping
+# =========
+
+if (!is.null(opt$after_premap)) {
+
   after_premap <- read_csv(opt$after_premap) %>%
-    dplyr::select(length, after_premap_n = n)
-  
-  after_dedup <- read_csv(opt$after_dedup) %>%
-    dplyr::select(length, after_dedup_bam = n)
+  dplyr::select(length, after_premap_n = n)
 
   rRNA_df <- inner_join(original_fq, after_premap) %>%
-    mutate(perc_rRNA = 100-100*after_premap_n/original_n)
+  mutate(perc_rRNA = 100-100*after_premap_n/original_n)
+
+  rRNA_plot <- ggplot(rRNA_df,
+                    aes(x = length, y = perc_rRNA)) +
+  geom_bar(stat="identity", position = "dodge") +
+  ggpubr::theme_pubr() +
+  xlim(19,60) +
+  ylab("% rRNA") +
+  ggtitle("rRNA %")
 
   mapping_df <- inner_join(original_fq, after_premap) %>%
     inner_join(before_dedup) %>%
     mutate(total = 100*before_dedup_bam/original_n,
-           ignoring_rRNA = 100*before_dedup_bam/after_premap_n) %>%
+            ignoring_rRNA = 100*before_dedup_bam/after_premap_n) %>%
     dplyr::select(length, total, ignoring_rRNA) %>%
     pivot_longer(-length)
 
   mapping_df2 <- inner_join(original_fq, after_premap) %>%
     inner_join(before_dedup) %>%
     pivot_longer(-length)
-  
-  duplicate_df <- inner_join(before_dedup, after_dedup) %>%
-    mutate(perc_duplicates = 100*(before_dedup_bam-after_dedup_bam)/before_dedup_bam)
 
-
-  useful_read_perc <- 100*nrow(riboseq_info$bam) / sum(original_fq$original_n)
-  useful_df <- data.frame(x = "", y = useful_read_perc)
-  
-  length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
-    geom_bar(stat="identity") +
-    xlim(0,70) +
-    ggpubr::theme_pubr() +
-    ylab("N reads in original fastq") +
-    ggtitle("Read length distribution")  
-
-  
-  rRNA_plot <- ggplot(rRNA_df,
-                      aes(x = length, y = perc_rRNA)) +
-    geom_bar(stat="identity", position = "dodge") +
-    ggpubr::theme_pubr() +
-    xlim(19,60) +
-    ylab("% rRNA") +
-    ggtitle("rRNA %")
-  
-  
-  ggplot(mapping_df %>% filter(length<50), aes(x = length, y = value, fill = name)) +
-    geom_bar(stat="identity", position="dodge")
-
-  
-  mapping_plot <- ggplot(mapping_df2 %>% filter(length<50) %>%
-           filter(name != "original_n"), aes(x = length, y = value, fill = name)) +
+  mapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
+    dplyr::filter(name != "original_n"), aes(x = length, y = value, fill = name)) +
     geom_bar(stat="identity", position="dodge") +
     theme_classic() +
     ylab("Number of reads") +
     ggtitle("Premapping vs mapping") +
     ggeasy::easy_remove_legend() +
     scale_y_log10()
-  
-  premapping_plot <- ggplot(mapping_df2 %>% filter(length<50) %>%
-           filter(name != "before_dedup_bam"), aes(x = length, y = value, fill = name)) +
+
+  premapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
+    dplyr::filter(name != "before_dedup_bam"), aes(x = length, y = value, fill = name)) +
     geom_bar(stat="identity", position="dodge") +
     theme_classic() +
     ylab("Number of reads") +
     ggtitle("Original vs premapping") +
     ggeasy::easy_remove_legend() +
     scale_y_log10()
-  
-  duplication_plot <- ggplot(duplicate_df %>% filter(length >= 26 & length <= 32), 
-         aes(x = length, y = perc_duplicates)) +
-    geom_bar(stat="identity", position="dodge") +
-    ylab("% Duplicates") +
-    theme_classic() +
-    ggtitle("Duplication")
 
-  useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
-    geom_bar(stat="identity") +
-    theme_classic() +
-    ggtitle("% useful reads") +
-    xlab("") +
-    ylab("% useful")
-  
-  fig <- ((p1 + ggtitle(paste("Sample:", actual_name)) | useful_plot) +  plot_layout(widths = c(3, 1))) / (p2|p3) / 
-    (length_plot | rRNA_plot) /
-    (premapping_plot | mapping_plot | duplication_plot)
-  fig
-  
-  
-  ggsave(paste0("figures/", actual_name, "_results2.pdf"), plot = fig)
-  
-  
+  # ggplot(mapping_df %>% filter(length<50), aes(x = length, y = value, fill = name)) +
+  #   geom_bar(stat="identity", position="dodge")
+
+} else {
+
+  # rRNA_plot <- mapping_plot <- premapping_plot <- ggplot() + theme_void()
+  rRNA_plot  <- ggplot() + theme_void() + ggtitle("rRNA %") + geom_text(aes(0,0,label='N/A'))
+  mapping_plot  <- ggplot() + theme_void() + ggtitle("Premapping vs mapping") + geom_text(aes(0,0,label='N/A'))
+  premapping_plot <- ggplot() + theme_void() + ggtitle("Original vs mapping") + geom_text(aes(0,0,label='N/A'))
+
+
+}
+
+# =========
+# Duplication
+# =========
+
+if (!is.null(opt$after_dedup)) {
+
+  after_dedup <- read_csv(opt$after_dedup) %>%
+    dplyr::select(length, after_dedup_bam = n)
+
+  duplicate_df <- inner_join(before_dedup, after_dedup) %>%
+    mutate(perc_duplicates = 100*(before_dedup_bam-after_dedup_bam)/before_dedup_bam)
+
   duplication_summary <- duplicate_df %>%
-    filter(length >= 26 & length <= 31)
+    dplyr::filter(length >= 26 & length <= 31)
+  
   duplication_perc <- 100- 100*sum(duplication_summary$after_dedup_bam) / sum(duplication_summary$before_dedup_bam) 
-  
-  tx_map_summary <- 100*nrow(df3 %>% filter(rl >= 26 & rl <= 31)) / nrow(df3)
-  
 
-  
-  summary_df <- useful_df %>%
-    mutate(name = actual_name,
-           duplication = duplication_perc,
-           percent_expected_length = tx_map_summary)
-  
-  if(sample_name == sample_names[1]) {
-    full_summary <- summary_df
-  } else {
-    full_summary <- bind_rows(full_summary, summary_df)
-  }
+  duplication_plot <- ggplot(duplicate_df %>% filter(length >= 26 & length <= 32), 
+        aes(x = length, y = perc_duplicates)) +
+  geom_bar(stat="identity", position="dodge") +
+  ylab("% Duplicates") +
+  theme_classic() +
+  ggtitle("Duplication")
 
+} else {
+
+  duplication_plot <- ggplot() + theme_void() + ggtitle("Duplication") + geom_text(aes(0,0,label='N/A'))
+}
 
 
 # =========
-# Collate results
+# Useful reads
 # =========
 
-full_summary2 <- full_summary %>%
-  mutate(size = case_when(str_detect(name, "10cm") ~ "10cm",
-                          str_detect(name, "_6well") ~ "6well",
-                          str_detect(name, "24well") ~ "24well",
-                          str_detect(name, "96well") ~ "96well"))
+useful_read_perc <- 100*nrow(riboseq_info$bam) / sum(original_fq$original_n)
+useful_df <- data.frame(x = "", y = useful_read_perc)
 
 
-dup <- ggplot(full_summary2, aes(x = name, y = duplication, fill = size)) +
+tx_map_summary <- 100*nrow(riboseq_info$bam %>% filter(rl >= 26 & rl <= 31)) / nrow(riboseq_info$bam)
+
+summary_df <- useful_df %>%
+  mutate(name = actual_name,
+          duplication = duplication_perc,
+          percent_expected_length = tx_map_summary)
+
+
+useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
   geom_bar(stat="identity") +
-  ggtitle("Duplication %") +
-  ylab("%") +
   theme_classic() +
-  ggeasy::easy_rotate_x_labels()
+  ggtitle("% useful reads") +
+  xlab("") +
+  ylab("% useful")
 
-exp <- ggplot(full_summary2, aes(x = name, y = percent_expected_length, fill = size)) +
-  geom_bar(stat="identity") +
-  ggtitle("% Expected length", "Low % indicates over-digestion") +
-  ylab("%") +
-  theme_classic() +
-  ggeasy::easy_rotate_x_labels() +
-  ggeasy::easy_remove_legend()
+# Pull together plots
+fig <- ((p1 + ggtitle(paste("Sample:", actual_name)) | useful_plot) +  plot_layout(widths = c(3, 1))) / (p2|p3) / 
+  (length_plot | rRNA_plot) /
+  (premapping_plot | mapping_plot | duplication_plot)
 
-use <- ggplot(full_summary2, aes(x = name, y = y, fill = size)) +
-  geom_bar(stat="identity") +
-  ggtitle("% reads that are useful") +
-  ylab("%") +
-  theme_classic() +
-  ggeasy::easy_rotate_x_labels() +
-  ggeasy::easy_remove_legend()
-
-use | exp | dup
-
-ggsave("figures/summary_of_results.pdf")
+# Save results
+ggsave(paste0(actual_name, "_qc_results.pdf"), plot = fig)
+fwrite(summary_df, paste0(actual_name, "_qc_results.tsv.gz"), sep = "\t")

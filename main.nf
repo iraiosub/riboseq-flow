@@ -32,6 +32,7 @@ if(params.org) {
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
+    params.transcript_info = params.genomes[ params.org ].transcript_info
 
 }  else {
 
@@ -53,7 +54,17 @@ if (!params.skip_premap) {
 } else {
 
     // Create empty channel so GENERATE_REFERENCE_INDEX doesn't break
-    ch_smallrna_fasta = Channel.value()
+    ch_smallrna_fasta = Channel.empty()
+}
+
+
+if (!params.skip_qc) {
+    ch_transcript_info = Channel.fromPath(params.transcript_info, checkIfExists: true)
+    // if (ch_smallrna_fasta.isEmpty()) {exit 1, "File provided with --smallrna_fasta is empty: ${ch_smallrna_fasta.getName()}!"}
+} else {
+
+    // Create empty channel so riboseq_qc doesn't break
+    ch_transcript_info = Channel.empty()
 }
 
 
@@ -64,6 +75,7 @@ include { PREMAP } from './modules/premap.nf'
 include { MAP } from './modules/map.nf'
 include { DEDUPLICATE } from './workflows/dedup.nf'
 include { MAPPING_LENGTH_ANALYSES } from './workflows/mapping_length_analyses.nf'
+include { RIBOSEQ_QC } from './modules/riboseq_qc.nf'
 
 workflow {
 
@@ -93,6 +105,8 @@ workflow {
     if (!params.skip_qc) {
         // Mapping length analysis
         MAPPING_LENGTH_ANALYSES(MAP.out.genome_bam, PREPROCESS_READS.out.fastq, DEDUPLICATE.out.dedup_genome_bam, PREMAP.out.unmapped)
+
+        RIBOSEQ_QC(DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis), ch_transcript_info)
     }
 
     // Count reads from BAM alignments
