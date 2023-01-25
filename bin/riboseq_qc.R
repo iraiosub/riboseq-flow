@@ -243,5 +243,5 @@ fig <- ((p1 + ggtitle(paste("Sample:", actual_name)) | useful_plot) +  plot_layo
   (premapping_plot | mapping_plot | duplication_plot)
 
 # Save results
-ggsave(paste0(actual_name, "_qc_results.pdf"), plot = fig)
-fwrite(summary_df, paste0(actual_name, "_qc_results.tsv.gz"), sep = "\t")
+ggsave(paste0(actual_name, ".qc_results.pdf"), plot = fig)
+fwrite(summary_df, paste0(actual_name, ".qc_results.tsv.gz"), sep = "\t")

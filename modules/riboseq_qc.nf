@@ -16,8 +16,8 @@ process RIBOSEQ_QC {
         path(transcript_info)
     
     output:
-        tuple val(sample_id), path("${sample_id}.qc.tsv.gz"), emit: qc
-        path("*.pdf"), emit: plots
+        tuple val(sample_id), path("*.qc_results.tsv.gz"), emit: qc
+        path("*.qc_results.pdf"), emit: plots
 
     script:
 
