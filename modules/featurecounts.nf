@@ -30,7 +30,7 @@ process GENE_LEVEL_COUNTS {
 
 
 
-process BIOTYPE_COUNTS {
+process GENETYPE_COUNTS {
  
     tag "${sample_id}"
     label 'process_medium'
@@ -50,7 +50,7 @@ process BIOTYPE_COUNTS {
     script:
     
     """
-    featureCounts -f -g "biotype" -s 1 -a $gtf  --largestOverlap -T ${task.cpus} -o ${sample_id}.biotype.featureCounts.txt $bam
+    featureCounts -f -g "gene_type" -s 1 -a $gtf  --largestOverlap -T ${task.cpus} -o ${sample_id}.biotype.featureCounts.txt $bam
     
     """
 
