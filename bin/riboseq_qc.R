@@ -164,7 +164,8 @@ if (!is.null(opt$after_premap)) {
     theme(legend.position = "none")      
     # ggeasy::easy_remove_legend() +
     scale_y_log10() +
-    ylim(0, max(value))
+    expand_limits(y=0)
+    # ylim(0, max(mapping_df2$value))
 
   premapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
     dplyr::filter(name != "before_dedup_bam"), aes(x = length, y = value, fill = name)) +
@@ -173,7 +174,7 @@ if (!is.null(opt$after_premap)) {
     ylab("Number of reads") +
     ggtitle("Original vs premapping") +
     # ggeasy::easy_remove_legend() +
-    theme(legend.position = "none")      
+    theme(legend.position = "none") +
     scale_y_log10()
 
   # ggplot(mapping_df %>% filter(length<50), aes(x = length, y = value, fill = name)) +
