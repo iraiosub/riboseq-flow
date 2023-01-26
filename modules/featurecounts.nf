@@ -10,14 +10,15 @@ process GENE_LEVEL_COUNTS {
 
     conda 'bioconda::subread=2.0.3'
 
-    publishDir "${params.outdir}/feature_counts", pattern: "*..rfp_counts", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/feature_counts", pattern: "*.featureCounts*", mode: 'copy', overwrite: true
     
     input:
     tuple val(sample_id), path(bam), path(bai)
     path(gtf)
 
     output:
-    path("*.featureCounts.txt"), emit: counts
+    tuple val(sample_id), path("*.featureCounts.txt")        , emit: counts
+    tuple val(sample_id), path("*.featureCounts.txt.summary"), emit: summary
 
     script:
     
@@ -37,7 +38,7 @@ process GENETYPE_COUNTS {
 
     conda 'bioconda::subread=2.0.3'
 
-    publishDir "${params.outdir}/feature_counts", pattern: "*..rfp_counts", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/feature_counts", pattern: "*gene_type.featureCounts*", mode: 'copy', overwrite: true
     
     input:
     tuple val(sample_id), path(bam), path(bai)
@@ -45,7 +46,7 @@ process GENETYPE_COUNTS {
 
     output:
     tuple val(sample_id), path("*.gene_type.featureCounts.txt")        , emit: counts
-    tuple val(sample_id), path("*.featureCounts.txt.summary"), emit: summary
+    tuple val(sample_id), path("*.gene_type.featureCounts.txt.summary"), emit: summary
 
     script:
     
