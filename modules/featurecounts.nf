@@ -17,12 +17,40 @@ process GENE_LEVEL_COUNTS {
     path(gtf)
 
     output:
-    path("*.rfp_counts"), emit: counts
+    path("*.featureCounts.txt"), emit: counts
 
     script:
     
     """
-    featureCounts -i $bam -a $gtf -T ${task.cpus} -o ${sample_id}.rfp_counts
+    featureCounts -a -s 1 $gtf -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
+    
+    """
+
+}
+
+
+
+process BIOTYPE_COUNTS {
+ 
+    tag "${sample_id}"
+    label 'process_medium'
+
+    conda 'bioconda::subread=2.0.3'
+
+    publishDir "${params.outdir}/feature_counts", pattern: "*..rfp_counts", mode: 'copy', overwrite: true
+    
+    input:
+    tuple val(sample_id), path(bam), path(bai)
+    path(gtf)
+
+    output:
+    tuple val(meta), path("*.biotype.featureCounts.txt")        , emit: counts
+    tuple val(meta), path("*.featureCounts.txt.summary"), emit: summary
+
+    script:
+    
+    """
+    featureCounts -f -g "biotype" -s 1 -a $gtf  --largestOverlap -T ${task.cpus} -o ${sample_id}.biotype.featureCounts.txt $bam
     
     """
 

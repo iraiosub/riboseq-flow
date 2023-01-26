@@ -77,6 +77,7 @@ include { DEDUPLICATE } from './workflows/dedup.nf'
 include { MAPPING_LENGTH_ANALYSES } from './workflows/mapping_length_analyses.nf'
 include { RIBOSEQ_QC } from './modules/riboseq_qc.nf'
 include { GENE_LEVEL_COUNTS } from './modules/featurecounts.nf'
+include { BIOTYPE_COUNTS } from './modules/featurecounts.nf'
 
 workflow {
 
@@ -117,8 +118,10 @@ workflow {
     // Get counts from BAM alignments
     if (params.with_umi) {
         GENE_LEVEL_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
+        BIOTYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
     } else {
         GENE_LEVEL_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
+        BIOTYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
 
     }
 
