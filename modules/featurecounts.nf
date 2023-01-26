@@ -22,7 +22,7 @@ process GENE_LEVEL_COUNTS {
     script:
     
     """
-    featureCounts -a -s 1 $gtf -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
+    featureCounts -a $gtf -s 1 -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
     
     """
 
