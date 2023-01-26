@@ -161,7 +161,7 @@ if (!is.null(opt$after_premap)) {
     theme_classic() +
     ylab("Number of reads") +
     ggtitle("Premapping vs mapping") +
-    theme(legend.position = "none")      
+    theme(legend.position = "none") +
     # ggeasy::easy_remove_legend() +
     scale_y_log10() +
     expand_limits(y=0)
