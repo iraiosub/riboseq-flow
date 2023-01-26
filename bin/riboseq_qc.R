@@ -159,7 +159,7 @@ if (!is.null(opt$after_premap)) {
     geom_bar(stat="identity", position="dodge") +
     theme_classic() +
     ylab("Number of reads") +
-    ggtitle("Premapping vs mapping") +
+    ggtitle("Premapping vs mapping")
     # ggeasy::easy_remove_legend() +
     # scale_y_log10()
 
