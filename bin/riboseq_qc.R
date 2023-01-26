@@ -77,7 +77,7 @@ riboseq_info <- get_info_from_bam(opt$bam, opt$transcript_info)
 p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))) +
     geom_bar(stat="identity", position="dodge") +
     theme_classic() +
-    scale_fill_discrete(name = "Frame")
+    scale_fill_discrete(name = "Frame") +
     # ggeasy::easy_add_legend_title("Frame") +
     xlim(NA, 40)
 
