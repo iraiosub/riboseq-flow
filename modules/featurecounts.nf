@@ -23,7 +23,7 @@ process GENE_LEVEL_COUNTS {
     script:
     
     """
-    featureCounts -a $gtf -s 1 -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
+    featureCounts -a $gtf --largestOverlap -s 1 -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
     
     """
 
@@ -51,7 +51,7 @@ process GENETYPE_COUNTS {
     script:
     
     """
-    featureCounts -f -g "gene_type" -s 1 -a $gtf  --largestOverlap -T ${task.cpus} -o ${sample_id}.gene_type.featureCounts.txt $bam
+    featureCounts -f -g "gene_type" -s 1 -a $gtf --largestOverlap -T ${task.cpus} -o ${sample_id}.gene_type.featureCounts.txt $bam
     
     """
 
