@@ -44,13 +44,13 @@ process GENETYPE_COUNTS {
     path(gtf)
 
     output:
-    tuple val(meta), path("*.biotype.featureCounts.txt")        , emit: counts
-    tuple val(meta), path("*.featureCounts.txt.summary"), emit: summary
+    tuple val(sample_id), path("*.gene_type.featureCounts.txt")        , emit: counts
+    tuple val(sample_id), path("*.featureCounts.txt.summary"), emit: summary
 
     script:
     
     """
-    featureCounts -f -g "gene_type" -s 1 -a $gtf  --largestOverlap -T ${task.cpus} -o ${sample_id}.biotype.featureCounts.txt $bam
+    featureCounts -f -g "gene_type" -s 1 -a $gtf  --largestOverlap -T ${task.cpus} -o ${sample_id}.gene_type.featureCounts.txt $bam
     
     """
 
