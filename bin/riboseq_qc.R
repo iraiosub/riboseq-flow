@@ -110,6 +110,7 @@ original_fq <- read_csv(opt$before_dedup) %>%
   # mutate(length = length2 - 3) %>%
   # dplyr::select(-length2) %>%
   dplyr::select(length, original_n = n)
+
 before_dedup <- read_csv(opt$before_dedup) %>%
   dplyr::select(length, before_dedup_bam = n_bam)
 
@@ -138,7 +139,7 @@ if (!is.null(opt$after_premap)) {
                     aes(x = length, y = perc_rRNA)) +
   geom_bar(stat="identity", position = "dodge") +
   ggpubr::theme_pubr() +
-  xlim(19,60) +
+  # xlim(19,60) +
   ylab("% rRNA") +
   ggtitle("rRNA %")
 
@@ -159,8 +160,8 @@ if (!is.null(opt$after_premap)) {
     theme_classic() +
     ylab("Number of reads") +
     ggtitle("Premapping vs mapping") +
-    ggeasy::easy_remove_legend() +
-    scale_y_log10()
+    # ggeasy::easy_remove_legend() +
+    # scale_y_log10()
 
   premapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
     dplyr::filter(name != "before_dedup_bam"), aes(x = length, y = value, fill = name)) +
@@ -168,7 +169,7 @@ if (!is.null(opt$after_premap)) {
     theme_classic() +
     ylab("Number of reads") +
     ggtitle("Original vs premapping") +
-    ggeasy::easy_remove_legend() +
+    # ggeasy::easy_remove_legend() +
     scale_y_log10()
 
   # ggplot(mapping_df %>% filter(length<50), aes(x = length, y = value, fill = name)) +

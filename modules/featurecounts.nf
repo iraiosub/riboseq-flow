@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 process GENE_LEVEL_COUNTS {
  
     tag "${sample_id}"
-    label 'process_high'
+    label 'process_medium'
 
     conda 'bioconda::subread=2.0.3'
 
