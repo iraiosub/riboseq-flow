@@ -119,7 +119,8 @@ before_dedup <- read_csv(opt$before_dedup) %>%
 length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
   geom_bar(stat="identity") +
   xlim(0,70) +
-  ggpubr::theme_pubr() +
+  # ggpubr::theme_pubr() +
+  theme_classic() +
   ylab("N reads in original fastq") +
   ggtitle("Read length distribution")  
 
@@ -139,7 +140,8 @@ if (!is.null(opt$after_premap)) {
   rRNA_plot <- ggplot(rRNA_df,
                     aes(x = length, y = perc_rRNA)) +
   geom_bar(stat="identity", position = "dodge") +
-  ggpubr::theme_pubr() +
+  theme_classic() +
+  # ggpubr::theme_pubr() +
   # xlim(19,60) +
   ylab("% rRNA") +
   ggtitle("rRNA %")
@@ -156,15 +158,16 @@ if (!is.null(opt$after_premap)) {
     pivot_longer(-length)
 
   mapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
+    # drop_na(value) %>%
     dplyr::filter(name != "original_n"), aes(x = length, y = value, fill = name)) +
-    geom_bar(stat="identity", position="dodge") +
+    geom_bar(stat="identity", position="dodge", na.rm = T) +
     theme_classic() +
     ylab("Number of reads") +
     ggtitle("Premapping vs mapping") +
     theme(legend.position = "none") +
     # ggeasy::easy_remove_legend() +
     scale_y_log10() +
-    expand_limits(y=0)
+    expand_limits(y=1)
     # ylim(0, max(mapping_df2$value))
 
   premapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
@@ -175,7 +178,8 @@ if (!is.null(opt$after_premap)) {
     ggtitle("Original vs premapping") +
     # ggeasy::easy_remove_legend() +
     theme(legend.position = "none") +
-    scale_y_log10()
+    scale_y_log10()+
+    expand_limits(y=1)
 
   # ggplot(mapping_df %>% filter(length<50), aes(x = length, y = value, fill = name)) +
   #   geom_bar(stat="identity", position="dodge")
