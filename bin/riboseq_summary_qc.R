@@ -27,7 +27,7 @@ dup <- ggplot(full_summary.df, aes(x = name, y = duplication, fill = name)) +
   ggtitle("Duplication %") +
   ylab("%") +
   theme_classic() +
-  theme(axis.text. x = element_text(angle = 90))
+  theme(axis.text.x = element_text(angle = 90))
   # ggeasy::easy_rotate_x_labels()
 
 exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length, fill = name)) +
