@@ -41,7 +41,7 @@ process SUMMARISE_RIBOSEQ_QC {
         path(qc_tables)
     
     output:
-        tuple val(sample_id), path("qc.summary.tsv.gz"), emit: qc_summary
+        path("qc.summary.tsv.gz"), emit: qc_summary
         path("qc_summary.pdf"), emit: plots
 
     script:
