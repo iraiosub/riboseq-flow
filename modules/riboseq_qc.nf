@@ -31,7 +31,7 @@ process RIBOSEQ_QC {
 
 process SUMMARISE_RIBOSEQ_QC {
     tag "${sample_id}"
-    label 'process_medium'
+    label 'process_low'
 
     conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
 
@@ -39,16 +39,15 @@ process SUMMARISE_RIBOSEQ_QC {
 
     input:
         path(qc_tables)
-        path(transcript_info)
     
     output:
         tuple val(sample_id), path("qc.summary.tsv.gz"), emit: qc_summary
-        path("*.pdf"), emit: plots
+        path("qc_summary.pdf"), emit: plots
 
     script:
 
         """
-        riboseq_summary_qc.R -i $qc_tables -o qc.summary.tsv.gz
+        riboseq_summary_qc.R -i $qc_tables
         """
 
 }

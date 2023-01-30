@@ -4,53 +4,52 @@
 # Modified by Ira Iosub 24.01.2023
 
 suppressPackageStartupMessages(library(tidyverse))
-suppressPackageStartupMessages(library(Rsamtools))
 suppressPackageStartupMessages(library(patchwork))
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(optparse))
+
+option_list <- list(make_option(c("-i", "--input_dir"), action = "store", type = "character", default=NA, help = "qc summary directory"))
+opt_parser = OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+
 
 # =========
 # Collate results
 # =========
 
-# full_summary produced by riboseq_qc.R
-
-if(sample_name == sample_names[1]) {
-  full_summary <- summary_df
-} else {
-  full_summary <- bind_rows(full_summary, summary_df)
-}
+# Summary files produced by riboseq_qc.R
+summary_df.ls <- list.files(opt$input_dir)
+full_summary.df <- rbindlist(lapply(summary_df.ls, fread), use.names = TRUE)
 
 
-
-full_summary2 <- full_summary %>%
-  mutate(size = case_when(str_detect(name, "10cm") ~ "10cm",
-                          str_detect(name, "_6well") ~ "6well",
-                          str_detect(name, "24well") ~ "24well",
-                          str_detect(name, "96well") ~ "96well"))
-
-
-dup <- ggplot(full_summary2, aes(x = name, y = duplication, fill = size)) +
+dup <- ggplot(full_summary.df, aes(x = name, y = duplication, fill = name)) +
   geom_bar(stat="identity") +
   ggtitle("Duplication %") +
   ylab("%") +
   theme_classic() +
-  ggeasy::easy_rotate_x_labels()
+  theme(axis.text. x = element_text(angle = 90))
+  # ggeasy::easy_rotate_x_labels()
 
-exp <- ggplot(full_summary2, aes(x = name, y = percent_expected_length, fill = size)) +
+exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length, fill = name)) +
   geom_bar(stat="identity") +
   ggtitle("% Expected length", "Low % indicates over-digestion") +
   ylab("%") +
   theme_classic() +
-  ggeasy::easy_rotate_x_labels() +
-  ggeasy::easy_remove_legend()
+  # ggeasy::easy_rotate_x_labels() +
+  theme(axis.text. x = element_text(angle = 90)) +
+  theme(legend.position = "none")
 
-use <- ggplot(full_summary2, aes(x = name, y = y, fill = size)) +
+use <- ggplot(full_summary.df, aes(x = name, y = y, fill = name)) +
   geom_bar(stat="identity") +
-  ggtitle("% reads that are useful") +
+  ggtitle("% Reads that are useful") +
   ylab("%") +
   theme_classic() +
-  ggeasy::easy_rotate_x_labels() +
-  ggeasy::easy_remove_legend()
+  # ggeasy::easy_rotate_x_labels() +
+  theme(axis.text. x = element_text(angle = 90)) +
+  theme(legend.position = "none")
 
 use | exp | dup
 
-ggsave("summary_of_results.pdf")
+
+fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
+ggsave("qc_summary.pdf", dpi = 300, height = 4*unique(full_summary.df$name))

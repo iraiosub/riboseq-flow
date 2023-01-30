@@ -76,6 +76,7 @@ include { MAP } from './modules/map.nf'
 include { DEDUPLICATE } from './workflows/dedup.nf'
 include { MAPPING_LENGTH_ANALYSES } from './workflows/mapping_length_analyses.nf'
 include { RIBOSEQ_QC } from './modules/riboseq_qc.nf'
+include { SUMMARISE_RIBOSEQ_QC } from './modules/riboseq_qc.nf'
 include { GENE_LEVEL_COUNTS } from './modules/featurecounts.nf'
 include { GENETYPE_COUNTS } from './modules/featurecounts.nf'
 
@@ -111,6 +112,13 @@ workflow {
         if (params.with_umi && !params.skip_premap) {
 
         RIBOSEQ_QC(DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis), ch_transcript_info)
+
+        // ch_all_qc = RIBOSEQ_QC.out.qc
+        //     .map { [ 'all', it[1] ] }
+        //     .groupTuple(by: 0)
+        //     .view()
+        SUMMARISE_RIBOSEQ_QC(RIBOSEQ_QC.out.qc.collect())
+
 
         }
     }
