@@ -52,4 +52,4 @@ use | exp | dup
 
 
 fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
-ggsave("qc_summary.pdf", dpi = 300, height = 4*unique(full_summary.df$name))
+ggsave("qc_summary.pdf", dpi = 300, height = 4*length(unique(full_summary.df$name)))
