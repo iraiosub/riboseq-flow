@@ -117,7 +117,7 @@ workflow {
             .map { [ it[0].split('_')[0..-2].join('_'), it[1] ] }
             .groupTuple(by: 0)
 
-        SUMMARISE_RIBOSEQ_QC(ch_all_qc))
+        SUMMARISE_RIBOSEQ_QC(ch_all_qc)
 
 
         }
