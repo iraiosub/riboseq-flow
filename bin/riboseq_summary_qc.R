@@ -36,7 +36,7 @@ exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length, fill 
   ylab("%") +
   theme_classic() +
   # ggeasy::easy_rotate_x_labels() +
-  theme(axis.text. x = element_text(angle = 90)) +
+  theme(axis.text.x = element_text(angle = 90)) +
   theme(legend.position = "none")
 
 use <- ggplot(full_summary.df, aes(x = name, y = y, fill = name)) +
@@ -45,7 +45,7 @@ use <- ggplot(full_summary.df, aes(x = name, y = y, fill = name)) +
   ylab("%") +
   theme_classic() +
   # ggeasy::easy_rotate_x_labels() +
-  theme(axis.text. x = element_text(angle = 90)) +
+  theme(axis.text.x = element_text(angle = 90)) +
   theme(legend.position = "none")
 
 use | exp | dup
