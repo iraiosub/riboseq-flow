@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(patchwork))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(optparse))
 
-option_list <- list(make_option(c("-i", "--input_dir"), action = "store", type = "character", default=NA, help = "qc summary directory"))
+option_list <- list(make_option(c("-i", "--input_list"), action = "store", type = "character", default=NA, help = "qc summary directory"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
@@ -18,7 +18,7 @@ opt <- parse_args(opt_parser)
 # =========
 
 # Summary files produced by riboseq_qc.R
-summary_df.ls <- list.files(opt$input_dir)
+summary_df.ls <- list(opt$input_list)
 full_summary.df <- rbindlist(lapply(summary_df.ls, fread), use.names = TRUE)
 
 
