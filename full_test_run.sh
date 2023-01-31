@@ -10,6 +10,8 @@ ml Nextflow/21.10.3
 ml Singularity/3.6.4
 ml Graphviz/2.38.0-foss-2016b
 
+export NXF_CONDA_CACHEDIR=/camp/lab/luscomben/home/users/iosubi/nfcore/riboseq
+
 nextflow pull ulelab/riboseq -r dev
 
 nextflow run ulelab/riboseq -r dev \
