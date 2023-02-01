@@ -171,7 +171,7 @@ if (!is.null(opt$after_premap)) {
     # ggeasy::easy_remove_legend() +
     scale_y_log10() +
     expand_limits(y=1) +
-    geom_rect(xmin = 26, xmax = 31, ymin = -Inf, ymax = Inf, alpha = .1, color = "black")
+    geom_rect(xmin = 26, xmax = 31, ymin = -Inf, ymax = Inf, alpha = .1, color = "black", linetype = "dashed")
 
   premapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
     dplyr::filter(name != "before_dedup_bam"), aes(as.numeric(length), y = value, fill = name)) +
@@ -184,7 +184,7 @@ if (!is.null(opt$after_premap)) {
     theme(legend.position = "none") +
     scale_y_log10()+
     expand_limits(y=1) +
-    geom_rect(xmin = 26, xmax = 31, ymin = -Inf, ymax = Inf, alpha = .1, color = "black")
+    geom_rect(xmin = 26, xmax = 31, ymin = -Inf, ymax = Inf, alpha = .1, color = "black", linetype = "dashed")
 
   # ggplot(mapping_df %>% filter(length<50), aes(x = length, y = value, fill = name)) +
   #   geom_bar(stat="identity", position="dodge")
