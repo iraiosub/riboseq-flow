@@ -30,7 +30,8 @@ process RIBOSEQ_QC {
 
 
 process SUMMARISE_RIBOSEQ_QC {
-    tag "${sample_id}"
+    
+    tag "${workflow.runName}"
     label 'process_low'
 
     conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
