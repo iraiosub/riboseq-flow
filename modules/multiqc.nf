@@ -8,7 +8,7 @@ process MULTIQC {
     tag "${workflow.runName}"
     label 'process_medium'
 
-    conda "bioconda::multiqc=1.13"
+    conda "bioconda::multiqc=1.14"
     // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     //     'https://depot.galaxyproject.org/singularity/multiqc:1.13--pyhdfd78af_0' :
     //     'quay.io/biocontainers/multiqc:1.13--pyhdfd78af_0' }"
@@ -29,7 +29,7 @@ process MULTIQC {
     output:
     path "*multiqc_report.html", emit: report
     path "*_data", emit: data
-    path "*_plots", optional:true, emit: plots
+    path "*_plots", emit: plots
 
     script:
 
