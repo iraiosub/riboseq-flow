@@ -20,6 +20,7 @@ process FASTQC {
 
     output:
         path("*fastqc.{zip,html}"), emit: fastqc
+    
     script:
     read_ext = reads.getName().split('\\.', 2)[1]
     read_name = reads.getName().split('\\.', 2)[0]

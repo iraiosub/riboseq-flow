@@ -79,6 +79,7 @@ include { RIBOSEQ_QC } from './modules/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/riboseq_qc.nf'
 include { GENE_LEVEL_COUNTS } from './modules/featurecounts.nf'
 include { GENETYPE_COUNTS } from './modules/featurecounts.nf'
+include { MULTIQC } from './modules/multiqc.nf'
 
 workflow {
 
@@ -134,7 +135,10 @@ workflow {
 
     }
 
+    MULTIQC(FASTQC.out.fastqc.collect{it[1]}, PREMAP.out.log.collect{it[1]}, MAP.out.log.collect{it[1]}, DEDUPLICATE.log.collect{it[1]})
 }
+
+
 
 
 workflow.onComplete {
