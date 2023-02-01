@@ -20,7 +20,7 @@ process MULTIQC {
     path('fastqc/*')
     path('premapped/*')
     path('mapped/*')
-    path('deduplicated/*')
+    // path('deduplicated/*')
     
     output:
     path "*multiqc_report.html", emit: report
