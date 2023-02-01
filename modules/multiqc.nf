@@ -17,10 +17,14 @@ process MULTIQC {
     publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
 
     input:
-    path('fastqc/*')
-    path('premapped/*')
-    path('mapped/*')
+    // path('fastqc/*')
+    // path('premapped/*')
+    // path('mapped/*')
     // path('deduplicated/*')
+
+    path(fastqc)
+    path(premap_log)
+    path(map_log)
     
     output:
     path "*multiqc_report.html", emit: report
