@@ -152,7 +152,7 @@ workflow {
     //    .collect()
 
 
-    ch_logs = FASTQC.out.fastqc.mix(PREMAP.out.log, MAP.out.log).collect()
+    ch_logs = FASTQC.out.fastqc.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
 
     // MULTIQC(ch_fastqc, ch_premap_log, ch_map_log)
 
