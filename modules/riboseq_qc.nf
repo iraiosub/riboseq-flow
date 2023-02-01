@@ -47,7 +47,9 @@ process SUMMARISE_RIBOSEQ_QC {
     script:
 
         """
-        riboseq_summary_qc.R -i $qc_tables
+        input_qc =`echo $qc_tables | sed 's/ /,/g'`
+        
+        riboseq_qc_summary.R -i $input_qc
         """
 
 }
