@@ -44,6 +44,7 @@ process UMITOOLS_DEDUPLICATE {
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bai", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.bed.gz", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/deduplicated", pattern: "*.log", mode: 'copy', overwrite: true
 
 
     input:
@@ -60,7 +61,7 @@ process UMITOOLS_DEDUPLICATE {
     suffix = params.dedup_mode
 
     """ 
-    umi_tools dedup --umi-separator ${params.umi_separator} -I $bam -S --log ${sample_id}.${suffix}.dedup.log ${sample_id}.${suffix}.dedup.unsorted.bam
+    umi_tools dedup --umi-separator ${params.umi_separator} -I $bam -S ${sample_id}.${suffix}.dedup.unsorted.bam --log ${sample_id}.${suffix}.dedup.log
     samtools sort -@ ${task.cpus} ${sample_id}.${suffix}.dedup.unsorted.bam > ${sample_id}.${suffix}.dedup.sorted.bam
     samtools index ${sample_id}.${suffix}.dedup.sorted.bam > ${sample_id}.${suffix}.dedup.sorted.bai
 
