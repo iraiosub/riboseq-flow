@@ -46,8 +46,10 @@ process SUMMARISE_RIBOSEQ_QC {
 
     script:
 
+        def input_files = "${qc_tables}"
+
         """
-        riboseq_summary_qc.R -i $qc_tables
+        riboseq_summary_qc.R -i $input_files
         """
 
 }
