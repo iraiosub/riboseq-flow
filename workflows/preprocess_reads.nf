@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 include { CUTADAPT } from '../modules/cutadapt.nf'
 include { UMITOOLS_EXTRACT } from '../modules/umitools.nf'
 
-log = Channel.value()
+ch_log =  Channel.empty()
            
 workflow PREPROCESS_READS {
 
@@ -19,6 +19,7 @@ workflow PREPROCESS_READS {
 
         UMITOOLS_EXTRACT(reads)
         fastq = UMITOOLS_EXTRACT.out.fastq
+        log = ch_log
 
         if (!params.skip_trimming) {
 
@@ -43,6 +44,7 @@ workflow PREPROCESS_READS {
         }  else {
 
             fastq = reads
+            log = ch_log
         }
     }
 
