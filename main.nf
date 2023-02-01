@@ -115,7 +115,7 @@ workflow {
 
 
         ch_merge_qc = RIBOSEQ_QC.out.qc
-            .map { [ it[1] ] }
+            .map { [ it[1].join(',') ] }
             .collect()
 
         SUMMARISE_RIBOSEQ_QC(ch_merge_qc)

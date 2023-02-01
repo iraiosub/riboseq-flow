@@ -18,7 +18,7 @@ opt <- parse_args(opt_parser)
 # =========
 
 # Summary files produced by riboseq_qc.R
-summary_df.ls <- as.list(strsplit(opt$input_list, " ")[[1]])
+summary_df.ls <- as.list(strsplit(opt$input_list, ",")[[1]])
 
 # summary_df.ls <- list(opt$input_list)
 full_summary.df <- rbindlist(lapply(summary_df.ls, fread), use.names = TRUE)
