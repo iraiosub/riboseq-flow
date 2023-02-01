@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 include { CUTADAPT } from '../modules/cutadapt.nf'
 include { UMITOOLS_EXTRACT } from '../modules/umitools.nf'
 
-log = Channel.empty()
+log = Channel.create()
            
 workflow PREPROCESS_READS {
 
