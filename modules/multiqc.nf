@@ -22,7 +22,7 @@ process MULTIQC {
     // path('mapped/*')
     // path('deduplicated/*')
 
-    path(fastqc)
+    // path(fastqc)
     path(premap_log)
     path(map_log)
     
