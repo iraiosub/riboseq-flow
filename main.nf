@@ -108,7 +108,7 @@ workflow {
 
     if (!params.skip_qc) {
         // Mapping length analysis
-        MAPPING_LENGTH_ANALYSES(MAP.out.genome_bam,  , DEDUPLICATE.out.dedup_genome_bam, PREMAP.out.unmapped)
+        MAPPING_LENGTH_ANALYSES(MAP.out.genome_bam, PREPROCESS_READS.out.fastq, DEDUPLICATE.out.dedup_genome_bam, PREMAP.out.unmapped)
 
         if (params.with_umi && !params.skip_premap) {
 
