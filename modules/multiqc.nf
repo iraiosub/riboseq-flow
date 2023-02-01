@@ -24,7 +24,7 @@ process MULTIQC {
 
     // path(fastqc)
     path(premap_log)
-    path(map_log)
+    // path(map_log)
     
     output:
     path "*multiqc_report.html", emit: report
