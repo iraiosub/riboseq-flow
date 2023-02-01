@@ -33,9 +33,9 @@ process MULTIQC {
 
     script:
 
-    config_file = "--config ${params.multiqc_config}"
+    // config_file = "--config ${params.multiqc_config}"
 
     """
-    multiqc -f $config_file $fastqc $premap_log $map_log
+    multiqc -f .
     """
 }

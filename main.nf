@@ -135,25 +135,26 @@ workflow {
 
     }
 
-    ch_fastqc = FASTQC.out.fastqc
-       .map { [ it[1] ] }
-       .collect()
+    // ch_fastqc = FASTQC.out.fastqc
+    //    .map { [ it[1] ] }
+    //    .collect()
 
-    ch_premap_log = PREMAP.out.log
-       .map { [ it[1] ] }
-       .collect()
+    // ch_premap_log = PREMAP.out.log
+    //    .map { [ it[1] ] }
+    //    .collect()
 
-    ch_map_log = MAP.out.log
-       .map { [ it[1] ] }
-       .collect()
+    // ch_map_log = MAP.out.log
+    //    .map { [ it[1] ] }
+    //    .collect()
 
     // ch_dedup_log = DEDUPLICATE.out.log
     //    .map { [ it[1] ] }
     //    .collect()
 
-    MULTIQC(ch_fastqc, ch_premap_log, ch_map_log)
+    // MULTIQC(ch_fastqc, ch_premap_log, ch_map_log)
 
     // MULTIQC(FASTQC.out.fastqc.map{it[1]}.collect(), PREMAP.out.log.map{it[1]}.collect(), MAP.out.log.map{it[1]}.collect(), DEDUPLICATE.out.log.map{it[1]}.collect())
+    MULTIQC(FASTQC.out.fastqc.collect{it[1]}, PREMAP.out.log.collect{it[1]}, MAP.out.log.collect{it[1]})
 }
 
 
