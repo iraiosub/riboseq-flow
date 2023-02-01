@@ -36,6 +36,6 @@ process MULTIQC {
     config_file = "--config ${params.multiqc_config}"
 
     """
-    multiqc -f $config_file .
+    multiqc -f $config_file $fastqc $premap_log $map_log
     """
 }
