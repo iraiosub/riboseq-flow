@@ -54,4 +54,4 @@ use | exp | dup
 
 fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
 ggsave("qc_summary.pdf", dpi = 300, height = 12,
-  width = 8*length(unique(full_summary.df$name)))
+  width = 2*length(unique(full_summary.df$name)))
