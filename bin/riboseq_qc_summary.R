@@ -24,7 +24,7 @@ summary_df.ls <- as.list(strsplit(opt$input_list, ",")[[1]])
 full_summary.df <- rbindlist(lapply(summary_df.ls, fread), use.names = TRUE)
 
 
-dup <- ggplot(full_summary.df, aes(x = name, y = duplication, fill = name)) +
+dup <- ggplot(full_summary.df, aes(x = name, y = duplication)) + # , fill = name
   geom_bar(stat="identity") +
   ggtitle("Duplication %") +
   ylab("%") +
@@ -32,7 +32,7 @@ dup <- ggplot(full_summary.df, aes(x = name, y = duplication, fill = name)) +
   theme(axis.text.x = element_text(angle = 90))
   # ggeasy::easy_rotate_x_labels()
 
-exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length, fill = name)) +
+exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length)) + 
   geom_bar(stat="identity") +
   ggtitle("% Expected length", "Low % indicates over-digestion") +
   ylab("%") +
@@ -41,7 +41,7 @@ exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length, fill 
   theme(axis.text.x = element_text(angle = 90)) +
   theme(legend.position = "none")
 
-use <- ggplot(full_summary.df, aes(x = name, y = y, fill = name)) +
+use <- ggplot(full_summary.df, aes(x = name, y = y)) +
   geom_bar(stat="identity") +
   ggtitle("% Reads that are useful") +
   ylab("%") +

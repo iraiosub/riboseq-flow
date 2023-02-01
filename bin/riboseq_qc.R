@@ -142,7 +142,7 @@ if (!is.null(opt$after_premap)) {
   geom_bar(stat="identity", position = "dodge") +
   theme_classic() +
   # ggpubr::theme_pubr() +
-  # xlim(19,60) +
+  xlim(19,60) +
   ylab("% rRNA") +
   ggtitle("rRNA %")
 
@@ -164,11 +164,10 @@ if (!is.null(opt$after_premap)) {
     theme_classic() +
     ylab("Number of reads") +
     ggtitle("Premapping vs mapping") +
-    theme(legend.position = "none") +
+    theme(legend.position = "bottom") +
     # ggeasy::easy_remove_legend() +
     scale_y_log10() +
     expand_limits(y=1)
-    # ylim(0, max(mapping_df2$value))
 
   premapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
     dplyr::filter(name != "before_dedup_bam"), aes(x = length, y = value, fill = name)) +
@@ -177,7 +176,7 @@ if (!is.null(opt$after_premap)) {
     ylab("Number of reads") +
     ggtitle("Original vs premapping") +
     # ggeasy::easy_remove_legend() +
-    theme(legend.position = "none") +
+    theme(legend.position = "bottom") +
     scale_y_log10()+
     expand_limits(y=1)
 
