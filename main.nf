@@ -154,7 +154,7 @@ workflow {
     // MULTIQC(ch_fastqc, ch_premap_log, ch_map_log)
 
     // MULTIQC(FASTQC.out.fastqc.map{it[1]}.collect(), PREMAP.out.log.map{it[1]}.collect(), MAP.out.log.map{it[1]}.collect(), DEDUPLICATE.out.log.map{it[1]}.collect())
-    MULTIQC(PREMAP.out.log.collect{it[1]})
+    MULTIQC(PREMAP.out.log)
 }
 
 
