@@ -161,7 +161,7 @@ if (!is.null(opt$after_premap)) {
 
   mapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
     # drop_na(value) %>%
-    dplyr::filter(name != "original_n"), aes(x = length, y = value, fill = name)) +
+    dplyr::filter(name != "original_n"), aes(x = as.numeric(length), y = value, fill = name)) +
     geom_bar(stat="identity", position="dodge", na.rm = T) +
     scale_fill_manual(values = name_colours) %>%
     theme_classic() +
@@ -174,7 +174,7 @@ if (!is.null(opt$after_premap)) {
     geom_rect(xmin = 26, xmax = 31, alpha = .1,fill = "black")
 
   premapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
-    dplyr::filter(name != "before_dedup_bam"), aes(x = length, y = value, fill = name)) +
+    dplyr::filter(name != "before_dedup_bam"), aes(as.numeric(x) = length, y = value, fill = name)) +
     geom_bar(stat="identity", position="dodge") +
     scale_fill_manual(values = name_colours) +
     theme_classic() +
