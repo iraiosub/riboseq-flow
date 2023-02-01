@@ -163,15 +163,15 @@ if (!is.null(opt$after_premap)) {
     # drop_na(value) %>%
     dplyr::filter(name != "original_n"), aes(x = as.numeric(length), y = value, fill = name)) +
     geom_bar(stat="identity", position="dodge", na.rm = T) +
-    scale_fill_manual(values = name_colours) %>%
+    scale_fill_manual(values = name_colours) +
     theme_classic() +
     ylab("Number of reads") +
     ggtitle("Premapping vs mapping") +
     theme(legend.position = "none") +
     # ggeasy::easy_remove_legend() +
     scale_y_log10() +
-    expand_limits(y=1)
-    # geom_rect(xmin = 26, xmax = 31, alpha = .1,fill = "black")
+    expand_limits(y=1) +
+    geom_rect(xmin = 26, xmax = 31, alpha = .1,fill = "black")
 
   premapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
     dplyr::filter(name != "before_dedup_bam"), aes(as.numeric(length), y = value, fill = name)) +
@@ -183,8 +183,8 @@ if (!is.null(opt$after_premap)) {
     # ggeasy::easy_remove_legend() +
     theme(legend.position = "none") +
     scale_y_log10()+
-    expand_limits(y=1) 
-    # geom_rect(xmin = 26, xmax = 31, alpha = .1, fill = "black")
+    expand_limits(y=1) +
+    geom_rect(xmin = 26, xmax = 31, alpha = .1, fill = "black")
 
   # ggplot(mapping_df %>% filter(length<50), aes(x = length, y = value, fill = name)) +
   #   geom_bar(stat="identity", position="dodge")
