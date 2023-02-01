@@ -136,7 +136,7 @@ workflow {
     }
 
 
-    ch_logs = FASTQC.out.fastqc.collect().mix(PREMAP.out.log.collect().ifEmpty([]), MAP.out.log.collect(), PREPROCESS_READS.out.log.collect().ifEmpty([]), DEDUPLICATE.out.log.collect().ifEmpty([]))
+    ch_logs = FASTQC.out.fastqc.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect(), PREPROCESS_READS.out.log.collect(), DEDUPLICATE.out.log.collect())
 
     // MULTIQC(FASTQC.out.fastqc.map{it[1]}.collect(), PREMAP.out.log.map{it[1]}.collect(), MAP.out.log.map{it[1]}.collect(), DEDUPLICATE.out.log.map{it[1]}.collect())
     MULTIQC(ch_logs)
