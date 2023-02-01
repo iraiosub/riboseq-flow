@@ -8,7 +8,7 @@ suppressPackageStartupMessages(library(patchwork))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(optparse))
 
-option_list <- list(make_option(c("-i", "--input_list"), action = "store", type = "character", default=NA, help = "list of space separated qc summary tables"))
+option_list <- list(make_option(c("-i", "--input_list"), action = "append", type = "character", default=NA, help = "list of space separated qc summary tables"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
