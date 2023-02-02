@@ -1,28 +1,41 @@
 #!/usr/bin/env Rscript
 
-# Script for QC analyses. Originally written by Oscar Wilkins.
-# Modified by Ira Iosub 24.01.2023
-
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(optparse))
+suppressPackageStartupMessages(library(rtracklayer))
 
-option_list <- list(make_option(c("-i", "--input_list"), action = "store", type = "character", default=NA, help = "list of comma separated count tables tables"))
+load_count_tables <- function(table_path) {
+  
+  data <- fread(table_path)
+  data <- data %>%
+    dplyr::select(Geneid, contains(".genome.dedup.sorted.bam")) %>% 
+    rename_with(~str_remove(., '.genome.dedup.sorted.bam'))
+  return(data)
+}
+
+
+option_list <- list(make_option(c("-i", "--input_list"), action = "store", type = "character", default=NA, help = "List of comma separated count tables tables"),
+                    make_option(c("-g", "--gtf"), action = "store", type = "character", default=NA, help = "Annotation file in GTF format"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
 
 # =========
-# Collate results
+# Raw counts
 # =========
 
-# Count tables priduced by e.g. featurecounts
-counts.ls <- as.list(strsplit(opt$input_list, ",")[[1]])
+# Count tables produced by e.g. feature_counts
+raw_counts.ls <- as.list(strsplit(opt$input_list, ",")[[1]])
+raw_counts.df.ls <- lapply(raw_counts.df.ls, load_count_tables)
+raw_counts.df <- purrr::reduce(list(x,y,z), dplyr::left_join, by = 'Geneid')
 
-counts.df.ls <- lapply(counts.df.ls, fread)
+fwrite(raw_counts.df, "featurecounts.tsv.gz", sep = "\t")
 
+# =========
+# TPM
+# =========
 
+# Load annotation, filter per gene and get gene length
+genes.gr <- import.gff2(opt$gtf)
 
-
-
-fwrite(counts.df, "qc_summary.tsv.gz", sep = "\t")
