@@ -33,12 +33,16 @@ if(params.org) {
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
     params.transcript_info = params.genomes[ params.org ].transcript_info
+    params.transcript_fasta = params.genomes[ params.org ].transcript_fasta
 
 }  else {
 
     if(!params.fasta ) { exit 1, '--fasta is not specified.' } 
     if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
+    if(!params.transcript_fasta ) { exit 1, '--transcript_fasta is not specified.' } 
+
     if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, '--smallrna_fasta is not specified.' }
+    if(!params.transcript_info && !params.skip_qc ) {exit 1, '--transcript_info is not specified.' }
 
 }
 
@@ -47,6 +51,7 @@ if(params.org) {
 ch_genome_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
 ch_genome_fai = Channel.fromPath(params.fai, checkIfExists: true)
 ch_genome_gtf = Channel.fromPath(params.gtf, checkIfExists: true)
+ch_transcript_fasta = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
 
 if (!params.skip_premap) {
     ch_smallrna_fasta = Channel.fromPath(params.smallrna_fasta, checkIfExists: true)
@@ -60,7 +65,6 @@ if (!params.skip_premap) {
 
 if (!params.skip_qc) {
     ch_transcript_info = Channel.fromPath(params.transcript_info, checkIfExists: true)
-    // if (ch_smallrna_fasta.isEmpty()) {exit 1, "File provided with --smallrna_fasta is empty: ${ch_smallrna_fasta.getName()}!"}
 } else {
 
     // Create empty channel so riboseq_qc doesn't break
@@ -69,6 +73,7 @@ if (!params.skip_qc) {
 
 
 include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
+// include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE } from './workflows/generate_reference.nf'
 include { PREPROCESS_READS } from './workflows/preprocess_reads.nf'
 include { FASTQC } from './modules/fastqc.nf'
 include { PREMAP } from './modules/premap.nf'
@@ -77,8 +82,9 @@ include { DEDUPLICATE } from './workflows/dedup.nf'
 include { MAPPING_LENGTH_ANALYSES } from './workflows/mapping_length_analyses.nf'
 include { RIBOSEQ_QC } from './modules/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/riboseq_qc.nf'
-include { GENE_LEVEL_COUNTS } from './modules/featurecounts.nf'
-include { GENETYPE_COUNTS } from './modules/featurecounts.nf'
+include { GENE_COUNTS_FEATURECOUNTS } from './modules/featurecounts.nf'
+include { QUANTIFY_SALMON } from './modules/salmon.nf'
+// include { GENETYPE_COUNTS } from './modules/featurecounts.nf'
 include { MULTIQC } from './modules/multiqc.nf'
 
 workflow {
@@ -125,20 +131,27 @@ workflow {
         }
     }
 
-    // Get counts from BAM alignments
+    // Get gene-level counts from BAM alignments
     if (params.with_umi) {
-        GENE_LEVEL_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
-        GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
+        GENE_COUNTS_FEATURECOUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
+        // GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
     } else {
-        GENE_LEVEL_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
-        GENETYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
+        GENE_COUNTS_FEATURECOUNTS(MAP.out.genome_bam, ch_genome_gtf)
+        // GENETYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
 
     }
 
+    // Salmon quantifcation
+    if (params.with_umi) {
+        QUANTIFY_SALMON(DEDUPLICATE.out.dedup_transcriptome_bam, ch_transcript_fasta, ch_genome_gtf)
+        // GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
+    } else {
+        QUANTIFY_SALMON(MAP.out.transcriptome_bam, ch_transcript_fasta, ch_genome_gtf)
+        // GENETYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
+
+    }
 
     ch_logs = FASTQC.out.fastqc.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
-
-    // MULTIQC(FASTQC.out.fastqc.map{it[1]}.collect(), PREMAP.out.log.map{it[1]}.collect(), MAP.out.log.map{it[1]}.collect(), DEDUPLICATE.out.log.map{it[1]}.collect())
     MULTIQC(ch_logs)
 }
 

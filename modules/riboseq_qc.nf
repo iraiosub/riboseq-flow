@@ -54,3 +54,5 @@ process SUMMARISE_RIBOSEQ_QC {
         """
 
 }
+
+// conda-forge::sed=4.7

@@ -15,8 +15,7 @@ load_count_tables <- function(table_path) {
 }
 
 
-option_list <- list(make_option(c("-i", "--input_list"), action = "store", type = "character", default=NA, help = "List of comma separated count tables tables"),
-                    make_option(c("-g", "--gtf"), action = "store", type = "character", default=NA, help = "Annotation file in GTF format"))
+option_list <- list(make_option(c("-i", "--input_list"), action = "store", type = "character", default=NA, help = "List of comma separated count tables tables"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
@@ -31,11 +30,3 @@ raw_counts.df.ls <- lapply(raw_counts.df.ls, load_count_tables)
 raw_counts.df <- purrr::reduce(list(x,y,z), dplyr::left_join, by = 'Geneid')
 
 fwrite(raw_counts.df, "featurecounts.tsv.gz", sep = "\t")
-
-# =========
-# TPM
-# =========
-
-# Load annotation, filter per gene and get gene length
-genes.gr <- import.gff2(opt$gtf)
-

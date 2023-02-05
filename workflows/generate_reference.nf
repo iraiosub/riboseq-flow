@@ -3,6 +3,34 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
+process GUNZIP_FASTA {
+    tag "$fasta"
+
+    conda "conda-forge::sed=4.7"
+
+    input:
+    path fasta
+
+    output:
+    path "*.fa", emit: fasta
+
+    script:
+    def gzipped = fasta.toString().endsWith('.gz')
+    def outfile = gzipped ? file(fasta.baseName).baseName : fasta.baseName
+    // def command = gzipped ? 'zcat' : 'cat'
+
+    if (gzipped)
+    """
+    zcat $fasta > ${outfile}.fa
+    """
+    else
+    """
+    touch $fasta
+    """
+
+}
+
+
 process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     tag "$smallrna_fasta"
     label 'process_medium'
