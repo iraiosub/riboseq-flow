@@ -29,4 +29,4 @@ raw_counts.ls <- as.list(strsplit(opt$input_list, ",")[[1]])
 raw_counts.df.ls <- lapply(raw_counts.df.ls, load_count_tables)
 raw_counts.df <- purrr::reduce(list(x,y,z), dplyr::left_join, by = 'Geneid')
 
-fwrite(raw_counts.df, "featurecounts.tsv.gz", sep = "\t")
+fwrite(raw_counts.df, "featurecounts_merged.tsv.gz", sep = "\t")

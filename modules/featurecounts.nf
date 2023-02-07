@@ -23,11 +23,11 @@ process GENE_COUNTS_FEATURECOUNTS {
     script:
     
     """
-    featureCounts -a $gtf --largestOverlap -s 1 -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
+    featureCounts -a $gtf -s 1 -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
     
     """
 
 }
 
 
-
+// --largestOverlap

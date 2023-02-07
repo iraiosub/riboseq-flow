@@ -73,7 +73,6 @@ if (!params.skip_qc) {
 
 
 include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
-// include { PREPROCESS_TRANSCRIPTS_FASTA_GENCODE } from './workflows/generate_reference.nf'
 include { PREPROCESS_READS } from './workflows/preprocess_reads.nf'
 include { FASTQC } from './modules/fastqc.nf'
 include { PREMAP } from './modules/premap.nf'
@@ -84,7 +83,7 @@ include { RIBOSEQ_QC } from './modules/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/riboseq_qc.nf'
 include { GENE_COUNTS_FEATURECOUNTS } from './modules/featurecounts.nf'
 include { QUANTIFY_SALMON } from './modules/salmon.nf'
-// include { GENETYPE_COUNTS } from './modules/featurecounts.nf'
+include { TXIMPORT_SALMON } from './modules/salmon.nf'
 include { MULTIQC } from './modules/multiqc.nf'
 
 workflow {
@@ -131,7 +130,7 @@ workflow {
         }
     }
 
-    // Get gene-level counts from BAM alignments
+    // Get gene-level counts from BAM alignments using featurecounts
     if (params.with_umi) {
         GENE_COUNTS_FEATURECOUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
         // GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
@@ -141,7 +140,7 @@ workflow {
 
     }
 
-    // Salmon quantifcation
+    // Salmon quantifcation from BAM alignments
     if (params.with_umi) {
         QUANTIFY_SALMON(DEDUPLICATE.out.dedup_transcriptome_bam, ch_transcript_fasta, ch_genome_gtf)
         // GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
@@ -150,6 +149,8 @@ workflow {
         // GENETYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
 
     }
+
+    TXIMPORT_SALMON(QUANTIFY_SALMON.out.results)
 
     ch_logs = FASTQC.out.fastqc.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     MULTIQC(ch_logs)

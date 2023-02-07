@@ -88,15 +88,15 @@ process GENERATE_GENOME_STAR_INDEX {
     NUM_BASES=`gawk '{sum = sum + \$2}END{if ((log(sum)/log(2))/2 - 1 > 14) {printf "%.0f", 14} else {printf "%.0f", (log(sum)/log(2))/2 - 1}}' ${genome_fasta}.fai`
     
     mkdir star_index
-    STAR \\
-        --runThreadN $task.cpus \\
-        --runMode genomeGenerate \\
-        --genomeDir star_index/ \\
-        --genomeFastaFiles $genome_fasta \\
-        --sjdbGTFfile $genome_gtf \\
-        --sjdbGTFfeatureExon exon \\
-        --genomeSAindexNbases \$NUM_BASES \\
-        --sjdbOverhang 100 \\
+    STAR \
+        --runThreadN $task.cpus \
+        --runMode genomeGenerate \
+        --genomeDir star_index/ \
+        --genomeFastaFiles $genome_fasta \
+        --sjdbGTFfile $genome_gtf \
+        --sjdbGTFfeatureExon exon \
+        --genomeSAindexNbases \$NUM_BASES \
+        --sjdbOverhang 100 \
         $memory
               
     """
