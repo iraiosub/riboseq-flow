@@ -50,7 +50,7 @@ process TXIMPORT_SALMON {
     publishDir "${params.outdir}/salmon_quant", mode: 'copy', overwrite: true
 
     input:
-    path(salmon_tables) // path ("salmon_quant/*")
+    path ("salmon_quant/*")
     path(gtf)
 
     output:
@@ -67,7 +67,7 @@ process TXIMPORT_SALMON {
     script: // This script is bundled with the pipeline, in nf-core/rnaseq/bin/
     """
 
-    get_salmon_count_tables.R --salmon_results INPUT_TXIMPORT --gtf $gtf
+    get_salmon_count_tables.R --salmon_results . --gtf $gtf
 
     """
 }

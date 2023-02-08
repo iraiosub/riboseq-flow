@@ -4,6 +4,7 @@
 nextflow.enable.dsl=2
 
 process RIBOSEQ_QC {
+    
     tag "${sample_id}"
     label 'process_medium'
 
@@ -54,5 +55,3 @@ process SUMMARISE_RIBOSEQ_QC {
         """
 
 }
-
-// conda-forge::sed=4.7

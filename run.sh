@@ -6,9 +6,15 @@
 #SBATCH --partition=cpu
 
 module purge
-ml Nextflow/21.10.3
+ml Java/11.0.2
+ml Nextflow/22.10.3
+# ml Nextflow/21.10.3
 ml Singularity/3.6.4
-ml Graphviz/2.38.0-foss-2016b
+# ml Graphviz/2.38.0-foss-2016b
+
+export NXF_SINGULARITY_CACHEDIR=/camp/lab/luscomben/home/users/iosubi/nfcore/riboseq
+export  NXF_CONDA_CACHEDIR=/camp/lab/luscomben/home/users/iosubi/nfcore/riboseq
+export NXF_HOME=/camp/lab/luscomben/home/users/iosubi/.nextflow # for Nextflow versions > 22.x
 
 nextflow pull ulelab/riboseq -r dev
 

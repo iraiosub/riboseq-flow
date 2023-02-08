@@ -3,7 +3,6 @@
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(optparse))
-suppressPackageStartupMessages(library(rtracklayer))
 
 load_count_tables <- function(table_path) {
   
@@ -15,7 +14,7 @@ load_count_tables <- function(table_path) {
 }
 
 
-option_list <- list(make_option(c("-i", "--input_list"), action = "store", type = "character", default=NA, help = "List of comma separated count tables tables"))
+option_list <- list(make_option(c("-i", "--input_list"), action = "store", type = "character", default=NA, help = "List of comma separated count tables"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
@@ -26,7 +25,7 @@ opt <- parse_args(opt_parser)
 
 # Count tables produced by e.g. feature_counts
 raw_counts.ls <- as.list(strsplit(opt$input_list, ",")[[1]])
-raw_counts.df.ls <- lapply(raw_counts.df.ls, load_count_tables)
-raw_counts.df <- purrr::reduce(list(x,y,z), dplyr::left_join, by = 'Geneid')
+raw_counts.df.ls <- lapply(raw_counts.ls, load_count_tables)
+raw_counts.df <- purrr::reduce(raw_counts.df.ls, dplyr::left_join, by = 'Geneid')
 
-fwrite(raw_counts.df, "featurecounts_merged.tsv.gz", sep = "\t")
+fwrite(raw_counts.df, "merged.featureCounts.tsv.gz", sep = "\t")

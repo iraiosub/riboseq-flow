@@ -3,8 +3,8 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-include { CUTADAPT } from '../modules/cutadapt.nf'
-include { UMITOOLS_EXTRACT } from '../modules/umitools.nf'
+include { CUTADAPT } from '../modules/local/cutadapt.nf'
+include { UMITOOLS_EXTRACT } from '../modules/local/umitools.nf'
 
            
 workflow PREPROCESS_READS {

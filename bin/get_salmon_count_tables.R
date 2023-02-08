@@ -42,7 +42,6 @@ opt <- parse_args(opt_parser)
 
 # Create txdb from GTF
 opt$gtf <- "gencode.v29.primary_assembly.annotation.gtf.gz"
-opt$dir <- "../salmon_quant"
 prefix <- "salmon_merged"
 
 # Prepare annotation
@@ -54,7 +53,7 @@ k <- keys(txdb, keytype = "TXNAME")
 tx2gene <- select(txdb, k, "GENEID", "TXNAME")
 
 # Load salmon quantif
-files <- list.files(opt$dir, pattern = "quant.sf", recursive = TRUE, full.names = TRUE)
+files <- list.files(opt$salmon_results, pattern = "quant.sf", recursive = TRUE, full.names = TRUE)
 names(files) <- basename(dirname(files))
 
 coldata <- data.frame(files = files, names = names(files))

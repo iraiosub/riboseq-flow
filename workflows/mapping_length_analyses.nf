@@ -3,9 +3,9 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_BEFORE_DEDUP } from '../modules/mapping_length.nf' addParams(length_analysis_type: params.before_dedup_length_analysis)
-include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP } from '../modules/mapping_length.nf' addParams(length_analysis_type: params.after_dedup_length_analysis)
-include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP } from '../modules/mapping_length.nf' addParams(length_analysis_type: params.after_premap_length_analysis)
+include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_BEFORE_DEDUP } from '../modules/local/mapping_length.nf' addParams(length_analysis_type: params.before_dedup_length_analysis)
+include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP } from '../modules/local/mapping_length.nf' addParams(length_analysis_type: params.after_dedup_length_analysis)
+include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP } from '../modules/local/mapping_length.nf' addParams(length_analysis_type: params.after_premap_length_analysis)
 
 // Remove duplicate reads from BAM file based on UMIs
 

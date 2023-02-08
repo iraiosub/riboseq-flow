@@ -73,20 +73,29 @@ if (!params.skip_qc) {
 
 
 include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
+include { GUNZIP as GUNZIP_SMALLRNA_FASTA } from './modules/nf-core/gunzip/main.nf'
 include { PREPROCESS_READS } from './workflows/preprocess_reads.nf'
-include { FASTQC } from './modules/fastqc.nf'
-include { PREMAP } from './modules/premap.nf'
-include { MAP } from './modules/map.nf'
+include { FASTQC } from './modules/nf-core/fastqc/main'
+include { PREMAP } from './modules/local/premap.nf'
+include { MAP } from './modules/local/map.nf'
 include { DEDUPLICATE } from './workflows/dedup.nf'
 include { MAPPING_LENGTH_ANALYSES } from './workflows/mapping_length_analyses.nf'
-include { RIBOSEQ_QC } from './modules/riboseq_qc.nf'
-include { SUMMARISE_RIBOSEQ_QC } from './modules/riboseq_qc.nf'
-include { GENE_COUNTS_FEATURECOUNTS } from './modules/featurecounts.nf'
-include { QUANTIFY_SALMON } from './modules/salmon.nf'
-include { TXIMPORT_SALMON } from './modules/salmon.nf'
-include { MULTIQC } from './modules/multiqc.nf'
+include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
+include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
+include { GENE_COUNTS_FEATURECOUNTS } from './modules/local/featurecounts.nf'
+include { MERGE_FEATURECOUNTS } from './modules/local/featurecounts.nf'
+// include { QUANTIFY_SALMON } from './modules/local/salmon.nf'
+// include { TXIMPORT_SALMON } from './modules/local/salmon.nf'
+include { MULTIQC } from './modules/local/multiqc.nf'
 
 workflow {
+
+    if (!params.skip_premap && params.smallrna_fasta.endsWith('.gz')) {
+        ch_smallrna_fasta = GUNZIP_SMALLRNA_FASTA ( [ [:], params.smallrna_fasta ] ).gunzip.map { it[1] }
+    } else {
+        // ch_smallrna_fasta = file(params.smallrna_fasta)
+        ch_smallrna_fasta = ch_smallrna_fasta
+    }
 
     // Prepare annotation
     GENERATE_REFERENCE_INDEX(ch_smallrna_fasta, ch_genome_fasta, ch_genome_gtf)
@@ -140,19 +149,21 @@ workflow {
 
     }
 
-    // Salmon quantifcation from BAM alignments
-    if (params.with_umi) {
-        QUANTIFY_SALMON(DEDUPLICATE.out.dedup_transcriptome_bam, ch_transcript_fasta, ch_genome_gtf)
-        // GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
-    } else {
-        QUANTIFY_SALMON(MAP.out.transcriptome_bam, ch_transcript_fasta, ch_genome_gtf)
-        // GENETYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
+    MERGE_FEATURECOUNTS(GENE_COUNTS_FEATURECOUNTS.out.counts.map { [ it[1] ] }.collect())
 
-    }
+    // // Salmon quantifcation from multi-mapping BAM alignments
+    // if (params.with_umi) {
+    //     QUANTIFY_SALMON(DEDUPLICATE.out.dedup_transcriptome_bam, ch_transcript_fasta, ch_genome_gtf)
+    //     // GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
+    // } else {
+    //     QUANTIFY_SALMON(MAP.out.transcriptome_bam, ch_transcript_fasta, ch_genome_gtf)
+    //     // GENETYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
 
-    TXIMPORT_SALMON(QUANTIFY_SALMON.out.results)
+    // }
 
-    ch_logs = FASTQC.out.fastqc.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
+    // TXIMPORT_SALMON(QUANTIFY_SALMON.out.results.collect(), ch_genome_gtf)
+
+    ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     MULTIQC(ch_logs)
 }
 

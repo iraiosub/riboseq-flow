@@ -3,8 +3,8 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-include { UMITOOLS_DEDUPLICATE as DEDUPLICATE_GENOME } from '../modules/umitools.nf' addParams(dedup_mode: params.dedup_genome)
-include { UMITOOLS_DEDUPLICATE as DEDUPLICATE_TRANSCRIPTOME } from '../modules/umitools.nf' addParams(dedup_mode: params.dedup_transcriptome)
+include { UMITOOLS_DEDUPLICATE as DEDUPLICATE_GENOME } from '../modules/local/umitools.nf' addParams(dedup_mode: params.dedup_genome)
+include { UMITOOLS_DEDUPLICATE as DEDUPLICATE_TRANSCRIPTOME } from '../modules/local/umitools.nf' addParams(dedup_mode: params.dedup_transcriptome)
 
 
 // Remove duplicate reads from BAM file based on UMIs
