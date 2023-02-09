@@ -10,6 +10,8 @@ process GET_TRANSCRIPT_INFO {
 
     conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env2.yml'
 
+    publishDir "${params.outdir}/riboseq_qc/longest_cds.transcript_info.tsv.gz", mode: 'copy', overwrite: true
+
     input:
         path(gtf)
 

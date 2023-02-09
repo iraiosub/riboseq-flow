@@ -44,7 +44,12 @@ txlengths.dt <- data.table(txlengths, key = c("tx_name", "gene_id"))
 pc = c("protein_coding", "IG_V_gene", "TR_V_gene", "IG_C_gene", "IG_J_gene", "TR_J_gene", "TR_C_gene", "IG_D_gene", "TR_D_gene")
 
 
-gtf.df <- as.data.frame(import.gff2(opt$gtf))
+gtf <- import.gff2(opt$gtf)
+filtered_gtf <- gtf[!(gtf$tag %in% c("cds_end_NF", "mRNA_end_NF", "cds_start_NF", "mRNA_start_NF"))]
+filtered_gtf <- filtered_gtf[filtered_gtf$transcript_support_level %in% 1:2]
+
+
+gtf.df <- as.data.frame(filtered_gtf)
 gtf.dt <- data.table(gtf.df, key = c("transcript_id", "gene_id"))
 gtf.dt <- gtf.dt[txlengths.dt]
 
