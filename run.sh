@@ -7,8 +7,8 @@
 
 module purge
 ml Java/11.0.2
-ml Nextflow/22.10.3
-# ml Nextflow/21.10.3
+# ml Nextflow/22.10.3
+ml Nextflow/21.10.3
 ml Singularity/3.6.4
 # ml Graphviz/2.38.0-foss-2016b
 

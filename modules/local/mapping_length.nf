@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 process MAPPING_LENGTH_ANALYSIS {
  
     tag "${sample_id}"
-    label 'process_high'
+    label 'process_medium'
 
     conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
 
