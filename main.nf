@@ -32,17 +32,12 @@ if(params.org) {
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
-    params.transcript_info = params.genomes[ params.org ].transcript_info
-    params.transcript_fasta = params.genomes[ params.org ].transcript_fasta
 
 }  else {
 
     if(!params.fasta ) { exit 1, '--fasta is not specified.' } 
     if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
-    if(!params.transcript_fasta ) { exit 1, '--transcript_fasta is not specified.' } 
-
     if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, '--smallrna_fasta is not specified.' }
-    if(!params.transcript_info && !params.skip_qc ) {exit 1, '--transcript_info is not specified.' }
 
 }
 
@@ -51,7 +46,6 @@ if(params.org) {
 ch_genome_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
 ch_genome_fai = Channel.fromPath(params.fai, checkIfExists: true)
 ch_genome_gtf = Channel.fromPath(params.gtf, checkIfExists: true)
-ch_transcript_fasta = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
 
 if (!params.skip_premap) {
     ch_smallrna_fasta = Channel.fromPath(params.smallrna_fasta, checkIfExists: true)
@@ -63,17 +57,11 @@ if (!params.skip_premap) {
 }
 
 
-if (!params.skip_qc) {
-    ch_transcript_info = Channel.fromPath(params.transcript_info, checkIfExists: true)
-} else {
-
-    // Create empty channel so riboseq_qc doesn't break
-    ch_transcript_info = Channel.empty()
-}
-
-
-include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
+include { GUNZIP as GUNZIP_FASTA } from './modules/nf-core/gunzip/main.nf'
+include { GUNZIP as GUNZIP_GTF } from './modules/nf-core/gunzip/main.nf'
 include { GUNZIP as GUNZIP_SMALLRNA_FASTA } from './modules/nf-core/gunzip/main.nf'
+include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
+include { GET_TRANSCRIPT_INFO } from './modules/local/reference.nf'
 include { PREPROCESS_READS } from './workflows/preprocess_reads.nf'
 include { FASTQC } from './modules/nf-core/fastqc/main'
 include { PREMAP } from './modules/local/premap.nf'
@@ -84,11 +72,25 @@ include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { GENE_COUNTS_FEATURECOUNTS } from './modules/local/featurecounts.nf'
 include { MERGE_FEATURECOUNTS } from './modules/local/featurecounts.nf'
-// include { QUANTIFY_SALMON } from './modules/local/salmon.nf'
-// include { TXIMPORT_SALMON } from './modules/local/salmon.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 
 workflow {
+
+    // Prepare annotation: unzip annotation and genome files if necessary
+    if (params.smallrna_fasta.endsWith('.gz')) {
+        ch_genome_fasta = GUNZIP_FASTA ( [ [:], params.fasta ] ).gunzip.map { it[1] }
+    } else {
+        // ch_smallrna_fasta = file(params.smallrna_fasta)
+        ch_genome_fasta = ch_genome_fasta
+    }
+
+
+    if (params.smallrna_fasta.endsWith('.gz')) {
+        ch_genome_gtf = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip.map { it[1] }
+    } else {
+        // ch_smallrna_fasta = file(params.smallrna_fasta)
+        ch_genome_gtf = ch_genome_gtf
+    }
 
     if (!params.skip_premap && params.smallrna_fasta.endsWith('.gz')) {
         ch_smallrna_fasta = GUNZIP_SMALLRNA_FASTA ( [ [:], params.smallrna_fasta ] ).gunzip.map { it[1] }
@@ -97,9 +99,13 @@ workflow {
         ch_smallrna_fasta = ch_smallrna_fasta
     }
 
-    // Prepare annotation
+    // Prepare annotation: create index for alignment
     GENERATE_REFERENCE_INDEX(ch_smallrna_fasta, ch_genome_fasta, ch_genome_gtf)
 
+    if (!params.skip_qc) {
+        GET_TRANSCRIPT_INFO(ch_genome_gtf)
+    }
+    
     // Extract UMIs and/or trim adapters
     PREPROCESS_READS(ch_input)
     FASTQC(PREPROCESS_READS.out.fastq)
@@ -126,7 +132,7 @@ workflow {
 
         if (params.with_umi && !params.skip_premap) {
 
-        RIBOSEQ_QC(DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis), ch_transcript_info.collect())
+        RIBOSEQ_QC(DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis), GET_TRANSCRIPT_INFO.out.transcript_info.collect())
 
 
         ch_merge_qc = RIBOSEQ_QC.out.qc
@@ -135,16 +141,15 @@ workflow {
 
         SUMMARISE_RIBOSEQ_QC(ch_merge_qc)
 
-
         }
     }
 
     // Get gene-level counts from BAM alignments using featurecounts
     if (params.with_umi) {
-        GENE_COUNTS_FEATURECOUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
+        GENE_COUNTS_FEATURECOUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf.collect())
         // GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
     } else {
-        GENE_COUNTS_FEATURECOUNTS(MAP.out.genome_bam, ch_genome_gtf)
+        GENE_COUNTS_FEATURECOUNTS(MAP.out.genome_bam, ch_genome_gtf.collect())
         // GENETYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
 
     }

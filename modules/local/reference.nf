@@ -3,6 +3,27 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
+process GET_TRANSCRIPT_INFO {
+    
+    tag "$gtf"
+    label 'process_single'
+
+    conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env2.yml'
+
+    input:
+        path(gtf)
+
+    output:
+        path("*.longest_cds.transcript_info.tsv.gz"), emit: transcript_info
+
+    script:
+    """
+    get_transcript_info.R -g $gtf
+    
+    """
+}
+
+
 process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     
     tag "$smallrna_fasta"
