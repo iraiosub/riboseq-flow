@@ -19,5 +19,5 @@ export NXF_HOME=/camp/lab/luscomben/home/users/iosubi/.nextflow # for Nextflow v
 nextflow pull ulelab/riboseq -r dev
 
 nextflow run ulelab/riboseq -r dev \
--profile conda,crick,test \
+-profile conda,crick,test --enable_conda  \
 -resume
