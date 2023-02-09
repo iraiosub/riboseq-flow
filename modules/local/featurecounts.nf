@@ -9,9 +9,9 @@ process GENE_COUNTS_FEATURECOUNTS {
     label 'process_medium'
 
     conda "bioconda::subread=2.0.1"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/subread:2.0.1--hed695b0_0' :
-        'quay.io/biocontainers/subread:2.0.1--hed695b0_0' }"
+    // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+    //     'https://depot.galaxyproject.org/singularity/subread:2.0.1--hed695b0_0' :
+    //     'quay.io/biocontainers/subread:2.0.1--hed695b0_0' }"
 
     publishDir "${params.outdir}/feature_counts", pattern: "*.featureCounts*", mode: 'copy', overwrite: true
     
