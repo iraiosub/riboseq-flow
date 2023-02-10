@@ -45,7 +45,7 @@ process CUTADAPT {
     
     if (params.ts_trimming) {
         ts_args = args + " -a " + params.ts_adapter_threeprime
-        ts_args +=  " -u " + trim_polyG
+        ts_args +=  " -u " + params.trim_polyG
         ts_args += " -n " + params.times_trimmed
     }
 
