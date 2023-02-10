@@ -6,8 +6,7 @@ nextflow.enable.dsl=2
 process MAP {
  
     tag "${sample_id}"
-    // label 'process_high'
-    label 'process_medium'
+    label 'process_high'
 
     conda 'bioconda::star=2.7.10a bioconda::samtools=1.16.1'
     // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
