@@ -46,7 +46,7 @@ pc = c("protein_coding", "IG_V_gene", "TR_V_gene", "IG_C_gene", "IG_J_gene", "TR
 
 gtf <- import.gff2(opt$gtf)
 filtered_gtf <- gtf[!(gtf$tag %in% c("cds_end_NF", "mRNA_end_NF", "cds_start_NF", "mRNA_start_NF"))]
-filtered_gtf <- filtered_gtf[filtered_gtf$transcript_support_level %in% 1:2]
+# filtered_gtf <- filtered_gtf[filtered_gtf$transcript_support_level %in% 1:2]
 
 
 gtf.df <- as.data.frame(filtered_gtf)
@@ -59,7 +59,7 @@ longest.pc.dt <- longest.pc.dt[gene_type %in% pc & transcript_type %in% pc & cds
 # hierarchy
 longest.pc.dt <- longest.pc.dt %>% arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr3_len), desc(utr5_len))
 
-unique.longest.pc.dt <- longest.pc.dt[ !duplicated(longest.pc.dt$gene_id), ] 
+unique.longest.pc.dt <- longest.pc.dt[!duplicated(longest.pc.dt$gene_id), ] 
 
 tx.info.dt <- unique.longest.pc.dt %>%
   dplyr::filter(cds_len > 0) %>%
