@@ -19,4 +19,7 @@ export  NXF_CONDA_CACHEDIR=/camp/lab/ulej/home/users/luscomben/users/iosubi/nfco
 nextflow pull ulelab/riboseq -r feat-ribocutter
 
 nextflow run ulelab/riboseq -r feat-ribocutter \
--profile conda,crick,test
+-profile conda,crick,test \
+-resume \
+--min_read_length 23 \
+--extra_ribocutter_args '--max_read_length 60'
