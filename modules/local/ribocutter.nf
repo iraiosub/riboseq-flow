@@ -21,7 +21,7 @@ path("*stats.csv"), emit: stats
 
 script:
 """
-ribocutter -i $reads -o ${sample_id} -g 50 -r 1000000 –-save_stats
+ribocutter -i $reads -o ${sample_id} -g 50 –-save_stats
 
 """
 }
