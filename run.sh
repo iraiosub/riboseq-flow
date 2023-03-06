@@ -19,5 +19,4 @@ export  NXF_CONDA_CACHEDIR=/camp/lab/ulej/home/users/luscomben/users/iosubi/nfco
 nextflow pull ulelab/riboseq -r feat-ribocutter
 
 nextflow run ulelab/riboseq -r feat-ribocutter \
--profile conda,crick,test \
--resume
+-profile conda,crick,test
