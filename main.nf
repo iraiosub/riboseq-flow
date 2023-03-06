@@ -78,7 +78,7 @@ include {RIBOCUTTER} from './modules/local/ribocutter.nf'
 workflow {
 
     // Prepare annotation: unzip annotation and genome files if necessary
-    if (params.smallrna_fasta.endsWith('.gz')) {
+    if (params.fasta.endsWith('.gz')) {
         ch_genome_fasta = GUNZIP_FASTA ( [ [:], params.fasta ] ).gunzip.map { it[1] }
     } else {
         // ch_smallrna_fasta = file(params.smallrna_fasta)
@@ -86,7 +86,7 @@ workflow {
     }
 
 
-    if (params.smallrna_fasta.endsWith('.gz')) {
+    if (params.gtf.endsWith('.gz')) {
         ch_genome_gtf = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip.map { it[1] }
     } else {
         // ch_smallrna_fasta = file(params.smallrna_fasta)
