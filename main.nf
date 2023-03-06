@@ -73,6 +73,7 @@ include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { GENE_COUNTS_FEATURECOUNTS } from './modules/local/featurecounts.nf'
 include { MERGE_FEATURECOUNTS } from './modules/local/featurecounts.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
+include {RIBOCUTTER} from './modules/local/ribocutter.nf'
 
 workflow {
 
@@ -170,6 +171,8 @@ workflow {
 
     ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     MULTIQC(ch_logs)
+
+    RIBOCUTTER(PREPROCESS_READS.out.fastq)
 }
 
 
