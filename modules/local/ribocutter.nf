@@ -20,8 +20,16 @@ path("*stats.csv"), emit: stats
 
 
 script:
+
+ args = " -g " + params.guide_number
+ args += " -r " + params.max_reads
+ args += " --min_read_length " + params.min_read_length
+ args += params.extra_ribocutter_args
+
+ 
 """
-ribocutter -i $reads -o ${sample_id} -g 50 --save_stats -r 1000000
+
+ribocutter -i $reads -o ${sample_id} $args --save_stats
 
 """
 }
