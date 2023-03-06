@@ -24,7 +24,7 @@ script:
  args = " -g " + params.guide_number
  args += " -r " + params.max_reads
  args += " --min_read_length " + params.min_read_length
- args += params.extra_ribocutter_args
+ args += " " + params.extra_ribocutter_args
 
  
 """
