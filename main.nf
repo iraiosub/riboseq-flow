@@ -73,7 +73,7 @@ include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { GENE_COUNTS_FEATURECOUNTS } from './modules/local/featurecounts.nf'
 include { MERGE_FEATURECOUNTS } from './modules/local/featurecounts.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
-include {RIBOCUTTER} from './modules/local/ribocutter.nf'
+include { RIBOCUTTER } from './modules/local/ribocutter.nf'
 
 workflow {
 
@@ -81,7 +81,6 @@ workflow {
     if (params.fasta.endsWith('.gz')) {
         ch_genome_fasta = GUNZIP_FASTA ( [ [:], params.fasta ] ).gunzip.map { it[1] }
     } else {
-        // ch_smallrna_fasta = file(params.smallrna_fasta)
         ch_genome_fasta = ch_genome_fasta
     }
 
@@ -89,7 +88,7 @@ workflow {
     if (params.gtf.endsWith('.gz')) {
         ch_genome_gtf = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip.map { it[1] }
     } else {
-        // ch_smallrna_fasta = file(params.smallrna_fasta)
+
         ch_genome_gtf = ch_genome_gtf
     }
 

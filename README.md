@@ -109,7 +109,7 @@ If `--org` is not specified, the user must provide paths to all required annotat
 
 - `--with_umi` enables UMI-based read deduplication
 - `--skip_umi_extract` skips UMI extraction from the read in case UMIs have been moved to the headers in advance
-- `--umi_extract_method` specify method to extract the UMI barcode, either `string` or `regex`
+- `--umi_extract_method` specify method to extract the UMI barcode (options: `string` or `regex`)
 - `--umi_pattern` specifies the UMI barcode pattern
 - `--umi_separator` specifies the UMI barcode separator
 
@@ -135,11 +135,16 @@ If you prepared your library using a TS (template-switch protocol) you may use t
 ### Read alignment options
 
 - `--skip_premap` skips premapping to the small RNA genome
+- `--star_args` string specifying additional STAR arguments
+
+### Gene-level RPF quantification options
+
+- `--strandedness` specifies the library strandedness (options: `forward`, `reverse` or `unstranded`)
 
 ### Optional pipeline modules
 
 - `--skip_qc` skips mapping_length_analysis and generation of QC plots and MultiQC report
-- `--star_args` string specifying additional STAR arguments
+
 
 ## Pipeline outputs
 

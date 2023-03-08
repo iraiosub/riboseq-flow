@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 
 process RIBOCUTTER {
 tag "${sample_id}"
-label 'process_medium'
+label 'process_single'
 
 conda 'bioconda::ribocutter=0.1.1'
 

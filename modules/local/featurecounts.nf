@@ -24,9 +24,25 @@ process GENE_COUNTS_FEATURECOUNTS {
     tuple val(sample_id), path("*.featureCounts.txt.summary"), emit: summary
 
     script:
+
+
+    if (params.strand == "forward") {
+        
+        strandedness = 1
+    } else if (params.strand == "reverse") {
+        
+        strandedness = 2 
+    } else if (params.strand == "unstranded") {
+
+        strandedness = 0
+    } else {
+
+        error "Library strandedness must be a valid argument. Options are 'forward', 'reverse', 'unstranded'. "
+    }
+    
     
     """
-    featureCounts -a $gtf -s 1 -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
+    featureCounts -a $gtf -s $strandedness -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
     
     """
 
@@ -35,7 +51,7 @@ process GENE_COUNTS_FEATURECOUNTS {
 
 process MERGE_FEATURECOUNTS {
  
-    label 'process_medium'
+    label 'process_single'
 
     conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
 
