@@ -115,7 +115,7 @@ If `--org` is not specified, the user must provide paths to all required annotat
 
 ### Read trimming and filtering options
 
-- `--skip_trimming` skip the adapter and quality trimming step
+- `--skip_preprocessing` skip the adapter and quality trimming and legnth filtering step
 - `--adapter_threeprime` sequence of 3' adapter (equivalent to -a in `cutadapt`) (default: `AGATCGGAAGAGC`)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to -g in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
@@ -144,6 +144,7 @@ If you prepared your library using a TS (template-switch protocol) you may use t
 ### Optional pipeline modules
 
 - `--skip_qc` skips mapping_length_analysis and generation of QC plots and MultiQC report
+- `--skip_ribocutter` skips Ribocutter
 
 
 ## Pipeline outputs

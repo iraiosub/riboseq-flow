@@ -6,6 +6,9 @@ nextflow.enable.dsl=2
 include { CUTADAPT } from '../modules/local/cutadapt.nf'
 include { UMITOOLS_EXTRACT } from '../modules/local/umitools.nf'
 
+
+// reads.into { reads_raw; reads_trimmed }
+
            
 workflow PREPROCESS_READS {
 
@@ -18,12 +21,14 @@ workflow PREPROCESS_READS {
 
         UMITOOLS_EXTRACT(reads)
         fastq = UMITOOLS_EXTRACT.out.fastq
+        trimmed_fastq = UMITOOLS_EXTRACT.out.fastq
 
-        if (!params.skip_trimming) {
+        if (!params.skip_preprocessing) {
 
             CUTADAPT(UMITOOLS_EXTRACT.out.fastq)
             fastq = CUTADAPT.out.fastq
-            // log = CUTADAPT.out.log
+            trimmed_fastq = CUTADAPT.out.trimmed_fastq
+            
             
         }  
 
@@ -33,21 +38,24 @@ workflow PREPROCESS_READS {
 
     } else {
 
-        if (!params.skip_trimming) {
+        if (!params.skip_preprocessing) {
 
             CUTADAPT(reads)
             fastq = CUTADAPT.out.fastq
-            // log = CUTADAPT.out.log
+            trimmed_fastq = CUTADAPT.out.trimmed_fastq
+            
             
         }  else {
 
             fastq = reads
+            trimmed_fastq = reads
         }
     }
 
     emit:
 
     fastq
+    trimmed_fastq
 
 }
 
