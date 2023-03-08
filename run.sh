@@ -20,6 +20,4 @@ nextflow pull ulelab/riboseq -r feat-ribocutter
 
 nextflow run ulelab/riboseq -r feat-ribocutter \
 -profile conda,crick,test \
--resume \
---min_read_length 23 \
---extra_ribocutter_args '--max_read_length 60'
+-resume

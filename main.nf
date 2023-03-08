@@ -145,29 +145,16 @@ workflow {
         }
     }
 
-    // Get gene-level counts from BAM alignments using featurecounts
+    // Get gene-level counts from BAM alignments using featureCounts
     if (params.with_umi) {
         GENE_COUNTS_FEATURECOUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf.collect())
-        // GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
+    
     } else {
         GENE_COUNTS_FEATURECOUNTS(MAP.out.genome_bam, ch_genome_gtf.collect())
-        // GENETYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
 
     }
 
     MERGE_FEATURECOUNTS(GENE_COUNTS_FEATURECOUNTS.out.counts.map { [ it[1] ] }.collect())
-
-    // // Salmon quantifcation from multi-mapping BAM alignments
-    // if (params.with_umi) {
-    //     QUANTIFY_SALMON(DEDUPLICATE.out.dedup_transcriptome_bam, ch_transcript_fasta, ch_genome_gtf)
-    //     // GENETYPE_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf)
-    // } else {
-    //     QUANTIFY_SALMON(MAP.out.transcriptome_bam, ch_transcript_fasta, ch_genome_gtf)
-    //     // GENETYPE_COUNTS(MAP.out.genome_bam, ch_genome_gtf)
-
-    // }
-
-    // TXIMPORT_SALMON(QUANTIFY_SALMON.out.results.collect(), ch_genome_gtf)
 
     ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     MULTIQC(ch_logs)
