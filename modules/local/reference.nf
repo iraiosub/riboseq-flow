@@ -20,7 +20,7 @@ process GET_TRANSCRIPT_INFO {
 
     script:
     """
-    Rscript get_transcript_info.R -g $gtf -o 'Homo sapiens'
+    ${workflow.projectDir}/bin/get_transcript_info.R -g $gtf -o 'Homo sapiens'
     
     """
 }
