@@ -8,6 +8,7 @@
 module purge
 # ml Java/11.0.2
 # ml Nextflow/22.10.3
+ml Anaconda3
 ml Nextflow/21.10.3
 ml Singularity/3.6.4
 ml Graphviz/2.38.0-foss-2016b
@@ -16,8 +17,8 @@ ml Graphviz/2.38.0-foss-2016b
 export  NXF_CONDA_CACHEDIR=/camp/lab/ulej/home/users/luscomben/users/iosubi/nfcore/riboseq
 # export NXF_HOME=/camp/lab/luscomben/home/users/iosubi/.nextflow # for Nextflow versions > 22.x
 
-nextflow pull ulelab/riboseq -r feat-ribocutter
+nextflow pull iraiosub/riboseq -r feat-fix_cutadapt
 
-nextflow run ulelab/riboseq -r feat-ribocutter \
+nextflow run iraiosub/riboseq -r feat-fix_cutadapt \
 -profile conda,crick,test \
 -resume
