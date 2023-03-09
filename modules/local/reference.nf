@@ -20,7 +20,7 @@ process GET_TRANSCRIPT_INFO {
 
     script:
     """
-    get_transcript_info.R -g $gtf -o 'Homo sapiens'
+    ./get_transcript_info.R -g $gtf -o 'Homo sapiens'
     
     """
 }
