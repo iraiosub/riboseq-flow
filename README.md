@@ -30,18 +30,18 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 
 1. Ensure `Nextflow` and `Docker`/`Singularity`/`Conda` are installed on your system.
 
-**Note:** The pipeline has so far been tested on the Crick HPC (CAMP) with Nextflow version `21.10.3`.
+**Note:** The pipeline has so far been tested on the Crick HPC (CAMP) with Nextflow version `21.10.3`. `Conda` is required for the time being to run the pipeline! Container support will be added soon!
 
-2. Pull the main version of the pipeline from the GitHub repository:
+2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull ulelab/riboseq -r dev
+nextflow pull iraiosub/riboseq -r dev
 ```
 
 3. Run the pipeline on the provided test dataset:
 
 ```
-nextflow run ulelab/riboseq -r dev -profile test,conda,crick
+nextflow run iraiosub/riboseq -r dev -profile test,conda,crick
 ```
 
 4. Review the results
@@ -55,7 +55,7 @@ nextflow run ulelab/riboseq -r dev -profile test,conda,crick
 2. Pull the main version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull ulelab/riboseq -r dev
+nextflow pull iraiosub/riboseq -r dev
 ```
 
 3. You will need to create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below. 
@@ -71,7 +71,7 @@ sample3,/path/to/file3.fastq.gz
 4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
-nextflow run ulelab/riboseq -r dev \
+nextflow run iraiosub/riboseq -r dev \
 -profile conda,crick \
 --input samplesheet.csv \
 --org GRCh38
