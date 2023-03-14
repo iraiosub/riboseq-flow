@@ -26,13 +26,13 @@ process GENE_COUNTS_FEATURECOUNTS {
     script:
 
 
-    if (params.strand == "forward") {
+    if (params.strandedness == "forward") {
         
         strandedness = 1
-    } else if (params.strand == "reverse") {
+    } else if (params.strandedness == "reverse") {
         
         strandedness = 2 
-    } else if (params.strand == "unstranded") {
+    } else if (params.strandedness == "unstranded") {
 
         strandedness = 0
     } else {
