@@ -27,6 +27,7 @@ process RIBOCUTTER {
     args += " " + params.ribocutter_args
 
 
+
     if (!params.min_length) {
 
         min_read_length_arg = ""
@@ -41,7 +42,7 @@ process RIBOCUTTER {
     
     """
 
-    ribocutter -i $reads -o ${sample_id}.min${suffix} $args $min_read_length --save_stats
+    ribocutter -i $reads -o ${sample_id}.min${suffix} $args $min_read_length_arg --save_stats
 
     """
 }
