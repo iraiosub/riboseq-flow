@@ -27,7 +27,7 @@ process RIBOCUTTER {
     args += " " + params.ribocutter_args
 
 
-    if (is.null(params.min_length)) {
+    if (!params.min_length) {
 
         min_read_length_arg = ""
         suffix = ""
