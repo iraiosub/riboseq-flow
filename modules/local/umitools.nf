@@ -9,8 +9,6 @@ process UMITOOLS_EXTRACT {
 
     conda 'bioconda::umi_tools=1.1.2'
 
-    // publishDir "${params.outdir}/umi_extract", mode: 'copy', overwrite: true
-
     input:
         tuple val(sample_id), path(reads)
 
@@ -38,7 +36,6 @@ process UMITOOLS_DEDUPLICATE {
     tag "${sample_id}"
     label 'process_medium'
 
-    // conda '/camp/home/iosubi/miniconda3/envs/riboseq_nf_env'
     conda 'bioconda::umi_tools=1.1.2 conda bioconda::samtools=1.16.1 bioconda::bedtools=2.30.0'
 
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true

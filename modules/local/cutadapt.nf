@@ -15,16 +15,22 @@ process CUTADAPT {
         tuple val(sample_id), path(reads)
 
     output:
-        tuple val(sample_id), path("${sample_id}.trimmed.fastq.gz"), emit: fastq
-        path("*.cutadapt.log"), emit: log
+        tuple val(sample_id), path("${sample_id}.trimmed.fastq.gz"), emit: trimmed_fastq // necessary for ribocutter
+        tuple val(sample_id), path("${sample_id}.trimmed.filtered.fastq.gz"), emit: fastq
+        path("*.log"), emit: log
 
     script:
 
+
+    // Define core args
     args = " -j ${task.cpus}"
     args += " -q " + params.min_quality
-    args += " --minimum-length " + params.min_readlength
     args += " -o ${sample_id}.trimmed.fastq.gz"
 
+    args_filter = " --minimum-length " + params.min_readlength
+    args_filter += " -o ${sample_id}.trimmed.filtered.fastq.gz"
+
+    // Define option-specific args
     args1 = args + " -n " + params.times_trimmed
     args1 += " -a " + params.adapter_threeprime
 
@@ -45,25 +51,31 @@ process CUTADAPT {
     
     if (params.ts_trimming) {
         ts_args = args + " -a " + params.ts_adapter_threeprime
-        ts_args +=  " -u " + params.trim_polyG
         ts_args += " -n " + params.times_trimmed
+
+        ts_args_filter = args_filter + " -u " + params.trim_polyG
     }
 
     if (params.ts_trimming)
         """
-        cutadapt $ts_args $reads > ${sample_id}.cutadapt.log
+        cutadapt $ts_args $reads > ${sample_id}.cutadapt_trim.log
+        cutadapt $ts_args_filter ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
+
         """
     else if (params.adapter_threeprime && params.adapter_fiveprime && !params.ts_trimming)
         """
-        cutadapt $args3 $reads > ${sample_id}.cutadapt.log
+        cutadapt $args3 $reads > ${sample_id}.cutadapt_trim.log
+        cutadapt $args_filter ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
         """
     else if (params.adapter_threeprime && !params.adapter_fiveprime && !params.ts_trimming)
         """
-        cutadapt $args1 $reads > ${sample_id}.cutadapt.log
+        cutadapt $args1 $reads > ${sample_id}.cutadapt_trim.log
+        cutadapt $args_filter ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
         """
     else if (params.adapter_threeprime && !params.adapter_fiveprime && !params.ts_trimming)
         """
-        cutadapt $args2 $reads > ${sample_id}.cutadapt.log
+        cutadapt $args2 $reads > ${sample_id}.cutadapt_trim.log
+        cutadapt $args_filter ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
         """
     else 
         error "Read trimming is enabled, but adapter sequence is missing"

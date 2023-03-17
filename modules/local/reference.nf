@@ -8,7 +8,7 @@ process GET_TRANSCRIPT_INFO {
     tag "$gtf"
     label 'process_single'
 
-    conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env2.yml'
+    conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env2.yml'
 
     publishDir "${params.outdir}/riboseq_qc/longest_cds.transcript_info.tsv.gz", mode: 'copy', overwrite: true
 
@@ -20,7 +20,7 @@ process GET_TRANSCRIPT_INFO {
 
     script:
     """
-    get_transcript_info.R -g $gtf
+    ${workflow.projectDir}/bin/get_transcript_info.R -g $gtf -o 'Homo sapiens'
     
     """
 }
