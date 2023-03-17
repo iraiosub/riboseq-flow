@@ -8,8 +8,8 @@ process RIBOSEQ_QC {
     tag "${sample_id}"
     label 'process_medium'
 
-    conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
-
+    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    container 'iraiosub/mapping-length:latest'
 
     publishDir "${params.outdir}/riboseq_qc", mode: 'copy', overwrite: true
 
@@ -36,8 +36,8 @@ process SUMMARISE_RIBOSEQ_QC {
     tag "${workflow.runName}"
     label 'process_low'
 
-    conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
-
+    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    container 'iraiosub/mapping-length:latest'
 
     publishDir "${params.outdir}/riboseq_qc", mode: 'copy', overwrite: true
 

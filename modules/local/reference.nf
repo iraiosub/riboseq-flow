@@ -32,7 +32,7 @@ process GENERATE_SMALL_RNA_BOWTIE_INDEX {
     label 'process_medium'
 
 
-    conda "bioconda::bowtie2=2.4.4"
+    // conda "bioconda::bowtie2=2.4.4"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bowtie2:2.4.4--py39hbb4e92a_0' :
         'quay.io/biocontainers/bowtie2:2.4.4--py39hbb4e92a_0' }"
@@ -57,7 +57,7 @@ process GENERATE_GENOME_STAR_INDEX {
     tag "$genome_fasta"
     label 'process_high'
 
-    conda "bioconda::star=2.7.10a bioconda::samtools=1.16.1 conda-forge::gawk=5.1.0"
+    // conda "bioconda::star=2.7.10a bioconda::samtools=1.16.1 conda-forge::gawk=5.1.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' :
         'quay.io/biocontainers/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' }"

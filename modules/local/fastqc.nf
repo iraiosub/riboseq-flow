@@ -8,7 +8,7 @@ process FASTQC {
     tag "${sample_id}"
     label 'process_medium'
 
-    conda 'bioconda::fastqc=0.11.9'
+    // conda 'bioconda::fastqc=0.11.9'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/fastqc:0.11.9--hdfd78af_1' :
         'quay.io/biocontainers/fastqc:0.11.9--hdfd78af_1' }"

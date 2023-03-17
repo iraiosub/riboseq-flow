@@ -8,7 +8,7 @@ process RIBOCUTTER {
     tag "${sample_id}"
     label 'process_single'
 
-    conda 'bioconda::ribocutter=0.1.1'
+    // conda 'bioconda::ribocutter=0.1.1'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/ribocutter:0.0.1--pyh5e36f6f_0' :
         'quay.io/biocontainers/ribocutter:0.0.1--pyh5e36f6f_0' }"
@@ -25,10 +25,9 @@ process RIBOCUTTER {
 
     script:
 
-    args = " -g " + params.guide_number
+    args = "-g " + params.guide_number
     args += " -r " + params.max_reads
-    args += " " + params.ribocutter_args
-
+    args += "--save_stats " + params.ribocutter_args
 
 
     if (!params.min_length) {
@@ -39,13 +38,13 @@ process RIBOCUTTER {
     } else {
 
         min_read_length_arg = " --min_read_length " + params.min_length
-        suffix = params.min_length
+        suffix = ".min" + params.min_length
     }
 
     
     """
 
-    ribocutter -i $reads -o ${sample_id}.min${suffix} $args $min_read_length_arg --save_stats
+    ribocutter -i $reads -o ${sample_id}${suffix} $min_read_length_arg $args
 
     """
 }
