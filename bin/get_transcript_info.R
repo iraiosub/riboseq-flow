@@ -1,12 +1,18 @@
 #!/usr/bin/env Rscript
 
+suppressPackageStartupMessages(library(optparse))
+
+option_list <- list(make_option(c("-g", "--gtf"), action = "store", type = "character", default=NA, help = "GTF annotation file"),
+                    make_option(c("-o", "--org"), action = "store", type = "character", default=NA, help = "string specifying organism name"))
+opt_parser = OptionParser(option_list = option_list)
+opt <- parse_args(opt_parser)
+
 suppressPackageStartupMessages(library(GenomicFeatures))
 suppressPackageStartupMessages(library(rtracklayer))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(tidyverse))
-suppressPackageStartupMessages(library(optparse))
 
-make_hg38_txdb <- function(gtf) {
+make_txdb <- function(gtf, org) {
   
   # Get name of db
   name <- paste0(str_split(gtf, ".gtf")[[1]][1], ".sqlite")
@@ -18,7 +24,7 @@ make_hg38_txdb <- function(gtf) {
   } else {
     
     TxDb <- makeTxDbFromGFF(opt$gtf, format="gtf",
-                            organism = "Homo sapiens") # chrominfo = seqinfo(TxDb.Hsapiens.UCSC.hg38.knownGene
+                            organism = org) # chrominfo = seqinfo(TxDb.Hsapiens.UCSC.hg38.knownGene
     
     saveDb(TxDb, file=name)
     # TxDb <- loadDb(name)
@@ -30,11 +36,7 @@ make_hg38_txdb <- function(gtf) {
 
 
 
-option_list <- list(make_option(c("-g", "--gtf"), action = "store", type = "character", default=NA, help = "GTF annotation file"))
-opt_parser = OptionParser(option_list = option_list)
-opt <- parse_args(opt_parser)
-
-txdb <- make_hg38_txdb(opt$gtf)
+txdb <- make_txdb(opt$gtf, opt$org)
 
 txlengths <- transcriptLengths(txdb, with.cds_len = TRUE,
                                with.utr5_len = TRUE,
@@ -73,9 +75,3 @@ tx.info.dt <- unique.longest.pc.dt %>%
 output_name <- paste0(str_split(opt$gtf, ".gtf")[[1]][1], ".longest_cds.transcript_info.tsv.gz")
 
 fwrite(tx.info.dt, output_name, sep = "\t")
-
-
-# cds.gr <- cds(txdb, use.names = TRUE, columns = "tx_name")
-# transcripts.gr <- transcripts(txdb, use.names = TRUE)
-# # names(transcripts.gr) <- id2name(txdb, "tx")
-# cds_tx.gr <- mapToTranscripts(x=cds.gr, transcripts=transcripts.gr)

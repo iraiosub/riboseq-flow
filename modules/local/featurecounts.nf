@@ -26,13 +26,13 @@ process GENE_COUNTS_FEATURECOUNTS {
     script:
 
 
-    if (params.strand == "forward") {
+    if (params.strandedness == "forward") {
         
         strandedness = 1
-    } else if (params.strand == "reverse") {
+    } else if (params.strandedness == "reverse") {
         
         strandedness = 2 
-    } else if (params.strand == "unstranded") {
+    } else if (params.strandedness == "unstranded") {
 
         strandedness = 0
     } else {
@@ -53,7 +53,7 @@ process MERGE_FEATURECOUNTS {
  
     label 'process_single'
 
-    conda '/camp/lab/luscomben/home/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
 
     publishDir "${params.outdir}/feature_counts", pattern: "*.featureCounts.tsv.gz", mode: 'copy', overwrite: true
     
