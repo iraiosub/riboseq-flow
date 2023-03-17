@@ -9,9 +9,9 @@ process MAP {
     label 'process_high'
 
     conda 'bioconda::star=2.7.10a bioconda::samtools=1.16.1'
-    // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //     'https://depot.galaxyproject.org/singularity/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' :
-    //     'quay.io/biocontainers/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' }"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' :
+        'quay.io/biocontainers/mulled-v2-1fa26d1ce03c295fe2fdcf85831a92fbcbd7e8c2:1df389393721fc66f3fd8778ad938ac711951107-0' }"
 
     publishDir "${params.outdir}/mapped", pattern: "*.Aligned.sortedByCoord.out.ba*", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/mapped", pattern: "*.Aligned.toTranscriptome.sorted.out.ba*", mode: 'copy', overwrite: true

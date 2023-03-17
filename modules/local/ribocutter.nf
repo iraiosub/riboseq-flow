@@ -9,6 +9,9 @@ process RIBOCUTTER {
     label 'process_single'
 
     conda 'bioconda::ribocutter=0.1.1'
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/ribocutter:0.0.1--pyh5e36f6f_0' :
+        'quay.io/biocontainers/ribocutter:0.0.1--pyh5e36f6f_0' }"
 
     publishDir "${params.outdir}/ribocutter"
 
