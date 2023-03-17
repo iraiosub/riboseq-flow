@@ -8,7 +8,8 @@ process GET_TRANSCRIPT_INFO {
     tag "$gtf"
     label 'process_single'
 
-    conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env2.yml'
+    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env2.yml'
+    container 'iraiosub/nf-riboseq:latest'
 
     publishDir "${params.outdir}/riboseq_qc/longest_cds.transcript_info.tsv.gz", mode: 'copy', overwrite: true
 

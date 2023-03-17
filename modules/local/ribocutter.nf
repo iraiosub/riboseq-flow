@@ -20,7 +20,7 @@ process RIBOCUTTER {
 
     output:
     path("*.csv"), emit: guides
-    path("*stats.csv"), emit: stats
+    // path("*stats.csv"), emit: stats
 
 
     script:
