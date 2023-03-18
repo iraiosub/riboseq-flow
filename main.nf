@@ -155,7 +155,8 @@ workflow {
 
     MERGE_FEATURECOUNTS(GENE_COUNTS_FEATURECOUNTS.out.counts.map { [ it[1] ] }.collect())
 
-    ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
+    // ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
+    ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     MULTIQC(ch_logs)
 
 

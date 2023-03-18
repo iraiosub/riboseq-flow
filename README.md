@@ -24,13 +24,13 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/), [`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
 7. Extensive quality control ([`mapping_length_analysis`](https://pypi.org/project/mapping-length-analysis/),[`R`](https://www.r-project.org/))
 8. Gene-level RPF quantification ([`FeatureCounts`](https://subread.sourceforge.net/))
-9. Design of sgRNA templates to deplete unwanted abundant contaminants ([`Ribocutter`](https://www.biorxiv.org/content/10.1101/2021.07.14.451473v1.full))
+9. Design of sgRNA templates to deplete unwanted abundant contaminants ([`Ribocutter`](https://www.biorxiv.org/content/10.1101/2021.07.14.451473v1.full)) (Optional)
 
 ## Quick start (test the pipeline with a minimal dataset)
 
-1. Ensure `Nextflow` and `Docker`/`Singularity`/`Conda` are installed on your system.
+1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system.
 
-**Note:** The pipeline has so far been tested on the Crick HPC (CAMP) with Nextflow version `21.10.3`. `Conda` is required for the time being to run the pipeline! Container support will be added soon!
+**Note:** The pipeline has so far been tested on the Crick HPC (Nemo) with Nextflow version `21.10.3`. `Singularity` is required for the time being to run the pipeline!
 
 2. Pull the desired version of the pipeline from the GitHub repository:
 
@@ -41,7 +41,7 @@ nextflow pull iraiosub/riboseq -r dev
 3. Run the pipeline on the provided test dataset:
 
 ```
-nextflow run iraiosub/riboseq -r dev -profile test,conda,crick
+nextflow run iraiosub/riboseq -r dev -profile test,singularity,crick
 ```
 
 4. Review the results
@@ -51,7 +51,7 @@ nextflow run iraiosub/riboseq -r dev -profile test,conda,crick
 
 ## Quick start (run the pipeline)
 
-1. Ensure `Nextflow` and `Docker` or `Singularity` are installed on your system
+1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system
 2. Pull the main version of the pipeline from the GitHub repository:
 
 ```
@@ -72,9 +72,10 @@ sample3,/path/to/file3.fastq.gz
 
 ```
 nextflow run iraiosub/riboseq -r dev \
--profile conda,crick \
+-profile singularity,crick \
 --input samplesheet.csv \
---org GRCh38
+--org GRCh38 \
+--strandedness forward
 ```
 
 ## Pipeline parameters
@@ -195,4 +196,4 @@ The pipeline outputs results in a number of subfolders:
 ### Authors and contact
 
 This DSL2 Nextflow pipeline is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a snakemake pipeline in collaboration with the original author, Oscar Wilkins. 
-To raise any issues or comments with the pipeline, please email `ira.iosub@crick.ac.uk`.
+To raise any issues or comments with the pipeline, please email `ira.iosub@crick.ac.uk` or raise and issue on github.

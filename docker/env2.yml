@@ -1,7 +1,7 @@
 # You can use this file to create a conda environment for this pipeline:
 # conda env create -f env2.yml
 
-name: create-reference
+name: nf-riboseq
 channels:
   - conda-forge
   - bioconda
