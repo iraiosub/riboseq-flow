@@ -23,6 +23,7 @@ nextflow run ulelab/riboseq -r dev \
 --with_umi \
 --skip_trimming \
 --umi_separator 'rbc:' \
+--strandedness forward \
 --org GRCh38 \
 --input ./data/samplesheet.csv \
 --outdir results_full_test

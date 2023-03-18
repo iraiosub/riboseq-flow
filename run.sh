@@ -16,8 +16,13 @@ export NXF_SINGULARITY_CACHEDIR=/nemo/lab/ulej/home/users/luscomben/users/iosubi
 # export  NXF_CONDA_CACHEDIR=/nemo/lab/ulej/home/users/luscomben/users/iosubi/nfcore/riboseq
 export NXF_HOME=/nemo/lab/ulej/home/users/luscomben/users/iosubi/.nextflow # for Nextflow versions > 22.x
 
-nextflow pull iraiosub/riboseq -r feat-singularity
+nextflow pull iraiosub/riboseq -r dev
 
-nextflow run iraiosub/riboseq -r feat-singularity \
+nextflow run iraiosub/riboseq -r dev \
 -profile crick,singularity,test \
---strandedness forward -resume
+--strandedness forward \
+-resume
+
+# nextflow run main.nf \
+# -profile crick,singularity,test \
+# --strandedness forward -resume

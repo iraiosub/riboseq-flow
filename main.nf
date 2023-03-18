@@ -156,10 +156,10 @@ workflow {
     MERGE_FEATURECOUNTS(GENE_COUNTS_FEATURECOUNTS.out.counts.map { [ it[1] ] }.collect())
 
     // ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
-    ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
+    ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1], it[2] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     MULTIQC(ch_logs)
 
-
+    // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)
     if (!params.skip_ribocutter) {
         RIBOCUTTER(PREPROCESS_READS.out.trimmed_fastq)
     }
