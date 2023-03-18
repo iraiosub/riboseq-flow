@@ -20,6 +20,5 @@ export NXF_HOME=/nemo/lab/ulej/home/users/luscomben/users/iosubi/.nextflow # for
 nextflow pull iraiosub/riboseq -r feat-singularity
 
 nextflow run iraiosub/riboseq -r feat-singularity \
--profile crick,test \
--resume \
---strandedness forward
+-profile crick,singularity,test \
+--strandedness forward -resume
