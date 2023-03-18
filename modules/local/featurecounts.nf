@@ -8,10 +8,10 @@ process GENE_COUNTS_FEATURECOUNTS {
     tag "${sample_id}"
     label 'process_medium'
 
-    conda "bioconda::subread=2.0.1"
-    // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    //     'https://depot.galaxyproject.org/singularity/subread:2.0.1--hed695b0_0' :
-    //     'quay.io/biocontainers/subread:2.0.1--hed695b0_0' }"
+    // conda "bioconda::subread=2.0.1"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/subread:2.0.1--hed695b0_0' :
+        'quay.io/biocontainers/subread:2.0.1--hed695b0_0' }"
 
     publishDir "${params.outdir}/feature_counts", pattern: "*.featureCounts*", mode: 'copy', overwrite: true
     
@@ -53,7 +53,8 @@ process MERGE_FEATURECOUNTS {
  
     label 'process_single'
 
-    conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    container 'iraiosub/mapping-length:latest'
 
     publishDir "${params.outdir}/feature_counts", pattern: "*.featureCounts.tsv.gz", mode: 'copy', overwrite: true
     

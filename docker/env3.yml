@@ -1,0 +1,13 @@
+# You can use this file to create a conda environment for this pipeline:
+# conda env create -f env3.yml
+
+name: nf-riboseq-dedup
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  - bioconda::umi_tools=1.1.2
+  - bioconda::samtools=1.16.1
+  - bioconda::bedtools=2.30.0

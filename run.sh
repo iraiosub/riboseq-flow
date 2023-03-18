@@ -8,18 +8,21 @@
 module purge
 # ml Java/11.0.2
 # ml Nextflow/22.10.3
-#ml Anaconda3
 ml Nextflow/21.10.3
 ml Singularity/3.6.4
 ml Graphviz/2.38.0-foss-2016b
 
 export NXF_SINGULARITY_CACHEDIR=/nemo/lab/ulej/home/users/luscomben/users/iosubi/nfcore/riboseq
-export  NXF_CONDA_CACHEDIR=/nemo/lab/ulej/home/users/luscomben/users/iosubi/nfcore/riboseq
+# export  NXF_CONDA_CACHEDIR=/nemo/lab/ulej/home/users/luscomben/users/iosubi/nfcore/riboseq
 export NXF_HOME=/nemo/lab/ulej/home/users/luscomben/users/iosubi/.nextflow # for Nextflow versions > 22.x
 
 nextflow pull iraiosub/riboseq -r dev
 
 nextflow run iraiosub/riboseq -r dev \
--profile conda,crick,test \
--resume \
---strandedness forward
+-profile crick,singularity,test \
+--strandedness forward \
+-resume
+
+# nextflow run main.nf \
+# -profile crick,singularity,test \
+# --strandedness forward -resume
