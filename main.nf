@@ -73,7 +73,7 @@ include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { GENE_COUNTS_FEATURECOUNTS } from './modules/local/featurecounts.nf'
 include { MERGE_FEATURECOUNTS } from './modules/local/featurecounts.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
-include { RIBOCUTTER } from './modules/local/ribocutter.nf'
+include { RUN_RIBOCUTTER } from './workflows/ribocutter.nf'
 
 workflow {
 
