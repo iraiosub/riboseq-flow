@@ -44,7 +44,7 @@ process UMITOOLS_DEDUPLICATE {
     container 'iraiosub/nf-riboseq-dedup:latest'
 
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bai", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bam.bai", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.bed.gz", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated", pattern: "*.log", mode: 'copy', overwrite: true
 
@@ -53,7 +53,7 @@ process UMITOOLS_DEDUPLICATE {
     tuple val(sample_id), path(bam), path(bai)
 
     output:
-    tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bai"), emit: dedup_bam
+    tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bam.bai"), emit: dedup_bam
     tuple val(sample_id), path("*.dedup.bed.gz"), emit: dedup_bed
     tuple val(sample_id), path("*.log"), emit: log
 
@@ -65,7 +65,7 @@ process UMITOOLS_DEDUPLICATE {
     """ 
     umi_tools dedup --umi-separator ${params.umi_separator} -I $bam -S ${sample_id}.${suffix}.dedup.unsorted.bam --log ${sample_id}.${suffix}.dedup.log
     samtools sort -@ ${task.cpus} ${sample_id}.${suffix}.dedup.unsorted.bam > ${sample_id}.${suffix}.dedup.sorted.bam
-    samtools index ${sample_id}.${suffix}.dedup.sorted.bam > ${sample_id}.${suffix}.dedup.sorted.bai
+    samtools index ${sample_id}.${suffix}.dedup.sorted.bam
 
     bedtools bamtobed -i ${sample_id}.${suffix}.dedup.sorted.bam | bedtools sort > ${sample_id}.${suffix}.dedup.bed
     gzip ${sample_id}.${suffix}.dedup.bed
