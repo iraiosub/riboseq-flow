@@ -1,0 +1,7 @@
+sample,fastq
+cgas_p1,/camp/project/proj-luscombe-ule/working/ira-jure/data/ultraplex_demux_cgas_p1.fastq.gz
+cgas_p2,/camp/project/proj-luscombe-ule/working/ira-jure/data/ultraplex_demux_cgas_p2.fastq.gz
+cgas_p3,/camp/project/proj-luscombe-ule/working/ira-jure/data/ultraplex_demux_cgas_p3.fastq.gz
+cgas_m1,/camp/project/proj-luscombe-ule/working/ira-jure/data/ultraplex_demux_cgas_m1.fastq.gz
+cgas_m2,/camp/project/proj-luscombe-ule/working/ira-jure/data/ultraplex_demux_cgas_m2.fastq.gz
+cgas_m3,/camp/project/proj-luscombe-ule/working/ira-jure/data/ultraplex_demux_cgas_m3.fastq.gz
