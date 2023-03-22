@@ -20,5 +20,4 @@ nextflow pull iraiosub/riboseq -r dev
 
 nextflow run iraiosub/riboseq -r dev \
 -profile crick,singularity,test \
---input /camp/lab/ulej/home/shared/riboseq_workshop/samplesheet.csv \
 -resume
