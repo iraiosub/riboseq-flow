@@ -7,7 +7,7 @@
 
 module purge
 ml Nextflow/21.10.3
-ml Singularity/3.7.1
+ml Singularity/3.6.4
 ml Graphviz/2.38.0-foss-2016b
 
 export NXF_SINGULARITY_CACHEDIR=/nemo/lab/ulej/home/users/luscomben/users/iosubi/nfcore/riboseq
