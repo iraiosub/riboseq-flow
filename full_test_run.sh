@@ -14,9 +14,9 @@ export NXF_SINGULARITY_CACHEDIR=/nemo/lab/ulej/home/users/luscomben/users/iosubi
 # export  NXF_CONDA_CACHEDIR=/nemo/lab/ulej/home/users/luscomben/users/iosubi/nfcore/riboseq
 export NXF_HOME=/nemo/lab/ulej/home/users/luscomben/users/iosubi/.nextflow # for Nextflow versions > 22.x
 
-nextflow pull ulelab/riboseq -r dev
+nextflow pull ulelab/riboseq -r main
 
-nextflow run ulelab/riboseq -r dev \
+nextflow run ulelab/riboseq -r main \
 -profile crick \
 -resume \
 --skip_umi_extract \

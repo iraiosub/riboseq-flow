@@ -39,10 +39,3 @@ workflow DEDUPLICATE {
     dedup_transcriptome_bed = DEDUPLICATE_TRANSCRIPTOME.out.dedup_bed
 
 }
-
-
-// 
-//             DEDUP_UMI_UMITOOLS_TRANSCRIPTOME (
-//                 ch_transcriptome_sorted_bam.join(ch_transcriptome_sorted_bai, by: [0]),
-//                 params.umitools_dedup_stats
-//             )
