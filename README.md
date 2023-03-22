@@ -55,7 +55,7 @@ nextflow run iraiosub/riboseq -r dev -profile test,singularity,crick
 2. Pull the main version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq -r dev
+nextflow pull iraiosub/riboseq -r main
 ```
 
 3. You will need to create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below. 
@@ -71,7 +71,7 @@ sample3,/path/to/file3.fastq.gz
 4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
-nextflow run iraiosub/riboseq -r dev \
+nextflow run iraiosub/riboseq -r main \
 -profile singularity,crick \
 --input samplesheet.csv \
 --org GRCh38 \
@@ -199,5 +199,5 @@ The pipeline outputs results in a number of subfolders:
 
 ### Authors and contact
 
-This DSL2 Nextflow pipeline is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a snakemake pipeline in collaboration with the original author, Oscar Wilkins. 
+This DSL2 Nextflow pipeline is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a snakemake pipeline in collaboration with its original author, Oscar Wilkins. 
 To raise any issues or comments with the pipeline, please email `ira.iosub@crick.ac.uk` or raise and issue on github.
