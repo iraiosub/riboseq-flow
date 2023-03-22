@@ -13,7 +13,7 @@ process GENE_COUNTS_FEATURECOUNTS {
         'https://depot.galaxyproject.org/singularity/subread:2.0.1--hed695b0_0' :
         'quay.io/biocontainers/subread:2.0.1--hed695b0_0' }"
 
-    publishDir "${params.outdir}/feature_counts", pattern: "*.featureCounts*", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/featurecounts", pattern: "*.featureCounts*", mode: 'copy', overwrite: true
     
     input:
     tuple val(sample_id), path(bam), path(bai)
@@ -56,7 +56,7 @@ process MERGE_FEATURECOUNTS {
     // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
     container 'iraiosub/mapping-length:latest'
 
-    publishDir "${params.outdir}/feature_counts", pattern: "*.featureCounts.tsv.gz", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/featurecounts", pattern: "*.featureCounts.tsv.gz", mode: 'copy', overwrite: true
     
     input:
     path(featurecounts_tables)

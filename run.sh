@@ -20,9 +20,5 @@ nextflow pull iraiosub/riboseq -r dev
 
 nextflow run iraiosub/riboseq -r dev \
 -profile crick,singularity,test \
---strandedness forward \
+--input /camp/lab/ulej/home/shared/riboseq_workshop/samplesheet.csv \
 -resume
-
-# nextflow run main.nf \
-# -profile crick,singularity,test \
-# --strandedness forward -resume

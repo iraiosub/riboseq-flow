@@ -15,12 +15,12 @@ workflow RUN_RIBOCUTTER {
 
     main:
 
-    // Deduplication of sequences aligned to genome
+    // All reads (without length filtering or rGrGrG trimmed in case of --ts_trimming)
     RIBOCUTTER(
         reads
     )
 
-    // Deduplication of sequences aligned to transcriptome
+    // All reads (without length filtering or rGrGrG trimmed in case of --ts_trimming) used as input, but min length 23 for ribocutter
     RIBOCUTTER_MIN23(
         reads
     )

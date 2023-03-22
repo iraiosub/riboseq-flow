@@ -12,7 +12,7 @@ process CUTADAPT {
         'https://depot.galaxyproject.org/singularity/cutadapt:4.2--py39hbf8eff0_0' :
         'quay.io/biocontainers/cutadapt:4.2--py39hbf8eff0_0' }"
 
-    publishDir "${params.outdir}/trimmed", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/preprocessed", mode: 'copy', overwrite: true
 
     input:
         tuple val(sample_id), path(reads)
@@ -30,7 +30,8 @@ process CUTADAPT {
     args += " -q " + params.min_quality
     args += " -o ${sample_id}.trimmed.fastq.gz"
 
-    args_filter = " --minimum-length " + params.min_readlength
+    args_filter = " -j ${task.cpus}"
+    args_filter += " --minimum-length " + params.min_readlength
     args_filter += " -o ${sample_id}.trimmed.filtered.fastq.gz"
 
     // Define option-specific args
