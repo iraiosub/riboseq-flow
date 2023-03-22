@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 
 include { RIBOCUTTER as RIBOCUTTER } from '../modules/local/ribocutter.nf' addParams(min_length: params.min_read_length)
 include { RIBOCUTTER as RIBOCUTTER_MIN23 } from '../modules/local/ribocutter.nf' addParams(min_length: params.min_23_read_length)
+include { GET_PROPORTION_TARGETED } from '../modules/local/ribocutter.nf'
 
 // Design ...
 
@@ -25,10 +26,12 @@ workflow RUN_RIBOCUTTER {
         reads
     )
 
+    GET_PROPORTION_TARGETED(RIBOCUTTER.out.guides.map { [ it[1] ] }.collect().mix(RIBOCUTTER_MIN23.out.guides.map { [ it[1] ] }.collect()).collect())
+    
     emit:
 
-    ribocutter_all_lengths = RIBOCUTTER.out.guides
-    ribocutter_min23 = RIBOCUTTER_MIN23.out.guides
+    ribocutter_guides = RIBOCUTTER.out.guides
+    ribocutter_guides_min23 = RIBOCUTTER_MIN23.out.guides
 
 
 }

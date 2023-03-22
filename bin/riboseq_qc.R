@@ -167,7 +167,7 @@ if (!is.null(opt$after_premap)) {
     theme_classic() +
     ylab("Number of reads") +
     ggtitle("Premapping vs mapping") +
-    theme(legend.position = "none") +
+    theme(legend.position = "none", legend.title=element_blank()) +
     # ggeasy::easy_remove_legend() +
     scale_y_log10() +
     expand_limits(y=1)
@@ -181,7 +181,7 @@ if (!is.null(opt$after_premap)) {
     ylab("Number of reads") +
     ggtitle("Original vs premapping") +
     # ggeasy::easy_remove_legend() +
-    theme(legend.position = "none") +
+    theme(legend.position = "bottom", legend.direction = "horizontal", legend.title=element_blank(), legend.text = element_text(size=5)) +
     scale_y_log10()+
     expand_limits(y=1)
     # annotate(geom = "rect", xmin = 26, xmax = 31, ymin = -Inf, ymax = Inf, alpha = .1, color = "black", linetype = "dashed", fill = "black")

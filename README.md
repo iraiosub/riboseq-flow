@@ -17,7 +17,7 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 ## Pipeline summary
 
 1. UMI extraction ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/)) (Optional)
-2. Adapter and quality trimming ([`Cutadapt`](https://cutadapt.readthedocs.io)) (Optional)
+2. Adapter and quality trimming, read length filtering ([`Cutadapt`](https://cutadapt.readthedocs.io)) (Optional)
 3. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
 4. Premapping to remove small RNA mapping reads ([`bowtie2`](), [`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/)) (Optional)
 5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR))
@@ -153,6 +153,7 @@ The pipeline outputs results in a number of subfolders:
 
 ```
 .
+├── preprocessed
 ├── premapped
 ├── mapped
 ├── deduplicated

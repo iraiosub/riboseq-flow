@@ -19,7 +19,7 @@ process RIBOCUTTER {
     tuple val(sample_id), path(reads)
 
     output:
-    path("*.csv"), emit: guides
+    tuple val(sample_id), path("*.csv"), emit: guides
     // path("*stats.csv"), emit: stats
 
 
@@ -42,9 +42,40 @@ process RIBOCUTTER {
     }
 
     
-    """
+        """
 
-    ribocutter -i $reads -o ${sample_id}${suffix} $min_read_length_arg $args
+        ribocutter -i $reads -o ${sample_id}${suffix} $min_read_length_arg $args
 
-    """
+        """
+}
+
+
+process GET_PROPORTION_TARGETED {
+
+    tag "${sample_id}"
+    label 'process_single'
+
+    // conda 'bioconda::ribocutter=0.1.1'
+    container 'iraiosub/mapping-length:latest'
+
+    publishDir "${params.outdir}/riboseq_qc"
+
+    input:
+    path(guides)
+
+    output:
+    path("*.pdf"), emit: percentage_targeted
+
+
+    script:
+    
+        """
+
+        INPUT=`echo $guides | sed 's/ /,/g'`
+
+        echo \$INPUT
+            
+        analyse_ribocutter_guides.R -g \$INPUT
+
+        """
 }
