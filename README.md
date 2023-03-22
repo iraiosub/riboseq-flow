@@ -75,13 +75,14 @@ nextflow run iraiosub/riboseq -r main \
 -profile singularity,crick \
 --input samplesheet.csv \
 --org GRCh38 \
+-resume
 ```
 
 ## Pipeline parameters
 
 ### Core Nextflow arguments
 
-- `-profile`: specifies a configuration profile. Profiles can give configuration presets for different compute environments. Options are `test`, `docker`, `docker`,`singularity` and `crick` depending on the system being used and resources available. Others can be found at [nf-core](https://github.com/nf-core/configs).
+- `-profile`: specifies a configuration profile. Profiles can give configuration presets for different compute environments. Options are `test`, `docker`,`singularity` and `crick` depending on the system being used and resources available. Others can be found at [nf-core](https://github.com/nf-core/configs).
 - `-resume`: specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files'contents as well.
 
 ### General parameters
