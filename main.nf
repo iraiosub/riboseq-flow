@@ -28,7 +28,7 @@ if (params.org  && !params.genomes.containsKey(params.org)) {
 if(params.org) {
 
     params.fasta = params.genomes[ params.org ].fasta
-    params.fai = params.genomes[ params.org ].fai
+    // params.fai = params.genomes[ params.org ].fai
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
@@ -44,7 +44,7 @@ if(params.org) {
 
 // Create channels for static files
 ch_genome_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
-ch_genome_fai = Channel.fromPath(params.fai, checkIfExists: true)
+// ch_genome_fai = Channel.fromPath(params.fai, checkIfExists: true)
 ch_genome_gtf = Channel.fromPath(params.gtf, checkIfExists: true)
 
 if (!params.skip_premap) {
