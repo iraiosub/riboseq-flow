@@ -58,7 +58,7 @@ process GET_PROPORTION_TARGETED {
     // conda 'bioconda::ribocutter=0.1.1'
     container 'iraiosub/mapping-length:latest'
 
-    publishDir "${params.outdir}/riboseq_qc"
+    publishDir "${params.outdir}/ribocutter"
 
     input:
     path(guides)
