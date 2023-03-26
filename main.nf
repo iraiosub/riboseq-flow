@@ -71,6 +71,7 @@ include { MAPPING_LENGTH_ANALYSES } from './workflows/mapping_length_analyses.nf
 include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { GET_GENE_LEVEL_COUNTS } from './workflows/gene_level_counts.nf'
+include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 include { RUN_RIBOCUTTER } from './workflows/ribocutter_analysis.nf'
 
@@ -150,6 +151,15 @@ workflow {
         GET_GENE_LEVEL_COUNTS(MAP.out.genome_bam, ch_genome_gtf.collect())
 
     }
+
+    if (params.with_umi) {
+        IDENTIFY_PSITES(DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect())
+    
+    } else {
+        IDENTIFY_PSITES(MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect())
+
+    }
+
 
     // ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1], it[2] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()

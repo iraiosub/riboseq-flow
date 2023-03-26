@@ -23,7 +23,7 @@ option_list <- list(make_option(c("-b", "--bam"), action = "store", type = "char
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
-
+# A function that extracts relevant positional information from transcriptomic bam for representative protein-coding transcripts
 get_info_from_bam <- function(bam, info) {
 
   info.df <- fread(info)
@@ -248,9 +248,9 @@ summary_df <- useful_df %>%
 useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
   geom_bar(stat="identity") +
   theme_classic() +
-  ggtitle("% useful reads") +
+  ggtitle("% Useful reads", "UMI-deduplicated reads mapped uniquely to protein-coding transcripts") +
   xlab("") +
-  ylab("% useful")
+  ylab("Proportion (%)")
 
 # Pull together plots
 fig <- ((p1 + ggtitle(paste("Sample:", actual_name)) | useful_plot) +  plot_layout(widths = c(3, 1))) / (p2|p3) / 
