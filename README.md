@@ -22,7 +22,7 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 4. Premapping to remove small RNA mapping reads ([`bowtie2`](), [`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/)) (Optional)
 5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR))
 6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/), [`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
-7. Extensive quality control ([`mapping_length_analysis`](https://pypi.org/project/mapping-length-analysis/),[`R`](https://www.r-project.org/))
+7. Extensive quality control ([`mapping_length_analysis`](https://pypi.org/project/mapping-length-analysis/),[`R`](https://www.r-project.org/)) (Optional)
 8. Gene-level RPF quantification ([`FeatureCounts`](https://subread.sourceforge.net/))
 9. Design of sgRNA templates to deplete unwanted abundant contaminants ([`Ribocutter`](https://www.biorxiv.org/content/10.1101/2021.07.14.451473v1.full)) (Optional)
 
@@ -35,13 +35,13 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq -r dev
+nextflow pull iraiosub/riboseq -r main
 ```
 
 3. Run the pipeline on the provided test dataset:
 
 ```
-nextflow run iraiosub/riboseq -r dev -profile test,singularity,crick
+nextflow run iraiosub/riboseq -r main -profile test,singularity,crick
 ```
 
 4. Review the results
@@ -55,7 +55,7 @@ nextflow run iraiosub/riboseq -r dev -profile test,singularity,crick
 2. Pull the main version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq -r dev
+nextflow pull iraiosub/riboseq -r main
 ```
 
 3. You will need to create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below. 
@@ -71,7 +71,7 @@ sample3,/path/to/file3.fastq.gz
 4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
-nextflow run iraiosub/riboseq -r dev \
+nextflow run iraiosub/riboseq -r main \
 -profile singularity,crick \
 --input samplesheet.csv \
 --org GRCh38 \
@@ -199,5 +199,5 @@ The pipeline outputs results in a number of subfolders:
 
 ### Authors and contact
 
-This DSL2 Nextflow pipeline is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a snakemake pipeline in collaboration with the original author, Oscar Wilkins. 
-To raise any issues or comments with the pipeline, please email `ira.iosub@crick.ac.uk` or raise and issue on github.
+This DSL2 Nextflow pipeline is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a snakemake pipeline in collaboration with its original author, Oscar Wilkins. 
+To raise any issues or comments with the pipeline, please email `ira.iosub@crick.ac.uk` or raise an issue on github.
