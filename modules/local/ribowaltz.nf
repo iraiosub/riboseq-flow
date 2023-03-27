@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 process IDENTIFY_PSITES {
  
     tag "${sample_id}"
-    label 'process_medium'
+    label 'process_high'
 
     // conda "bioconda::ribowaltz=1.2.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -22,7 +22,7 @@ process IDENTIFY_PSITES {
 
     output:
     path("psite_offset.tsv.gz"), emit: psite_offset
-    // path("offset_plot"), emit: offset_plot
+    path("offset_plot/*.pdf"), emit: offset_plot
     path("*.psite.tsv.gz"), emit: psites
     path("codon_coverage_rpf.tsv.gz"), emit: codon_coverage_rpf
     path("codon_coverage_psite.tsv.gz"), emit: codon_coverage_psite

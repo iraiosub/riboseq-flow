@@ -152,15 +152,19 @@ workflow {
 
     }
 
-    if (params.with_umi) {
-        IDENTIFY_PSITES(DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
-    
-    } else {
-        IDENTIFY_PSITES(MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
+
+    if (!params.skip_psite) {
+
+         if (params.with_umi) {
+            IDENTIFY_PSITES(DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
+        
+        } else {
+            IDENTIFY_PSITES(MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
+
+        }
 
     }
-
-
+   
     // ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1], it[2] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     MULTIQC(ch_logs)

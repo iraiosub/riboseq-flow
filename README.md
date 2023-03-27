@@ -151,6 +151,7 @@ If you prepared your library using a TS (template-switch protocol) you may use t
 
 - `--skip_qc` skips mapping_length_analysis and generation of riboseq QC plots
 - `--skip_ribocutter` skips Ribocutter
+- `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
 
 
 ## Pipeline outputs

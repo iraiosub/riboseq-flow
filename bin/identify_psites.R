@@ -28,13 +28,16 @@ length_range <- options[4]
 
 # Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
+# Create folder for plots
+dir.create("ribowaltz_qc")
+
 
 export_psites <- function(name, df_list) {
   
   df <- df_list[[name]]
   df$sample <- name
   
-  fwrite(df, paste0(name, ".psite.tsv.gz"), sep = "\t")
+  data.table::fwrite(df, paste0(name, ".psite.tsv.gz"), sep = "\t")
   return(df)
   
 }
@@ -48,21 +51,30 @@ plot_metaheatmap <- function(name, df_list, annotation) {
   ends_heatmap.gg <- ends_heatmap$plot +
     ggplot2::ylim(20,35)
   
-  ggplot2::ggsave(paste0("ribowaltz_qc/", name, ".ends_heatmap.pdf"), ends_heatmap.gg, dpi = 300)
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", name, ".ends_heatmap.pdf"), ends_heatmap.gg, dpi = 600)
   
   return(ends_heatmap.gg)
 }
 
-save_metaprofile_psite_plot <- function(name, plots_ls) {
+
+save_metaprofile_psite_plot <- function(sample_name, plots_ls) {
   
-  plot <- plots_ls[names(plots_ls) == name]
-  ggplot2::ggsave(paste0("ribowaltz_qc/", name, ".metaprofile_psite"), plot, dpi = 300)
+  plot <- plots_ls[[sample_name]]
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", strsplit(sample_name, "plot_")[[1]][2], ".metaprofile_psite.pdf"), plot, dpi = 600, width = 12, height = 6) # save in wide format
+
 }
 
-save_cu_plot <- function(name, plots_ls) {
+save_cu_plot <- function(sample_name, plots_ls) {
   
-  plot <- plots_ls[names(plots_ls) == name]
-  ggplot2::ggsave(paste0("ribowaltz_qc/", name, ".codon_usage"), plot, dpi = 300)
+  plot <- plots_ls[[sample_name]]
+
+  plot <- plot +
+    ggplot2::theme(plot.background = ggplot2::element_blank(), 
+                  panel.grid.minor = ggplot2::element_blank(),
+                  panel.grid.major = ggplot2::element_blank())
+
+
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", strsplit(sample_name, "plot_")[[1]][2], ".codon_usage.pdf"), plot, dpi = 600)
 }
 
 
@@ -89,7 +101,7 @@ bams <- as.list(strsplit(bam_dir, ",")[[1]])
 name_of_bams <- lapply(bams, function(x) strsplit(x, ".transcriptome.dedup.sorted.bam")[[1]][1])
 names(name_of_bams) <- lapply(bams, function(x) strsplit(x, ".bam")[[1]][1])
 
-reads.ls <- bamtolist(bamfolder = bam_dir, 
+reads.ls <- bamtolist(bamfolder = getwd(), 
                       annotation = annotation.dt,
                       name_samples = unlist(name_of_bams))
 
@@ -117,7 +129,8 @@ psite_offset.dt <- psite(filtered.ls, flanking = 6, extremity = "auto",
 data.table::fwrite(psite_offset.dt, 
                    "psite_offset.tsv.gz", sep = "\t")
 
-filtered_psite.ls <- psite_info(filtered.ls, site = "psite",
+filtered_psite.ls <- psite_info(filtered.ls, site = "psite", 
+                                offset = psite_offset.dt,
                                 fasta_genome = TRUE, refseq_sep = " ",
                                 fastapath = fasta,
                                 gtfpath = gtf)
@@ -159,7 +172,7 @@ data.table::fwrite(cds_coverage_psite.dt,
 # Read lengths averaged across samples
 length_dist <- rlength_distr(reads.ls, sample = names(reads.ls), multisamples = "average", cl = 99)
 
-length_dist.gg <- example_length_dist$plot +
+length_dist.gg <- length_dist$plot +
   ggplot2::theme(legend.position = "none", legend.title=ggplot2::element_blank()) +
   ggplot2::scale_fill_manual(values = "grey70") +
   ggplot2::scale_color_manual(values = "grey30") +
@@ -167,7 +180,7 @@ length_dist.gg <- example_length_dist$plot +
                  panel.grid.minor = ggplot2::element_blank(),
                  panel.grid.major = ggplot2::element_blank())
 
-ggplot2::ggsave("ribowaltz_qc/length_distribution.pdf", length_dist.gg, dpi = 300)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/length_distribution.pdf"), length_dist.gg, dpi = 600)
 # save rds
 
 # Metaheatmaps: the abundance of the 5' and 3' extremity of reads mapping on and around the start and the stop codon of annotated CDSs, stratified by their length.
@@ -183,7 +196,7 @@ psite_region.gg <- psite_region$plot +
                                    panel.grid.major = ggplot2::element_blank()) +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 
-ggplot2::ggsave("ribowaltz_qc/psite_region.pdf", psite_region.gg, dpi = 300)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.gg, dpi = 600)
 # save rds
 
 # A fundamental characteristic of ribosome profiling data is the trinucleotide periodicity of ribosome footprints along coding sequences. 
@@ -195,7 +208,7 @@ ggplot2::ggsave("ribowaltz_qc/psite_region.pdf", psite_region.gg, dpi = 300)
 frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", cl = 100)
 frames_stratified.gg <- frames_stratified$plot
 
-ggplot2::ggsave("ribowaltz_qc/frames_stratified.pdf", frames_stratified.gg, dpi = 300)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 600)
 # save rds
 
 frames <- frame_psite(filtered_psite.ls, region = "all")
@@ -204,7 +217,7 @@ frames.gg <- frames$plot +
                  panel.grid.minor = ggplot2::element_blank(),
                  panel.grid.major = ggplot2::element_blank())
 
-ggplot2::ggsave("ribowaltz_qc/frames.pdf", frames.gg, dpi = 300)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 600)
 # save rds
 
 # Plots should show an enrichment of P-sites in the first frame on the coding sequence but not the UTRs, as expected for ribosome protected fragments from protein coding mRNAs.
@@ -225,6 +238,12 @@ cu_barplot <- codon_usage_psite(filtered_psite.ls, annotation = annotation.dt, s
                                         fastapath = fasta,
                                         gtfpath = gtf,
                                         frequency_normalization = FALSE) 
+                                        
 
-cu_barplot.gg.ls <- cu_barplot[names(cu_barplot) %in% c("dt", "plot_comparison") ]
+print(names(cu_barplot))
+
+
+cu_barplot.gg.ls <- cu_barplot[!(names(cu_barplot) %in% c("dt", "plot_comparison")) ]
+names(cu_barplot.gg.ls)
+
 lapply(names(cu_barplot.gg.ls), save_cu_plot, plots_ls = cu_barplot.gg.ls)
