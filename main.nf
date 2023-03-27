@@ -153,10 +153,10 @@ workflow {
     }
 
     if (params.with_umi) {
-        IDENTIFY_PSITES(DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect())
+        IDENTIFY_PSITES(DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
     
     } else {
-        IDENTIFY_PSITES(MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect())
+        IDENTIFY_PSITES(MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
 
     }
 

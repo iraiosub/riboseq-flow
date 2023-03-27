@@ -26,7 +26,7 @@ get_ribocutter_table <- function(ribocutter_csv) {
     mutate(min_length = case_when(str_detect(actual_name, ".min") ~ as.integer(str_split(actual_name, ".min")[[1]][2]),
                                   TRUE ~ 1L))
   
-  df <- muate(df, guide_number = nrow(df))
+  df <- mutate(df, guide_number = nrow(df))
            
   return(df)
            
@@ -36,12 +36,12 @@ get_ribocutter_table <- function(ribocutter_csv) {
 ribocutter.ls <- as.list(strsplit(opt$guides, ",")[[1]])
 
 ribocutter.df <- rbindlist(lapply(ribocutter.ls, get_ribocutter_table)) %>%
-  dplyr::select(name, min_length, guide_number, total_targeted) %>%
+  dplyr::select(name, min_length, guide_number, total_library_fraction_targeted) %>%
   distinct()
 
 guide_number <- unique(ribocutter.df$guide_number)
 
-ribocutter.gg <- ggplot(ribocutter.df, aes(x = name, y = total_targeted, fill = factor(min_length))) +
+ribocutter.gg <- ggplot(ribocutter.df, aes(x = name, y = total_library_fraction_targeted, fill = factor(min_length))) +
   geom_bar(stat="identity", position="dodge") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90)) +

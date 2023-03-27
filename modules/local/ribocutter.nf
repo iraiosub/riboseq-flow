@@ -20,7 +20,7 @@ process RIBOCUTTER {
 
     output:
     tuple val(sample_id), path("*.csv"), emit: guides
-    path("*stats.csv"), emit: stats
+    // tuple val(sample_id), path("*stats.csv"), emit: stats
 
 
     script:
@@ -44,7 +44,7 @@ process RIBOCUTTER {
     
         """
 
-        ribocutter -i $reads -o ${sample_id}${suffix} --save_stats $min_read_length_arg $args
+        ribocutter -i $reads -o ${sample_id}${suffix} $min_read_length_arg $args
 
         """
 }

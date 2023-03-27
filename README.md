@@ -165,9 +165,9 @@ The pipeline outputs results in a number of subfolders:
 ├── deduplicated
 ├── mapping_length_analysis
 ├── riboseq_qc
-├── ribocutter
 ├── featurecounts
 ├── ribowaltz
+├── ribocutter
 ├── multiqc
 └── pipeline_info
 ```

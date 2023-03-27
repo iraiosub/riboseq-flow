@@ -81,8 +81,12 @@ data.table::fwrite(annotation.dt,
 
 # We first define the "name_samples" character string vector as follow:
 # Load BAM files
-bams <- list.files(bam_dir, pattern = ".transcriptome.dedup.sorted.bam")
-name_of_bams <- lapply(name_of_bams, function(x) strsplit(x, ".transcriptome.dedup.sorted.bam")[[1]][1])
+# bams <- list.files(bam_dir, pattern = ".transcriptome.dedup.sorted.bam")
+
+bams <- as.list(strsplit(bam_dir, ",")[[1]])
+
+
+name_of_bams <- lapply(bams, function(x) strsplit(x, ".transcriptome.dedup.sorted.bam")[[1]][1])
 names(name_of_bams) <- lapply(bams, function(x) strsplit(x, ".bam")[[1]][1])
 
 reads.ls <- bamtolist(bamfolder = bam_dir, 

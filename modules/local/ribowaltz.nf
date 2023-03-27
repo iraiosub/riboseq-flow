@@ -16,7 +16,7 @@ process IDENTIFY_PSITES {
     publishDir "${params.outdir}/ribowaltz", mode: 'copy', overwrite: true
     
     input:
-    path(bam_folder)
+    path(bam_list)
     path(gtf)
     path(fasta)
 
@@ -37,7 +37,9 @@ process IDENTIFY_PSITES {
 
         """
 
-        Rscript --vanilla identify_psites.R $bam_folder $gtf $fasta $length_range
+        INPUT=`echo $bam_list | sed 's/ /,/g'`
+        
+        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range
 
         """
 
