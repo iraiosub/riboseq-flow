@@ -22,7 +22,7 @@ process IDENTIFY_PSITES {
 
     output:
     path("psite_offset.tsv.gz"), emit: psite_offset
-    path("offset_plot/*.pdf"), emit: offset_plot
+    path("offset_plot/*"), emit: offset_plot
     path("*.psite.tsv.gz"), emit: psites
     path("codon_coverage_rpf.tsv.gz"), emit: codon_coverage_rpf
     path("codon_coverage_psite.tsv.gz"), emit: codon_coverage_psite

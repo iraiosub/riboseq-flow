@@ -51,7 +51,7 @@ plot_metaheatmap <- function(name, df_list, annotation) {
   ends_heatmap.gg <- ends_heatmap$plot +
     ggplot2::ylim(20,35)
   
-  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", name, ".ends_heatmap.pdf"), ends_heatmap.gg, dpi = 600)
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", name, ".ends_heatmap.pdf"), ends_heatmap.gg, dpi = 400)
   
   return(ends_heatmap.gg)
 }
@@ -60,7 +60,7 @@ plot_metaheatmap <- function(name, df_list, annotation) {
 save_metaprofile_psite_plot <- function(sample_name, plots_ls) {
   
   plot <- plots_ls[[sample_name]]
-  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", strsplit(sample_name, "plot_")[[1]][2], ".metaprofile_psite.pdf"), plot, dpi = 600, width = 12, height = 6) # save in wide format
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", strsplit(sample_name, "plot_")[[1]][2], ".metaprofile_psite.pdf"), plot, dpi = 400, width = 12, height = 6) # save in wide format
 
 }
 
@@ -74,7 +74,7 @@ save_cu_plot <- function(sample_name, plots_ls) {
                   panel.grid.major = ggplot2::element_blank())
 
 
-  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", strsplit(sample_name, "plot_")[[1]][2], ".codon_usage.pdf"), plot, dpi = 600)
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", sample_name, ".codon_usage.pdf"), plot, dpi = 400, width = 9, height = 7)
 }
 
 
@@ -180,7 +180,7 @@ length_dist.gg <- length_dist$plot +
                  panel.grid.minor = ggplot2::element_blank(),
                  panel.grid.major = ggplot2::element_blank())
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/length_distribution.pdf"), length_dist.gg, dpi = 600)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/length_distribution.pdf"), length_dist.gg, dpi = 400)
 # save rds
 
 # Metaheatmaps: the abundance of the 5' and 3' extremity of reads mapping on and around the start and the stop codon of annotated CDSs, stratified by their length.
@@ -191,12 +191,10 @@ ends_heatmap.gg.ls <- lapply(names(reads.ls), plot_metaheatmap, df_list = reads.
 # To verify this property the function region_psite computes the percentage of P-sites falling in the three annotated transcript regions (5' UTR, CDS and 3' UTR). The bar plot of the resulting values includes a bar called "RNAs" displaying the expected read distribution from a random fragmentation of RNA.
 psite_region <- region_psite(filtered_psite.ls, annotation.dt)
 psite_region.gg <- psite_region$plot + 
-  ggplot2::theme(plot.background = ggplot2::element_blank(), 
-                                   panel.grid.minor = ggplot2::element_blank(),
-                                   panel.grid.major = ggplot2::element_blank()) +
+  ggplot2::theme(plot.background = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(), panel.grid.major = ggplot2::element_blank()) +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.gg, dpi = 600)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.gg, dpi = 400)
 # save rds
 
 # A fundamental characteristic of ribosome profiling data is the trinucleotide periodicity of ribosome footprints along coding sequences. 
@@ -208,7 +206,7 @@ ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.
 frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", cl = 100)
 frames_stratified.gg <- frames_stratified$plot
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 600)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 400)
 # save rds
 
 frames <- frame_psite(filtered_psite.ls, region = "all")
@@ -217,7 +215,7 @@ frames.gg <- frames$plot +
                  panel.grid.minor = ggplot2::element_blank(),
                  panel.grid.major = ggplot2::element_blank())
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 600)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 400)
 # save rds
 
 # Plots should show an enrichment of P-sites in the first frame on the coding sequence but not the UTRs, as expected for ribosome protected fragments from protein coding mRNAs.
@@ -240,10 +238,5 @@ cu_barplot <- codon_usage_psite(filtered_psite.ls, annotation = annotation.dt, s
                                         frequency_normalization = FALSE) 
                                         
 
-print(names(cu_barplot))
-
-
 cu_barplot.gg.ls <- cu_barplot[!(names(cu_barplot) %in% c("dt", "plot_comparison")) ]
-names(cu_barplot.gg.ls)
-
 lapply(names(cu_barplot.gg.ls), save_cu_plot, plots_ls = cu_barplot.gg.ls)
