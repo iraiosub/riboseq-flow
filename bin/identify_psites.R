@@ -37,7 +37,7 @@ export_psites <- function(name, df_list) {
   df <- df_list[[name]]
   df$sample <- name
   
-  data.table::fwrite(df, paste0(name, ".psite.tsv.gz"), sep = "\t")
+  data.table::fwrite(df, paste0(getwd(), "/", name, ".psite.tsv.gz"), sep = "\t")
   return(df)
   
 }
@@ -64,17 +64,28 @@ save_metaprofile_psite_plot <- function(sample_name, plots_ls) {
 
 }
 
-save_cu_plot <- function(sample_name, plots_ls) {
-  
-  plot <- plots_ls[[sample_name]]
 
-  plot <- plot +
+plot_cu <- function(sample_name, psite_info_ls) {
+
+  psite.ls <- psite_info_ls[sample_name]
+
+  cu_barplot <- codon_usage_psite(psite.ls, annotation = annotation.dt, sample = sample_name,
+                                        fasta_genome = TRUE, 
+                                        fastapath = fasta,
+                                        gtfpath = gtf,
+                                        frequency_normalization = FALSE) 
+  
+  # plot <- plots_ls[[sample_name]]
+
+  cu_barplot <- cu_barplot +
     ggplot2::theme(plot.background = ggplot2::element_blank(), 
                   panel.grid.minor = ggplot2::element_blank(),
                   panel.grid.major = ggplot2::element_blank())
 
+  cu_barplot.gg.ls <- cu_barplot[!(names(cu_barplot) %in% c("dt", "plot_comparison")) ]
 
-  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", sample_name, ".codon_usage.pdf"), plot, dpi = 400, width = 9, height = 7)
+
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", sample_name, ".codon_usage.pdf"), plot, dpi = 400, width = 10, height = 7)
 }
 
 
@@ -86,7 +97,7 @@ save_cu_plot <- function(sample_name, plots_ls) {
 # Prepare annotation: for each transcript, obtain total length, 5'UTR, CDS and 3'UTR length, respectively.
 annotation.dt <- create_annotation(gtf)
 data.table::fwrite(annotation.dt, 
-                   paste0(strsplit(gtf, "gtf")[[1]][1],"transcript_info.tsv.gz"),
+                   paste0(getwd(), "/", strsplit(gtf, "gtf")[[1]][1],"transcript_info.tsv.gz"),
                    sep = "\t")
 
 # Load BAM files
@@ -96,7 +107,6 @@ data.table::fwrite(annotation.dt,
 # bams <- list.files(bam_dir, pattern = ".transcriptome.dedup.sorted.bam")
 
 bams <- as.list(strsplit(bam_dir, ",")[[1]])
-
 
 name_of_bams <- lapply(bams, function(x) strsplit(x, ".transcriptome.dedup.sorted.bam")[[1]][1])
 names(name_of_bams) <- lapply(bams, function(x) strsplit(x, ".bam")[[1]][1])
@@ -127,7 +137,7 @@ psite_offset.dt <- psite(filtered.ls, flanking = 6, extremity = "auto",
                          plot = TRUE, plot_format = "pdf")
 
 data.table::fwrite(psite_offset.dt, 
-                   "psite_offset.tsv.gz", sep = "\t")
+                   paste0(getwd(), "/psite_offset.tsv.gz"), sep = "\t")
 
 filtered_psite.ls <- psite_info(filtered.ls, site = "psite", 
                                 offset = psite_offset.dt,
@@ -146,10 +156,10 @@ codon_coverage_rpf.dt <- codon_coverage(filtered_psite.ls, psite = FALSE, annota
 codon_coverage_psite.dt <- codon_coverage(filtered_psite.ls, psite = TRUE, annotation = annotation.dt)
 
 data.table::fwrite(codon_coverage_rpf.dt, 
-                   "codon_coverage_rpf.tsv.gz", sep = "\t")
+                   paste0(getwd(),"/codon_coverage_rpf.tsv.gz"), sep = "\t")
 
 data.table::fwrite(codon_coverage_psite.dt, 
-                   "codon_coverage_psite.tsv.gz", sep = "\t")
+                    paste0(getwd(),"/codon_coverage_psite.tsv.gz"), sep = "\t")
 
 # Compute the number of P-sites mapping on annotated coding sequences or whole transcripts. 
 # Such data can be used as starting point for downstream quantitative analyses (e.g. differential analyses) based on ribosome protected fragments
@@ -162,7 +172,7 @@ data.table::fwrite(codon_coverage_psite.dt,
 cds_coverage_psite.dt <- cds_coverage(filtered_psite.ls, annotation = annotation.dt)
 
 data.table::fwrite(cds_coverage_psite.dt, 
-                   "cds_coverage_psite.tsv.gz", sep = "\t")
+                   paste0(getwd(), "/cds_coverage_psite.tsv.gz"), sep = "\t")
 
 
 # =========
@@ -231,12 +241,5 @@ lapply(names(metaprofiles.gg.ls), save_metaprofile_psite_plot, plots_ls = metapr
 # save rds
 
 # Codon usage
-cu_barplot <- codon_usage_psite(filtered_psite.ls, annotation = annotation.dt, sample = names(filtered_psite.ls),
-                                        fasta_genome = TRUE, 
-                                        fastapath = fasta,
-                                        gtfpath = gtf,
-                                        frequency_normalization = FALSE) 
-                                        
 
-cu_barplot.gg.ls <- cu_barplot[!(names(cu_barplot) %in% c("dt", "plot_comparison")) ]
-lapply(names(cu_barplot.gg.ls), save_cu_plot, plots_ls = cu_barplot.gg.ls)
+# lapply(names(filtered_psite.ls), plot_cu, psite_info_ls = filtered_psite.ls)

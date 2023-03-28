@@ -181,7 +181,7 @@ if (!is.null(opt$after_premap)) {
     ylab("Number of reads") +
     ggtitle("Original vs premapping") +
     # ggeasy::easy_remove_legend() +
-    theme(legend.position = "bottom", legend.direction = "horizontal", legend.title=element_blank(), legend.text = element_text(size=5)) +
+    theme(legend.position = "bottom", legend.direction = "horizontal", legend.title=element_blank(), legend.text = element_text(size=6)) +
     scale_y_log10()+
     expand_limits(y=1)
     # annotate(geom = "rect", xmin = 26, xmax = 31, ymin = -Inf, ymax = Inf, alpha = .1, color = "black", linetype = "dashed", fill = "black")
@@ -248,7 +248,7 @@ summary_df <- useful_df %>%
 useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
   geom_bar(stat="identity") +
   theme_classic() +
-  ggtitle("% Useful reads", "UMI-deduplicated reads mapped uniquely to protein-coding transcripts") +
+  ggtitle("% Useful reads", "UMI-deduplicated reads mapped\nuniquely to longest CDS transcripts") +
   xlab("") +
   ylab("Proportion (%)")
 
