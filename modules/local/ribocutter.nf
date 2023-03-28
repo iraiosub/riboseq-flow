@@ -10,8 +10,8 @@ process RIBOCUTTER {
 
     // conda 'bioconda::ribocutter=0.1.1'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ribocutter:0.0.1--pyh5e36f6f_0' :
-        'quay.io/biocontainers/ribocutter:0.0.1--pyh5e36f6f_0' }"
+        'https://depot.galaxyproject.org/singularity/ribocutter:0.1.1--pyh5e36f6f_0' :
+        'quay.io/biocontainers/ribocutter:0.1.1--pyh5e36f6f_0' }"
 
     publishDir "${params.outdir}/ribocutter"
 
@@ -20,7 +20,7 @@ process RIBOCUTTER {
 
     output:
     tuple val(sample_id), path("*.csv"), emit: guides
-    // path("*stats.csv"), emit: stats
+    // tuple val(sample_id), path("*stats.csv"), emit: stats
 
 
     script:
@@ -58,7 +58,7 @@ process GET_PROPORTION_TARGETED {
     // conda 'bioconda::ribocutter=0.1.1'
     container 'iraiosub/mapping-length:latest'
 
-    publishDir "${params.outdir}/riboseq_qc"
+    publishDir "${params.outdir}/ribocutter"
 
     input:
     path(guides)

@@ -70,8 +70,8 @@ include { DEDUPLICATE } from './workflows/dedup.nf'
 include { MAPPING_LENGTH_ANALYSES } from './workflows/mapping_length_analyses.nf'
 include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
-include { GENE_COUNTS_FEATURECOUNTS } from './modules/local/featurecounts.nf'
-include { MERGE_FEATURECOUNTS } from './modules/local/featurecounts.nf'
+include { GET_GENE_LEVEL_COUNTS } from './workflows/gene_level_counts.nf'
+include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 include { RUN_RIBOCUTTER } from './workflows/ribocutter_analysis.nf'
 
@@ -134,7 +134,6 @@ workflow {
 
         RIBOSEQ_QC(DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis), GET_TRANSCRIPT_INFO.out.transcript_info.collect())
 
-
         ch_merge_qc = RIBOSEQ_QC.out.qc
             .map { [ it[1] ] }
             .collect()
@@ -146,15 +145,26 @@ workflow {
 
     // Get gene-level counts from BAM alignments using featureCounts
     if (params.with_umi) {
-        GENE_COUNTS_FEATURECOUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf.collect())
+        GET_GENE_LEVEL_COUNTS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_gtf.collect())
     
     } else {
-        GENE_COUNTS_FEATURECOUNTS(MAP.out.genome_bam, ch_genome_gtf.collect())
+        GET_GENE_LEVEL_COUNTS(MAP.out.genome_bam, ch_genome_gtf.collect())
 
     }
 
-    MERGE_FEATURECOUNTS(GENE_COUNTS_FEATURECOUNTS.out.counts.map { [ it[1] ] }.collect())
 
+    if (!params.skip_psite) {
+
+         if (params.with_umi) {
+            IDENTIFY_PSITES(DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
+        
+        } else {
+            IDENTIFY_PSITES(MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
+
+        }
+
+    }
+   
     // ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1], it[2] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     MULTIQC(ch_logs)

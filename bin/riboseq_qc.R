@@ -23,7 +23,7 @@ option_list <- list(make_option(c("-b", "--bam"), action = "store", type = "char
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
-
+# A function that extracts relevant positional information from transcriptomic bam for representative protein-coding transcripts
 get_info_from_bam <- function(bam, info) {
 
   info.df <- fread(info)
@@ -181,7 +181,7 @@ if (!is.null(opt$after_premap)) {
     ylab("Number of reads") +
     ggtitle("Original vs premapping") +
     # ggeasy::easy_remove_legend() +
-    theme(legend.position = "bottom", legend.direction = "horizontal", legend.title=element_blank(), legend.text = element_text(size=5)) +
+    theme(legend.position = "bottom", legend.direction = "horizontal", legend.title=element_blank(), legend.text = element_text(size=6)) +
     scale_y_log10()+
     expand_limits(y=1)
     # annotate(geom = "rect", xmin = 26, xmax = 31, ymin = -Inf, ymax = Inf, alpha = .1, color = "black", linetype = "dashed", fill = "black")
@@ -248,9 +248,9 @@ summary_df <- useful_df %>%
 useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
   geom_bar(stat="identity") +
   theme_classic() +
-  ggtitle("% useful reads") +
+  ggtitle("% Useful reads", "UMI-deduplicated reads mapped\nuniquely to longest CDS transcripts") +
   xlab("") +
-  ylab("% useful")
+  ylab("Proportion (%)")
 
 # Pull together plots
 fig <- ((p1 + ggtitle(paste("Sample:", actual_name)) | useful_plot) +  plot_layout(widths = c(3, 1))) / (p2|p3) / 

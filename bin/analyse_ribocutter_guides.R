@@ -25,6 +25,8 @@ get_ribocutter_table <- function(ribocutter_csv) {
     mutate(name = str_split(actual_name, ".min")[[1]][1]) %>%
     mutate(min_length = case_when(str_detect(actual_name, ".min") ~ as.integer(str_split(actual_name, ".min")[[1]][2]),
                                   TRUE ~ 1L))
+  
+  df <- mutate(df, guide_number = nrow(df))
            
   return(df)
            
@@ -34,18 +36,17 @@ get_ribocutter_table <- function(ribocutter_csv) {
 ribocutter.ls <- as.list(strsplit(opt$guides, ",")[[1]])
 
 ribocutter.df <- rbindlist(lapply(ribocutter.ls, get_ribocutter_table)) %>%
-  dplyr::select(name, min_length, total_targeted) %>%
+  dplyr::select(name, min_length, guide_number, total_library_fraction_targeted) %>%
   distinct()
 
-ribocutter.gg <- ggplot(ribocutter.df, aes(x = name, y = total_targeted, fill = factor(min_length))) +
+guide_number <- unique(ribocutter.df$guide_number)
+
+ribocutter.gg <- ggplot(ribocutter.df, aes(x = name, y = total_library_fraction_targeted, fill = factor(min_length))) +
   geom_bar(stat="identity", position="dodge") +
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90)) +
   ylab("% of reads targeted") +
-  ggtitle("% of reads targeted by 50 guides with ribocutter",
+  ggtitle(paste0("% of reads targeted by ", guide_number," guides with ribocutter"),
           "Higher is better")
-
-ribocutter.gg
-
 
 ggsave("ribocutter.pdf", ribocutter.gg, dpi = 300)

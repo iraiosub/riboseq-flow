@@ -137,3 +137,6 @@ work/
 data/
 results/
 results*
+
+# Local test
+local_test.sh
