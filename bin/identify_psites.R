@@ -155,13 +155,16 @@ filtered.ls <- length_filter(data = reads.ls,
 # Additionally filter them by length
 min_length <- as.integer(strsplit(length_range, ":")[[1]][1])
 max_length <- as.integer(strsplit(length_range, ":")[[1]][2])
+
+length_range <- min_length:max_length
+
 filtered.ls <- length_filter(data = filtered.ls,
                              length_filter_mode = "custom",
                              length_range = min_length:max_length)
 
 
 # Length bins used for P-site assignment
-# lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
+lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
 
 
 # =========
@@ -258,7 +261,6 @@ frames.gg <- frames$plot +
                  panel.grid.major = ggplot2::element_blank())
 
 ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 400, height = 12 , width = 10)
-# save rds
 
 # Plots should show an enrichment of P-sites in the first frame on the coding sequence but not the UTRs, as expected for ribosome protected fragments from protein coding mRNAs.
 
