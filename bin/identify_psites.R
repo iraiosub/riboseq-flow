@@ -45,7 +45,7 @@ export_psites <- function(name, df_list) {
 
 
 plot_length_bins <- function(sample_name, df_list) {
-  
+
   comparison_list <- list()
   comparison_list[["start_codon"]] <- df_list[[sample_name]][end5 <= cds_start & end3 >= cds_start]
   comparison_list[["whole_sample"]] <- df_list[[sample_name]]
@@ -159,6 +159,11 @@ filtered.ls <- length_filter(data = filtered.ls,
                              length_filter_mode = "custom",
                              length_range = min_length:max_length)
 
+
+                             # Length bins used for P-site assignment
+lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
+
+
 # =========
 # Find P-sites
 # =========
@@ -223,11 +228,6 @@ ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/length_distribution.pdf"), length
 
 # Metaheatmaps: the abundance of the 5' and 3' extremity of reads mapping on and around the start and the stop codon of annotated CDSs, stratified by their length.
 ends_heatmap.gg.ls <- lapply(names(reads.ls), plot_metaheatmap, df_list = reads.ls, annotation = annotation.dt)
-
-
-# Length bins used for P-site assignment
-lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
-
 
 # Ribosome profiling data should highlight the CDS of transcripts as the region with the higher percentage of reads. 
 # To verify this property the function region_psite computes the percentage of P-sites falling in the three annotated transcript regions (5' UTR, CDS and 3' UTR). The bar plot of the resulting values includes a bar called "RNAs" displaying the expected read distribution from a random fragmentation of RNA.
