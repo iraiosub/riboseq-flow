@@ -160,8 +160,8 @@ filtered.ls <- length_filter(data = filtered.ls,
                              length_range = min_length:max_length)
 
 
-                             # Length bins used for P-site assignment
-lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
+# Length bins used for P-site assignment
+# lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
 
 
 # =========
