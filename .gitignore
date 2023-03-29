@@ -140,3 +140,4 @@ results*
 
 # Local test
 local_test.sh
+slurm-*
