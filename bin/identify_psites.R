@@ -42,6 +42,35 @@ export_psites <- function(name, df_list) {
   
 }
 
+
+
+plot_length_bins <- function(sample_name, df_list) {
+
+  comparison_list <- list()
+  comparison_list[["start_codon"]] <- df_list[[sample_name]][end5 <= cds_start & end3 >= cds_start]
+  comparison_list[["whole_sample"]] <- df_list[[sample_name]]
+  
+  rpf_list <- list("Only_start" = c("start_codon"), "All" = c("whole_sample"))
+  
+  length_dist_split <-  rlength_distr(comparison_list,
+                                              sample = rpf_list,
+                                              multisamples = "average",
+                                              plot_style = "split",
+                                              colour = c("#699FC4", "gray70"))
+  
+  length_dist_split.gg <- length_dist_split$plot +
+    ggplot2::theme(plot.background = ggplot2::element_blank(), 
+                   panel.grid.minor = ggplot2::element_blank(),
+                   panel.grid.major = ggplot2::element_blank())
+  
+  
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", sample_name, ".length_bins_for_psite.pdf"), length_dist_split.gg, dpi = 400, width = 10, height = 5)
+  
+  
+}
+
+
+
 plot_metaheatmap <- function(name, df_list, annotation) {
   
   ends_heatmap <- rends_heat(df_list, annotation, sample = name, 
@@ -51,7 +80,7 @@ plot_metaheatmap <- function(name, df_list, annotation) {
   ends_heatmap.gg <- ends_heatmap$plot +
     ggplot2::ylim(20,35)
   
-  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", name, ".ends_heatmap.pdf"), ends_heatmap.gg, dpi = 400)
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", name, ".ends_heatmap.pdf"), ends_heatmap.gg, dpi = 400, width = 12, height = 8)
   
   return(ends_heatmap.gg)
 }
@@ -65,7 +94,7 @@ save_metaprofile_psite_plot <- function(sample_name, plots_ls) {
 }
 
 
-plot_cu <- function(sample_name, psite_info_ls) {
+plot_codon_usage <- function(sample_name, psite_info_ls) {
 
   psite.ls <- psite_info_ls[sample_name]
 
@@ -76,16 +105,14 @@ plot_cu <- function(sample_name, psite_info_ls) {
                                         frequency_normalization = FALSE) 
   
   # plot <- plots_ls[[sample_name]]
+  # cu_barplot.gg <- unlist(cu_barplot[!(names(cu_barplot) %in% c("dt", "plot_comparison")) ])
 
-  cu_barplot <- cu_barplot +
+  cu_barplot.gg <-cu_barplot$plot +
     ggplot2::theme(plot.background = ggplot2::element_blank(), 
                   panel.grid.minor = ggplot2::element_blank(),
                   panel.grid.major = ggplot2::element_blank())
 
-  cu_barplot.gg.ls <- cu_barplot[!(names(cu_barplot) %in% c("dt", "plot_comparison")) ]
-
-
-  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", sample_name, ".codon_usage.pdf"), plot, dpi = 400, width = 10, height = 7)
+  ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", sample_name, ".codon_usage.pdf"), cu_barplot.gg, dpi = 400, width = 10, height = 7)
 }
 
 
@@ -111,6 +138,11 @@ bams <- as.list(strsplit(bam_dir, ",")[[1]])
 name_of_bams <- lapply(bams, function(x) strsplit(x, ".transcriptome.dedup.sorted.bam")[[1]][1])
 names(name_of_bams) <- lapply(bams, function(x) strsplit(x, ".bam")[[1]][1])
 
+
+# Get number of samples
+sample_count <- length(bams)
+
+# Load bams
 reads.ls <- bamtolist(bamfolder = getwd(), 
                       annotation = annotation.dt,
                       name_samples = unlist(name_of_bams))
@@ -120,13 +152,17 @@ filtered.ls <- length_filter(data = reads.ls,
                              length_filter_mode = "periodicity",
                              periodicity_threshold = 50)
 
-
 # Additionally filter them by length
 min_length <- as.integer(strsplit(length_range, ":")[[1]][1])
 max_length <- as.integer(strsplit(length_range, ":")[[1]][2])
 filtered.ls <- length_filter(data = filtered.ls,
                              length_filter_mode = "custom",
                              length_range = min_length:max_length)
+
+
+# Length bins used for P-site assignment
+# lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
+
 
 # =========
 # Find P-sites
@@ -155,11 +191,9 @@ lapply(names(filtered_psite.ls), export_psites, df_list = filtered_psite.ls)
 codon_coverage_rpf.dt <- codon_coverage(filtered_psite.ls, psite = FALSE, annotation = annotation.dt)
 codon_coverage_psite.dt <- codon_coverage(filtered_psite.ls, psite = TRUE, annotation = annotation.dt)
 
-data.table::fwrite(codon_coverage_rpf.dt, 
-                   paste0(getwd(),"/codon_coverage_rpf.tsv.gz"), sep = "\t")
+data.table::fwrite(codon_coverage_rpf.dt, paste0(getwd(),"/codon_coverage_rpf.tsv.gz"), sep = "\t")
 
-data.table::fwrite(codon_coverage_psite.dt, 
-                    paste0(getwd(),"/codon_coverage_psite.tsv.gz"), sep = "\t")
+data.table::fwrite(codon_coverage_psite.dt, paste0(getwd(),"/codon_coverage_psite.tsv.gz"), sep = "\t")
 
 # Compute the number of P-sites mapping on annotated coding sequences or whole transcripts. 
 # Such data can be used as starting point for downstream quantitative analyses (e.g. differential analyses) based on ribosome protected fragments
@@ -171,8 +205,7 @@ data.table::fwrite(codon_coverage_psite.dt,
 
 cds_coverage_psite.dt <- cds_coverage(filtered_psite.ls, annotation = annotation.dt)
 
-data.table::fwrite(cds_coverage_psite.dt, 
-                   paste0(getwd(), "/cds_coverage_psite.tsv.gz"), sep = "\t")
+data.table::fwrite(cds_coverage_psite.dt, paste0(getwd(), "/cds_coverage_psite.tsv.gz"), sep = "\t")
 
 
 # =========
@@ -191,11 +224,10 @@ length_dist.gg <- length_dist$plot +
                  panel.grid.major = ggplot2::element_blank())
 
 ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/length_distribution.pdf"), length_dist.gg, dpi = 400)
-# save rds
+
 
 # Metaheatmaps: the abundance of the 5' and 3' extremity of reads mapping on and around the start and the stop codon of annotated CDSs, stratified by their length.
 ends_heatmap.gg.ls <- lapply(names(reads.ls), plot_metaheatmap, df_list = reads.ls, annotation = annotation.dt)
-# save rds
 
 # Ribosome profiling data should highlight the CDS of transcripts as the region with the higher percentage of reads. 
 # To verify this property the function region_psite computes the percentage of P-sites falling in the three annotated transcript regions (5' UTR, CDS and 3' UTR). The bar plot of the resulting values includes a bar called "RNAs" displaying the expected read distribution from a random fragmentation of RNA.
@@ -204,8 +236,8 @@ psite_region.gg <- psite_region$plot +
   ggplot2::theme(plot.background = ggplot2::element_blank(), panel.grid.minor = ggplot2::element_blank(), panel.grid.major = ggplot2::element_blank()) +
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90))
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.gg, dpi = 400)
-# save rds
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.gg, dpi = 400, width = 10)
+
 
 # A fundamental characteristic of ribosome profiling data is the trinucleotide periodicity of ribosome footprints along coding sequences. 
 
@@ -216,8 +248,8 @@ ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.
 frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", cl = 100)
 frames_stratified.gg <- frames_stratified$plot
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 400)
-# save rds
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 400, height = 12 , width = 10)
+
 
 frames <- frame_psite(filtered_psite.ls, region = "all")
 frames.gg <- frames$plot +
@@ -225,7 +257,7 @@ frames.gg <- frames$plot +
                  panel.grid.minor = ggplot2::element_blank(),
                  panel.grid.major = ggplot2::element_blank())
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 400)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 400, height = 12 , width = 10)
 # save rds
 
 # Plots should show an enrichment of P-sites in the first frame on the coding sequence but not the UTRs, as expected for ribosome protected fragments from protein coding mRNAs.
@@ -238,8 +270,7 @@ metaprofile <- metaprofile_psite(filtered_psite.ls, annotation.dt, sample = name
 
 metaprofiles.gg.ls <- metaprofile[names(metaprofile) != "dt"]
 lapply(names(metaprofiles.gg.ls), save_metaprofile_psite_plot, plots_ls = metaprofiles.gg.ls)
-# save rds
+
 
 # Codon usage
-
-# lapply(names(filtered_psite.ls), plot_cu, psite_info_ls = filtered_psite.ls)
+lapply(names(filtered_psite.ls), plot_codon_usage, psite_info_ls = filtered_psite.ls)
