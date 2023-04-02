@@ -24,7 +24,7 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/), [`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
 7. Extensive quality control ([`mapping_length_analysis`](https://pypi.org/project/mapping-length-analysis/),[`R`](https://www.r-project.org/)) (Optional)
 8. Gene-level RPF quantification ([`FeatureCounts`](https://subread.sourceforge.net/))
-9. P-site identification and P-site diagnostics ([`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/)) (Optional)
+9. P-site identification, CDS occupancy and P-site diagnostics ([`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/)) (Optional)
 10. Design of sgRNA templates to deplete unwanted abundant contaminants ([`Ribocutter`](https://www.biorxiv.org/content/10.1101/2021.07.14.451473v1.full)) (Optional)
 11. MultiQC report of reads QC and mapping statistics ([`MultiQC`](https://multiqc.info/))
 
@@ -153,7 +153,12 @@ If you prepared your library using a TS (template-switch protocol) you may use t
 
 #### P-site identification options
 
-- `--length_range` specifies the range of read lengths for RPFs to be used for P-site identification (default `26:31`)
+- `--length_range` specifies the range of RPF lengths used for P-site identification (default `26:31`)
+- `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
+     - For `ribowaltz` P-site offsets are defined using ([`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/).)
+     - For `global_max_5end` P-site offsets are defined by the distances between the first nucleotide of the TIS and the nucleotide corresponding to the global maximum of the read length-specific 5'end profiles.
+- `exclude_start` specifies the number of nucleotides 3' from the start codon to be excluded from CDS P-site quantification (default `42`, i.e. exclude the first 14 codons)
+- `exclude_stop` specifies the number of nucleotides 5' from the stop codon to be excluded from CDS P-site quantification (default `27`, i.e. exclude the last 9 codons)
 
 #### Optional pipeline modules
 
