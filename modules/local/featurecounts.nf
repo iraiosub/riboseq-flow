@@ -41,10 +41,10 @@ process GENE_COUNTS_FEATURECOUNTS {
     }
     
     
-    """
-    featureCounts -a $gtf -s $strandedness -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
-    
-    """
+        """
+        featureCounts -a $gtf -s $strandedness -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
+        
+        """
 
 }
 
@@ -66,14 +66,44 @@ process MERGE_FEATURECOUNTS {
 
     script:
 
-    """
-    INPUT=`echo $featurecounts_tables | sed 's/ /,/g'`
-        
-    get_featurecounts_tables.R -i \$INPUT
-    """
+        """
+        INPUT=`echo $featurecounts_tables | sed 's/ /,/g'`
+            
+        get_featurecounts_tables.R -i \$INPUT
+        """
 
 
 }
 
 
+
+process PLOT_PCA {
+ 
+    label 'process_single'
+
+    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    container 'iraiosub/nf-riboseq:latest'
+
+    publishDir "${params.outdir}/riboseq_qc", mode: 'copy', overwrite: true
+    
+    input:
+    path(featurecounts_table)
+    path(cds_table)
+    path(cds_window_table)
+    path(transcript_info)
+
+    output:
+    path("pca.pdf"), emit: pca
+    path("longest_cds_coverage_psite.tsv.gz"), emit: longest_cds_counts
+    path("*nt_coverage_psite.tsv.gz"),  emit: longest_cds_window_counts
+
+    script:
+
+        """
+        plot_pca.R --featurecounts $featurecounts_table --cds $cds_table --cds_window $cds_window_table --transcript_info $transcript_info
+            
+        """
+
+
+}
 
