@@ -30,18 +30,11 @@ get_rlog_pca <- function(count_data) {
   # Create metadata
   sample.ls <- colnames(count_data)
   
-  meta.df <- data.table(sample = sample.ls, condition = sample.ls)
-  meta.df <- meta.df %>%
-    remove_rownames %>% 
-    column_to_rownames(var = "condition") %>%
-    dplyr::arrange(sample)
-  
-  count_data <- dplyr::select(count_data, row.names(meta.df))
-  
+  meta.df <- data.table(sample = sample.ls, row.names = 1)
   # Create dds oject
   dds <- DESeqDataSetFromMatrix(countData = round(count_data), 
                                 colData = meta.df, 
-                                design = ~sample)
+                                design = ~1)
   dds <- estimateSizeFactors(dds)
   # idx <- rowSums( counts(dds, normalized = TRUE) >= 2 ) >= 1
   # dds <- dds[idx,]
@@ -67,7 +60,7 @@ featurecounts.df <- fread(opt$featurecounts)
 
 if (ncol(featurecounts.df) < 3 ) {
   
-  message("There is only one sample provided. This analysis is only valid for 2 or more samples.")
+  message("There is only one sample provided. This analysis is only valid for 2 or more samples.") # Not enough samples in counts file for PCA.
   # file.create("pca.pdf")
   
 } else {
