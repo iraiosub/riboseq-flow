@@ -30,7 +30,7 @@ get_rlog_pca <- function(count_data) {
   # Create metadata
   sample.ls <- colnames(count_data)
   
-  meta.df <- data.table(sample = sample.ls, row.names = 1)
+  meta.df <- data.table(sample = sample.ls, condition = 1)
   # Create dds oject
   dds <- DESeqDataSetFromMatrix(countData = round(count_data), 
                                 colData = meta.df, 
