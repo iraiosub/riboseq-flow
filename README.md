@@ -28,6 +28,9 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 10. Design of sgRNA templates to deplete unwanted abundant contaminants ([`Ribocutter`](https://www.biorxiv.org/content/10.1101/2021.07.14.451473v1.full)) (Optional)
 11. MultiQC report of reads QC and mapping statistics ([`MultiQC`](https://multiqc.info/))
 
+![Pipeline summary](img/dataflow.png "Pipeline summary")
+
+
 ## Quick start (test the pipeline with a minimal dataset)
 
 1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system.
