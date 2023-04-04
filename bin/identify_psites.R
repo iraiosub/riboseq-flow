@@ -177,21 +177,6 @@ lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
 # Identify P-sites
 # =========
 
-# # Identify P sites, produce plots for each read length
-# psite_offset.dt <- psite(filtered.ls, flanking = 6, extremity = "auto", 
-#                          plot = TRUE, plot_format = "pdf")
-
-# data.table::fwrite(psite_offset.dt, 
-#                    paste0(getwd(), "/psite_offset.tsv.gz"), sep = "\t")
-
-# filtered_psite.ls <- psite_info(filtered.ls, site = "psite", 
-#                                 offset = psite_offset.dt,
-#                                 fasta_genome = TRUE, refseq_sep = " ",
-#                                 fastapath = fasta,
-#                                 gtfpath = gtf)
-
-
-
 # Identify the exact position of the ribosome P-site within
 # each read, determined by the localisation of its first nucleotide
 
@@ -206,6 +191,9 @@ if (method == "global_max_5end") {
   # Replace ribowaltz-corrected offsets with temporary offests
   psite_offset.dt$corrected_offset_from_5 <- psite_offset.dt$offset_from_5
   psite_offset.dt$corrected_offset_from_3 <- psite_offset.dt$offset_from_3
+
+  data.table::fwrite(psite_offset.dt, paste0(getwd(), "/psite_offset.tsv.gz"), sep = "\t")
+
   
   # Update reads information according to the inferred P-sites
   filtered_psite.ls <- psite_info(filtered.ls, psite_offset.dt, site = "psite",
@@ -220,6 +208,8 @@ if (method == "global_max_5end") {
   # Compute P-site offsets: temporary and corrected
   psite_offset.dt <- psite(filtered.ls, flanking = 6, extremity = "auto", 
                            plot = TRUE, plot_format = "pdf")
+
+  data.table::fwrite(psite_offset.dt, paste0(getwd(), "/psite_offset.tsv.gz"), sep = "\t")
   
   # Update reads information according to the inferred P-sites
   filtered_psite.ls <- psite_info(filtered.ls, psite_offset.dt, site = "psite",

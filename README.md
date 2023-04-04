@@ -154,7 +154,7 @@ If you prepared your library using a TS (template-switch protocol) you may use t
 
 - `--strandedness` specifies the library strandedness (options: `forward`, `reverse` or `unstranded`) (Required)
 
-#### P-site identification options
+#### P-site identification and quantification options
 
 - `--length_range` specifies the range of RPF lengths used for P-site identification (default `26:31`)
 - `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
