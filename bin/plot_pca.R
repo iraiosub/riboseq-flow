@@ -68,16 +68,16 @@ featurecounts.df <- fread(opt$featurecounts)
 if (ncol(featurecounts.df) < 3 ) {
   
   message("There is only one sample provided. This analysis is only valid for 2 or more samples.")
-
+  
 } else {
   
   tx_info.df <- fread(opt$transcript_info)
-  colours = colorRampPalette(c("#E64B35B2", "#4DBBD5B2", "#00A087B2", "#3C5488B2", "#F39B7FB2", "#8491B4B2","#91D1C2B2", "#DC0000B2", "#7E6148B2", "#f47942","#C39BD3","#fbb04e","#AAB7B8"))(ncol(featurecounts.df))
+  colours <- colorRampPalette(c("#E64B35B2", "#4DBBD5B2", "#00A087B2", "#3C5488B2", "#F39B7FB2", "#8491B4B2","#91D1C2B2", "#DC0000B2", "#7E6148B2", "#f47942","#C39BD3","#fbb04e","#AAB7B8"))(ncol(featurecounts.df))
   
   
   # Reformat df and PCA of top 500 genes
   featurecounts.df <- featurecounts.df %>%
-    remove_rownames %>% 
+    remove_rownames() %>% 
     column_to_rownames(var = "Geneid") 
   
   featurecounts.pca <- get_rlog_pca(featurecounts.df)
@@ -89,65 +89,67 @@ if (ncol(featurecounts.df) < 3 ) {
     scale_fill_manual(values = colours)
   
   
-    if (!is.na(opt$cds)) {
-
-        # =========
-        # P-site CDS counts from riboWaltz
-        # =========
-        
-        cds.df <- fread(opt$cds)
-        
-        # Select the longest CDS transcript based on transcript info table
-        cds.df <- semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
-            remove_rownames %>% 
-            column_to_rownames(var = "transcript")  %>%
-            dplyr::select(-length_cds)
-        
-        cds.pca <- get_rlog_pca(cds.df)
-        
-        cds.pca.gg <- ggplot(cds.df) +
-            geom_point(aes(color = sample)) +
-            ggtitle("Gene-level CDS occupancy", "RiboWaltz P-sites", "top 500 most variable CDS") +
-            theme_cowplot() +
-            scale_fill_manual(values = colours)
-        
-        
-        # =========
-        # P-site CDS window counts from riboWaltz
-        # =========
-        
-        cds_window.df <- fread(opt$cds_window)
-        
-        # Select the longest CDS transcript based on transcript info table
-        cds_window.df <- semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
-            remove_rownames %>% 
-            column_to_rownames(var = "transcript")  %>%
-            dplyr::select(-length_cds) +
-            scale_fill_manual(values = colours)
-        
-        cds_window.pca <- get_rlog_pca(cds_window.df)
-        
-        cds_window.pca.gg <- ggplot(cds_window.pca) +
-            geom_point(aes(color = sample)) +
-            ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "RiboWaltz P-sites", "top 500 most variable CDS") +
-            theme_cowplot()
-        
-        
-        # =========
-        # Merge PCA plots
-        # =========
-        
-        pca.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, rows = 3)
-        
-        ggsave("pca.pdf", pca.gg, dpi = 400, height = 15, width = 5)
-        
-        # save longest CDS tables
-        fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
-        fwrite(semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")), str_replace(basename(opt$cds_window)), "cds", "longest_cds")
-
-
+  if (!is.na(opt$cds)) {
+    
+      # =========
+      # P-site CDS counts from riboWaltz
+      # =========
+      
+      cds.df <- fread(opt$cds)
+      
+      # Select the longest CDS transcript based on transcript info table
+      cds.df <- semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
+        remove_rownames %>% 
+        column_to_rownames(var = "transcript")  %>%
+        dplyr::select(-length_cds)
+      
+      cds.pca <- get_rlog_pca(cds.df)
+      
+      cds.pca.gg <- ggplot(cds.df) +
+        geom_point(aes(color = sample)) +
+        ggtitle("Gene-level CDS occupancy", "RiboWaltz P-sites", "top 500 most variable CDS") +
+        theme_cowplot() +
+        scale_fill_manual(values = colours)
+      
+      
+      # =========
+      # P-site CDS window counts from riboWaltz
+      # =========
+      
+      cds_window.df <- fread(opt$cds_window)
+      
+      # Select the longest CDS transcript based on transcript info table
+      cds_window.df <- semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
+        remove_rownames %>% 
+        column_to_rownames(var = "transcript")  %>%
+        dplyr::select(-length_cds) +
+        scale_fill_manual(values = colours)
+      
+      cds_window.pca <- get_rlog_pca(cds_window.df)
+      
+      cds_window.pca.gg <- ggplot(cds_window.pca) +
+        geom_point(aes(color = sample)) +
+        ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "RiboWaltz P-sites", "top 500 most variable CDS") +
+        theme_cowplot()
+      
+      
+      # =========
+      # Merge PCA plots
+      # =========
+      
+      pca.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, rows = 3)
+      
+      ggsave("pca.pdf", pca.gg, dpi = 400, height = 15, width = 5)
+      
+      # save longest CDS tables
+      fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
+      fwrite(semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")), str_replace(basename(opt$cds_window)), "cds", "longest_cds")
+      
+      
     } else {
-
-        ggsave("pca.pdf",   featurecounts.pca.gg, dpi = 400, height = 5, width = 5)
-  
+      
+      ggsave("pca.pdf", featurecounts.pca.gg, dpi = 400, height = 5, width = 5)
+      
+    }
 }
+  
