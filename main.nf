@@ -173,7 +173,7 @@ workflow {
     
     } else {
 
-        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, [:], [:], GET_TRANSCRIPT_INFO.out.transcript_info)
+        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, Channel.empty(), Channel.empty(), GET_TRANSCRIPT_INFO.out.transcript_info)
     }
 
     // ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
