@@ -72,7 +72,7 @@ include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { GET_GENE_LEVEL_COUNTS } from './workflows/gene_level_counts.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
-include { PLOT_PCA } from './modules/local/featurecounts.nf'
+include { PCA } from './modules/local/featurecounts.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 include { RUN_RIBOCUTTER } from './workflows/ribocutter_analysis.nf'
 
@@ -169,11 +169,11 @@ workflow {
    
 
     if (!params.skip_psite) {
-        PLOT_PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, IDENTIFY_PSITES.out.cds_coverage, IDENTIFY_PSITES.out.cds_window_coverage, GET_TRANSCRIPT_INFO.out.transcript_info)
+        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, IDENTIFY_PSITES.out.cds_coverage, IDENTIFY_PSITES.out.cds_window_coverage, GET_TRANSCRIPT_INFO.out.transcript_info)
     
     } else {
 
-        PLOT_PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, [:], [:], GET_TRANSCRIPT_INFO.out.transcript_info)
+        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, [:], [:], GET_TRANSCRIPT_INFO.out.transcript_info)
     }
 
     // ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
