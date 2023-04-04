@@ -29,8 +29,8 @@ length_range <- options[4]
 # P-site identification method
 method <- options[5]
 # Optionally exclude reads near either initiating or terminating ribosome which do not behave like elongating ribosomes. e.g. Ingolia CDS = +15th codon of the CDS to -10th codon of CDS
-exclude_start <- options[6]
-exclude_stop <- options[7]
+exclude_start <- as.numeric(options[6])
+exclude_stop <- as.numeric(options[7])
 
 # Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
