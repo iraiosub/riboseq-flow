@@ -68,6 +68,7 @@ featurecounts.df <- fread(opt$featurecounts)
 if (ncol(featurecounts.df) < 3 ) {
   
   message("There is only one sample provided. This analysis is only valid for 2 or more samples.")
+  file.create("pca.pdf")
   
 } else {
   
