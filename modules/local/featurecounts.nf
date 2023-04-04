@@ -77,7 +77,7 @@ process MERGE_FEATURECOUNTS {
 
 
 
-process PLOT_PCA {
+process PCA {
  
     label 'process_single'
 
@@ -93,9 +93,9 @@ process PLOT_PCA {
     path(transcript_info)
 
     output:
-    path("pca.pdf"), emit: pca
-    path("longest_cds_coverage_psite.tsv.gz"), emit: longest_cds_counts
-    path("*nt_coverage_psite.tsv.gz"),  emit: longest_cds_window_counts
+    path("pca.pdf"), emit: pca, optional: true
+    path("longest_cds_coverage_psite.tsv.gz"), emit: longest_cds_counts, optional: true
+    path("*nt_coverage_psite.tsv.gz"),  emit: longest_cds_window_counts, optional: true
 
     script:
 
