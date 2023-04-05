@@ -82,6 +82,7 @@ if (ncol(featurecounts.df) < 3 ) {
     labs(caption = "top 500 most variable CDS") +
     theme_cowplot() +
     scale_fill_manual(values = colours) +
+    scale_color_manual(values = colours) +
     geom_text(hjust=0, vjust=0)
   
   
@@ -101,12 +102,13 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds.pca <- get_rlog_pca(cds.df)
       
-      cds.pca.gg <- ggplot(cds.df, aes(x = PC1, y = PC2, label = sample)) +
+      cds.pca.gg <- ggplot(cds.pca, aes(x = PC1, y = PC2, label = sample)) +
         geom_point(aes(color = sample)) +
         ggtitle("Gene-level CDS occupancy", "RiboWaltz P-sites") +
         labs(caption = "top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
+        scale_color_manual(values = colours) +
         geom_text(hjust=0, vjust=0)
       
       
@@ -125,7 +127,7 @@ if (ncol(featurecounts.df) < 3 ) {
       cds_window.df <- semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
         remove_rownames() %>% 
         column_to_rownames(var = "transcript")  %>%
-        dplyr::select(-length_cds)
+        dplyr::select(-length_selection, -length_cds)
       
       cds_window.pca <- get_rlog_pca(cds_window.df)
       
@@ -135,6 +137,7 @@ if (ncol(featurecounts.df) < 3 ) {
         labs(caption = "top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
+        scale_color_manual(values = colours) +
         geom_text(hjust=0, vjust=0)
       
       
