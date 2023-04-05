@@ -55,3 +55,5 @@ process MAP {
     """
 
 }
+
+//  if a read maps to the exon that is common to 15 transcripts, it will be reported as genomic unique mapper in the Aligned.out.bam and as 15-mapper in the Aligned.toTranscriptome.bam
