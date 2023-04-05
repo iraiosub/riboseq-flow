@@ -112,7 +112,12 @@ if (ncol(featurecounts.df) < 3 ) {
       # P-site CDS window counts from riboWaltz
       # =========
       
+
+      tx_info.df <- dplyr::mutate(tx_info.df, transcript_id = as.character(transcript_id))
+
       cds_window.df <- fread(opt$cds_window)
+
+      cds_window.df <- dplyr::mutate(cds_window.df, transcript = as.character(transcript))
       
       # Select the longest CDS transcript based on transcript info table
       cds_window.df <- semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
