@@ -78,7 +78,7 @@ if (ncol(featurecounts.df) < 3 ) {
   
   featurecounts.pca.gg <- ggplot(featurecounts.pca) +
     geom_point(aes(color = sample)) +
-    ggtitle("Gene-level counts", "FeatureCounts", "top 500 most variable genes") +
+    ggtitle("Gene-level counts", "FeatureCounts", caption = "top 500 most variable genes") +
     theme_cowplot() +
     scale_fill_manual(values = colours)
   
@@ -101,7 +101,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds.pca.gg <- ggplot(cds.df) +
         geom_point(aes(color = sample)) +
-        ggtitle("Gene-level CDS occupancy", "RiboWaltz P-sites", "top 500 most variable CDS") +
+        ggtitle("Gene-level CDS occupancy", "RiboWaltz P-sites", caption = "top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours)
       
@@ -123,7 +123,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds_window.pca.gg <- ggplot(cds_window.pca) +
         geom_point(aes(color = sample)) +
-        ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "RiboWaltz P-sites", "top 500 most variable CDS") +
+        ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "RiboWaltz P-sites", caption = "top 500 most variable CDS") +
         theme_cowplot()
       
       
