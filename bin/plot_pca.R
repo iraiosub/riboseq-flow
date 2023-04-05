@@ -104,7 +104,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds.pca.gg <- ggplot(cds.pca, aes(x = PC1, y = PC2, label = sample)) +
         geom_point(aes(color = sample)) +
-        ggtitle("Gene-level CDS occupancy", "RiboWaltz P-sites") +
+        ggtitle("Gene-level CDS occupancy", "P-sites") +
         labs(caption = "top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
@@ -128,7 +128,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds_window.pca.gg <- ggplot(cds_window.pca, aes(x = PC1, y = PC2, label = sample)) +
         geom_point(aes(color = sample)) +
-        ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "RiboWaltz P-sites") +
+        ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "P-sites") +
         labs(caption = "top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
@@ -146,7 +146,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
       # save longest CDS tables
       fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
-      fwrite(semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")), str_replace(basename(opt$cds_window)), "cds", "longest_cds")
+      fwrite(semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_window_coverage_psite.tsv.gz", sep = "\t")
       
       
     } else {
