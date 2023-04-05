@@ -94,7 +94,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
       # Select the longest CDS transcript based on transcript info table
       cds.df <- semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
-        remove_rownames %>% 
+        remove_rownames() %>% 
         column_to_rownames(var = "transcript")  %>%
         dplyr::select(-length_cds)
       
@@ -113,18 +113,17 @@ if (ncol(featurecounts.df) < 3 ) {
       # =========
       
 
-      tx_info.df <- dplyr::mutate(tx_info.df, transcript_id = as.character(transcript_id))
+      # tx_info.df <- dplyr::mutate(tx_info.df, transcript_id = as.character(transcript_id))
 
       cds_window.df <- fread(opt$cds_window)
 
-      cds_window.df <- dplyr::mutate(cds_window.df, transcript = as.character(transcript))
+      #cds_window.df <- dplyr::mutate(cds_window.df, transcript = as.character(transcript))
       
       # Select the longest CDS transcript based on transcript info table
       cds_window.df <- semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
-        remove_rownames %>% 
+        remove_rownames() %>% 
         column_to_rownames(var = "transcript")  %>%
-        dplyr::select(-length_cds) +
-        scale_fill_manual(values = colours)
+        dplyr::select(-length_cds)
       
       cds_window.pca <- get_rlog_pca(cds_window.df)
       
@@ -132,7 +131,8 @@ if (ncol(featurecounts.df) < 3 ) {
         geom_point(aes(color = sample)) +
         ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "RiboWaltz P-sites") +
         labs(caption = "top 500 most variable CDS") +
-        theme_cowplot()
+        theme_cowplot() +
+        scale_fill_manual(values = colours)
       
       
       # =========
