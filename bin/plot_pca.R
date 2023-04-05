@@ -76,12 +76,13 @@ if (ncol(featurecounts.df) < 3 ) {
   
   featurecounts.pca <- get_rlog_pca(featurecounts.df)
   
-  featurecounts.pca.gg <- ggplot(featurecounts.pca) +
+  featurecounts.pca.gg <- ggplot(featurecounts.pca, aes(x = PC1, y = PC2, label = sample)) +
     geom_point(aes(color = sample)) +
     ggtitle("Gene-level counts", "FeatureCounts") +
     labs(caption = "top 500 most variable CDS") +
     theme_cowplot() +
-    scale_fill_manual(values = colours)
+    scale_fill_manual(values = colours) +
+    geom_text(hjust=0, vjust=0)
   
   
   if (!is.na(opt$cds)) {
@@ -100,12 +101,13 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds.pca <- get_rlog_pca(cds.df)
       
-      cds.pca.gg <- ggplot(cds.df) +
+      cds.pca.gg <- ggplot(cds.df, aes(x = PC1, y = PC2, label = sample)) +
         geom_point(aes(color = sample)) +
         ggtitle("Gene-level CDS occupancy", "RiboWaltz P-sites") +
         labs(caption = "top 500 most variable CDS") +
         theme_cowplot() +
-        scale_fill_manual(values = colours)
+        scale_fill_manual(values = colours) +
+        geom_text(hjust=0, vjust=0)
       
       
       # =========
@@ -127,12 +129,13 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds_window.pca <- get_rlog_pca(cds_window.df)
       
-      cds_window.pca.gg <- ggplot(cds_window.pca) +
+      cds_window.pca.gg <- ggplot(cds_window.pca, aes(x = PC1, y = PC2, label = sample)) +
         geom_point(aes(color = sample)) +
         ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "RiboWaltz P-sites") +
         labs(caption = "top 500 most variable CDS") +
         theme_cowplot() +
-        scale_fill_manual(values = colours)
+        scale_fill_manual(values = colours) +
+        geom_text(hjust=0, vjust=0)
       
       
       # =========
