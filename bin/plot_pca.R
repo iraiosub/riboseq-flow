@@ -95,12 +95,12 @@ if (ncol(featurecounts.df) < 3 ) {
       cds.df <- fread(opt$cds)
       
       # Select the longest CDS transcript based on transcript info table
-      cds.df <- semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
+      cds_longest.df <- semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
         remove_rownames() %>% 
         column_to_rownames(var = "transcript")  %>%
         dplyr::select(-length_cds)
       
-      cds.pca <- get_rlog_pca(cds.df)
+      cds.pca <- get_rlog_pca(cds_longest.df)
       
       cds.pca.gg <- ggplot(cds.pca, aes(x = PC1, y = PC2, label = sample)) +
         geom_point(aes(color = sample)) +
@@ -115,21 +115,16 @@ if (ncol(featurecounts.df) < 3 ) {
       # =========
       # P-site CDS window counts from riboWaltz
       # =========
-      
-
-      # tx_info.df <- dplyr::mutate(tx_info.df, transcript_id = as.character(transcript_id))
 
       cds_window.df <- fread(opt$cds_window)
-
-      #cds_window.df <- dplyr::mutate(cds_window.df, transcript = as.character(transcript))
       
       # Select the longest CDS transcript based on transcript info table
-      cds_window.df <- semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
+      cds_window_longest.df <- semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
         remove_rownames() %>% 
         column_to_rownames(var = "transcript")  %>%
         dplyr::select(-length_selection, -length_cds)
       
-      cds_window.pca <- get_rlog_pca(cds_window.df)
+      cds_window.pca <- get_rlog_pca(cds_window_longest.df)
       
       cds_window.pca.gg <- ggplot(cds_window.pca, aes(x = PC1, y = PC2, label = sample)) +
         geom_point(aes(color = sample)) +
