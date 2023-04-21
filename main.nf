@@ -28,7 +28,6 @@ if (params.org  && !params.genomes.containsKey(params.org)) {
 if(params.org) {
 
     params.fasta = params.genomes[ params.org ].fasta
-    // params.fai = params.genomes[ params.org ].fai
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
@@ -42,19 +41,19 @@ if(params.org) {
 }
 
 
-// Create channels for static files
-ch_genome_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
-// ch_genome_fai = Channel.fromPath(params.fai, checkIfExists: true)
-ch_genome_gtf = Channel.fromPath(params.gtf, checkIfExists: true)
+// // Create channels for static files
+// ch_genome_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
+// // ch_genome_fai = Channel.fromPath(params.fai, checkIfExists: true)
+// ch_genome_gtf = Channel.fromPath(params.gtf, checkIfExists: true)
 
-if (!params.skip_premap) {
-    ch_smallrna_fasta = Channel.fromPath(params.smallrna_fasta, checkIfExists: true)
-    // if (ch_smallrna_fasta.isEmpty()) {exit 1, "File provided with --smallrna_fasta is empty: ${ch_smallrna_fasta.getName()}!"}
-} else {
+// if (!params.skip_premap) {
+//     ch_smallrna_fasta = Channel.fromPath(params.smallrna_fasta, checkIfExists: true)
+//     // if (ch_smallrna_fasta.isEmpty()) {exit 1, "File provided with --smallrna_fasta is empty: ${ch_smallrna_fasta.getName()}!"}
+// } else {
 
-    // Create empty channel so GENERATE_REFERENCE_INDEX doesn't break
-    ch_smallrna_fasta = Channel.empty()
-}
+//     // Create empty channel so GENERATE_REFERENCE_INDEX doesn't break
+//     ch_smallrna_fasta = Channel.empty()
+// }
 
 
 include { PREPARE_RIBOSEQ_REFERENCE } from './workflows/prepare_reference.nf'
@@ -139,11 +138,11 @@ workflow {
    
 
     if (!params.skip_psite) {
-        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, IDENTIFY_PSITES.out.cds_coverage, IDENTIFY_PSITES.out.cds_window_coverage, GET_TRANSCRIPT_INFO.out.transcript_info)
+        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, IDENTIFY_PSITES.out.cds_coverage, IDENTIFY_PSITES.out.cds_window_coverage, PREPARE_RIBOSEQ_REFERENCE.out.transcript_info)
     
     } else {
 
-        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, Channel.empty(), Channel.empty(), GET_TRANSCRIPT_INFO.out.transcript_info)
+        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, Channel.empty(), Channel.empty(), PREPARE_RIBOSEQ_REFERENCE.out.transcript_info)
     }
 
     // ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()

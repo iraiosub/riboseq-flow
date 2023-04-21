@@ -17,7 +17,8 @@ workflow {
     genome_gtf
     smallrna_fasta
 
-
+    main:
+    
     // Prepare annotation: unzip annotation and genome files if necessary
     if (genome_fasta.endsWith('.gz')) {
         ch_genome_fasta = GUNZIP_FASTA ( [ [:], genome_fasta ] ).gunzip.map { it[1] }
@@ -47,6 +48,11 @@ workflow {
         GET_TRANSCRIPT_INFO(ch_genome_gtf)
     }
 
+    emit:
+
+    smallrna_bowtie2_index = GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index
+    genome_star_index = GENERATE_REFERENCE_INDEX.out.genome_star_index
+    transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
 
 
 }
