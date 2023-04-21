@@ -25,8 +25,9 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 7. Extensive quality control ([`mapping_length_analysis`](https://pypi.org/project/mapping-length-analysis/),[`R`](https://www.r-project.org/)) (Optional)
 8. Gene-level RPF quantification ([`FeatureCounts`](https://subread.sourceforge.net/))
 9. P-site identification, CDS occupancy and P-site diagnostics ([`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/)) (Optional)
-10. Design of sgRNA templates to deplete unwanted abundant contaminants ([`Ribocutter`](https://www.biorxiv.org/content/10.1101/2021.07.14.451473v1.full)) (Optional)
-11. MultiQC report of reads QC and mapping statistics ([`MultiQC`](https://multiqc.info/))
+10. PCA
+11. Design of sgRNA templates to deplete unwanted abundant contaminants ([`Ribocutter`](https://www.biorxiv.org/content/10.1101/2021.07.14.451473v1.full)) (Optional)
+12. MultiQC report of reads QC and mapping statistics ([`MultiQC`](https://multiqc.info/))
 
 ![Pipeline summary](img/dataflow.png "Pipeline summary")
 
@@ -100,7 +101,7 @@ nextflow run iraiosub/riboseq -r main \
 
 ### Genome parameters
 
-- `--org` specifies the organism (options are currently: `GRCh38`, `GRCm38`).
+- `--org` specifies the organism (options are currently: `GRCh38`, `GRCm39`).
 If `--org` is specified, all annotations will be loaded from the paths in the [genomes.config](https://github.com/iraiosub/riboseq/blob/main/conf/genomes.config) file.
 
 If `--org` is not specified, the user must provide paths to all required annotation files, using the following parameters:
