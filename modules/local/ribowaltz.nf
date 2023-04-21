@@ -13,7 +13,7 @@ process IDENTIFY_PSITES {
         'https://depot.galaxyproject.org/singularity/ribowaltz:1.2.0--r42hdfd78af_1' :
         'quay.io/biocontainers/ribowaltz:1.2.0--r42hdfd78af_1' }"
 
-    publishDir "${params.outdir}/ribowaltz", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/psites", mode: 'copy', overwrite: true
     
     input:
     path(bam_list)
@@ -33,7 +33,7 @@ process IDENTIFY_PSITES {
 
     length_range = params.length_range
 
-    //     identify_p_sites.R -b $bam_folder -g $gtf -f $fasta -l $length_range
+    // identify_p_sites.R -b $bam_folder -g $gtf -f $fasta -l $length_range --qc --method --periodicity
 
         """
 

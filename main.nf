@@ -57,11 +57,7 @@ if (!params.skip_premap) {
 }
 
 
-include { GUNZIP as GUNZIP_FASTA } from './modules/nf-core/gunzip/main.nf'
-include { GUNZIP as GUNZIP_GTF } from './modules/nf-core/gunzip/main.nf'
-include { GUNZIP as GUNZIP_SMALLRNA_FASTA } from './modules/nf-core/gunzip/main.nf'
-include { GENERATE_REFERENCE_INDEX } from './workflows/generate_reference.nf'
-include { GET_TRANSCRIPT_INFO } from './modules/local/reference.nf'
+include { PREPARE_RIBOSEQ_REFERENCE } from './workflows/prepare_reference.nf'
 include { PREPROCESS_READS } from './workflows/preprocess_reads.nf'
 include { FASTQC } from './modules/nf-core/fastqc/main'
 include { PREMAP } from './modules/local/premap.nf'
@@ -77,34 +73,8 @@ include { RUN_RIBOCUTTER } from './workflows/ribocutter_analysis.nf'
 
 workflow {
 
-    // Prepare annotation: unzip annotation and genome files if necessary
-    if (params.fasta.endsWith('.gz')) {
-        ch_genome_fasta = GUNZIP_FASTA ( [ [:], params.fasta ] ).gunzip.map { it[1] }
-    } else {
-        ch_genome_fasta = ch_genome_fasta
-    }
-
-
-    if (params.gtf.endsWith('.gz')) {
-        ch_genome_gtf = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip.map { it[1] }
-    } else {
-
-        ch_genome_gtf = ch_genome_gtf
-    }
-
-    if (!params.skip_premap && params.smallrna_fasta.endsWith('.gz')) {
-        ch_smallrna_fasta = GUNZIP_SMALLRNA_FASTA ( [ [:], params.smallrna_fasta ] ).gunzip.map { it[1] }
-    } else {
-        // ch_smallrna_fasta = file(params.smallrna_fasta)
-        ch_smallrna_fasta = ch_smallrna_fasta
-    }
-
-    // Prepare annotation: create index for alignment
-    GENERATE_REFERENCE_INDEX(ch_smallrna_fasta, ch_genome_fasta, ch_genome_gtf)
-
-    if (!params.skip_qc) {
-        GET_TRANSCRIPT_INFO(ch_genome_gtf)
-    }
+    // Prepare annotation
+    PREPARE_RIBOSEQ_REFERENCE(ch_genome_fasta, ch_genome_gtf, ch_smallrna_fasta)
     
     // Extract UMIs and/or trim adapters
     PREPROCESS_READS(ch_input)
@@ -113,11 +83,11 @@ workflow {
     if (!params.skip_premap) {
 
         // Premap to the small RNA genome
-        PREMAP(PREPROCESS_READS.out.fastq, GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index.collect())
-        MAP(PREMAP.out.unmapped, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
+        PREMAP(PREPROCESS_READS.out.fastq, PREPARE_RIBOSEQ_REFERENCE.out.smallrna_bowtie2_index.collect())
+        MAP(PREMAP.out.unmapped, PREPARE_RIBOSEQ_REFERENCE.out.genome_star_index.collect())
 
     } else {
-        MAP(PREPROCESS_READS.out.fastq, GENERATE_REFERENCE_INDEX.out.genome_star_index.collect())
+        MAP(PREPROCESS_READS.out.fastq, PREPARE_RIBOSEQ_REFERENCE.out.genome_star_index.collect())
     }
     
     if (params.with_umi) {
@@ -132,7 +102,7 @@ workflow {
 
         if (params.with_umi && !params.skip_premap) {
 
-        RIBOSEQ_QC(DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis), GET_TRANSCRIPT_INFO.out.transcript_info.collect())
+        RIBOSEQ_QC(DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis), PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect())
 
         ch_merge_qc = RIBOSEQ_QC.out.qc
             .map { [ it[1] ] }
