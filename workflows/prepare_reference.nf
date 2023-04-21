@@ -1,16 +1,21 @@
 #!/usr/bin/env nextflow
 
+//
+// Prepare all genome files for running the riboseq analysis pipeline
+//
+
+
 // Specify DSL2
 nextflow.enable.dsl=2
 
-include { GENERATE_REFERENCE_INDEX } from '../workflows/generate_index.nf'
 include { GUNZIP as GUNZIP_FASTA } from '../modules/nf-core/gunzip/main.nf'
 include { GUNZIP as GUNZIP_GTF } from '../modules/nf-core/gunzip/main.nf'
 include { GUNZIP as GUNZIP_SMALLRNA_FASTA } from '../modules/nf-core/gunzip/main.nf'
+include { GENERATE_REFERENCE_INDEX } from '../subworkflows/generate_index.nf'
 include { GET_TRANSCRIPT_INFO } from '../modules/local/reference.nf'
 
 
-workflow {
+workflow PREPARE_RIBOSEQ_REFERENCE {
 
     take:
     genome_fasta
@@ -18,24 +23,24 @@ workflow {
     smallrna_fasta
 
     main:
-    
+
     // Prepare annotation: unzip annotation and genome files if necessary
-    if (genome_fasta.endsWith('.gz')) {
-        ch_genome_fasta = GUNZIP_FASTA ( [ [:], genome_fasta ] ).gunzip.map { it[1] }
+    if (genome_fasta.toString().endsWith('.gz')) {
+        ch_genome_fasta = GUNZIP_FASTA ( [ [:], genome_fasta ] ).gunzip
     } else {
         ch_genome_fasta = genome_fasta
     }
 
 
-    if (genome_gtf.endsWith('.gz')) {
-        ch_genome_gtf = GUNZIP_GTF ( [ [:], genome_gtf ] ).gunzip.map { it[1] }
+    if (genome_gtf.toString().endsWith('.gz')) {
+        ch_genome_gtf = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip
     } else {
 
         ch_genome_gtf = genome_gtf
     }
 
-    if (!params.skip_premap && smallrna_fasta.endsWith('.gz')) {
-        ch_smallrna_fasta = GUNZIP_SMALLRNA_FASTA ( [ [:], smallrna_fasta ] ).gunzip.map { it[1] }
+    if (!params.skip_premap && smallrna_fasta.toString().endsWith('.gz')) {
+        ch_smallrna_fasta = GUNZIP_SMALLRNA_FASTA ( [ [:], smallrna_fasta ] ).gunzip
     } else {
         // ch_smallrna_fasta = file(params.smallrna_fasta)
         ch_smallrna_fasta = smallrna_fasta
