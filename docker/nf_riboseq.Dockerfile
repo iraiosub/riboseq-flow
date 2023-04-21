@@ -4,8 +4,8 @@ LABEL authors="Ira Iosub" \
       description="Docker image containing software requirements for the riboseq pipeline"
 
 # Install the conda environment
-COPY env2.yml /
-RUN conda env create --quiet -f /env2.yml && conda clean -a
+COPY env4.yml /
+RUN conda env create --quiet -f /env4.yml && conda clean -a
 
 # Add conda installation dir to PATH (instead of doing 'conda activate')
 ENV PATH /opt/conda/envs/nf-riboseq/bin:$PATH

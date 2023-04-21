@@ -68,6 +68,7 @@ include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { GET_GENE_LEVEL_COUNTS } from './workflows/gene_level_counts.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
+include { PCA } from './modules/local/featurecounts.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 include { RUN_RIBOCUTTER } from './workflows/ribocutter_analysis.nf'
 
@@ -129,12 +130,22 @@ workflow {
             IDENTIFY_PSITES(DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
         
         } else {
+            
             IDENTIFY_PSITES(MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(), ch_genome_gtf.collect(), ch_genome_fasta.collect())
 
         }
 
     }
    
+
+    if (!params.skip_psite) {
+        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, IDENTIFY_PSITES.out.cds_coverage, IDENTIFY_PSITES.out.cds_window_coverage, GET_TRANSCRIPT_INFO.out.transcript_info)
+    
+    } else {
+
+        PCA(GET_GENE_LEVEL_COUNTS.out.merged_counts_table, Channel.empty(), Channel.empty(), GET_TRANSCRIPT_INFO.out.transcript_info)
+    }
+
     // ch_logs = FASTQC.out.html.map { [ it[1] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     ch_logs = FASTQC.out.html.join(FASTQC.out.zip).map { [ it[1], it[2] ] }.collect().mix(PREMAP.out.log.collect(), MAP.out.log.collect()).collect()
     MULTIQC(ch_logs)

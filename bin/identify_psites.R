@@ -24,7 +24,13 @@ options <- commandArgs(trailingOnly = TRUE)
 bam_dir <- options[1]
 gtf <- options[2]
 fasta <- options[3]
+# Filter out reads outside this length range for P-site indetification
 length_range <- options[4]
+# P-site identification method
+method <- options[5]
+# Optionally exclude reads near either initiating or terminating ribosome which do not behave like elongating ribosomes. e.g. Ingolia CDS = +15th codon of the CDS to -10th codon of CDS
+exclude_start <- as.numeric(options[6])
+exclude_stop <- as.numeric(options[7])
 
 # Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
@@ -168,21 +174,54 @@ lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
 
 
 # =========
-# Find P-sites
+# Identify P-sites
 # =========
 
-# Identify P sites, produce plots for each read length
-psite_offset.dt <- psite(filtered.ls, flanking = 6, extremity = "auto", 
-                         plot = TRUE, plot_format = "pdf")
+# Identify the exact position of the ribosome P-site within
+# each read, determined by the localisation of its first nucleotide
 
-data.table::fwrite(psite_offset.dt, 
-                   paste0(getwd(), "/psite_offset.tsv.gz"), sep = "\t")
+if (method == "global_max_5end") {
+  
+  message("P site offset = distance between the 1st nucleotide of the TIS and the nt corresponding to the global maximum found in the read length-specific 5' end profiles")
+  
+  psite_offset.dt <- psite(filtered.ls, flanking = 6, extremity = "5end", 
+                           plot = FALSE, plot_format = "pdf")
+  
+  
+  # Replace ribowaltz-corrected offsets with temporary offests
+  psite_offset.dt$corrected_offset_from_5 <- psite_offset.dt$offset_from_5
+  psite_offset.dt$corrected_offset_from_3 <- psite_offset.dt$offset_from_3
 
-filtered_psite.ls <- psite_info(filtered.ls, site = "psite", 
-                                offset = psite_offset.dt,
-                                fasta_genome = TRUE, refseq_sep = " ",
-                                fastapath = fasta,
-                                gtfpath = gtf)
+  data.table::fwrite(psite_offset.dt, paste0(getwd(), "/psite_offset.tsv.gz"), sep = "\t")
+
+  
+  # Update reads information according to the inferred P-sites
+  filtered_psite.ls <- psite_info(filtered.ls, psite_offset.dt, site = "psite",
+                                  fasta_genome = TRUE, refseq_sep = " ",
+                                  fastapath = fasta,
+                                  gtfpath = gtf)
+  
+} else if (method == "ribowaltz") {
+  
+  message("P site offset = defined by the ribowaltz method")
+  
+  # Compute P-site offsets: temporary and corrected
+  psite_offset.dt <- psite(filtered.ls, flanking = 6, extremity = "auto", 
+                           plot = TRUE, plot_format = "pdf")
+
+  data.table::fwrite(psite_offset.dt, paste0(getwd(), "/psite_offset.tsv.gz"), sep = "\t")
+  
+  # Update reads information according to the inferred P-sites
+  filtered_psite.ls <- psite_info(filtered.ls, psite_offset.dt, site = "psite",
+                                  fasta_genome = TRUE, refseq_sep = " ",
+                                  fastapath = fasta,
+                                  gtfpath = gtf)
+
+} else {
+  
+  stop("Incorrect P-site offset method option. Available options are 'global_max_5end` or 'rbowaltz'")
+}
+
 
 # Save psite info for each sample
 lapply(names(filtered_psite.ls), export_psites, df_list = filtered_psite.ls)
@@ -206,9 +245,19 @@ data.table::fwrite(codon_coverage_psite.dt, paste0(getwd(),"/codon_coverage_psit
 # These settings can be modifyed through the parameters in_frame, start_nts and start_nts. 
 # Moreover, the parameter whole_transcript specifies if whole transcripts should be considered instead of the annotated coding sequence
 
+# All over the CDS
 cds_coverage_psite.dt <- cds_coverage(filtered_psite.ls, annotation = annotation.dt)
 
+# Compute the number of in-frame P-sites per coding sequences exluding
+# the first 15 codons and the last 10 codons.
+# exclude_start <- 14*3
+# exclude_stop <- 9*3
+
+cds_coverage_psite_window.dt <- cds_coverage(filtered_psite.ls, annotation = annotation.dt, start_nts = exclude_start, stop_nts = exclude_stop)
+
+# Export CDS coverage tables
 data.table::fwrite(cds_coverage_psite.dt, paste0(getwd(), "/cds_coverage_psite.tsv.gz"), sep = "\t")
+data.table::fwrite(cds_coverage_psite_window.dt, paste0(getwd(), "/cds_","plus", exclude_start, "nt_minus", exclude_stop, "nt_coverage_psite.tsv.gz"), sep = "\t")
 
 
 # =========

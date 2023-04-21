@@ -27,11 +27,13 @@ process IDENTIFY_PSITES {
     path("codon_coverage_rpf.tsv.gz"), emit: codon_coverage_rpf
     path("codon_coverage_psite.tsv.gz"), emit: codon_coverage_psite
     path("cds_coverage_psite.tsv.gz"), emit: cds_coverage
+    path("*nt_coverage_psite.tsv.gz"), emit: cds_window_coverage
     path("ribowaltz_qc/*.pdf"), emit: ribowaltz_qc
 
     script:
 
     length_range = params.length_range
+    method = params.psite_method
 
     // identify_p_sites.R -b $bam_folder -g $gtf -f $fasta -l $length_range --qc --method --periodicity
 
@@ -39,7 +41,7 @@ process IDENTIFY_PSITES {
 
         INPUT=`echo $bam_list | sed 's/ /,/g'`
         
-        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range
+        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $method ${params.exclude_start} ${params.exclude_end} 
 
         """
 
