@@ -35,7 +35,7 @@ process IDENTIFY_PSITES {
     length_range = params.length_range
     method = params.psite_method
 
-    //     identify_p_sites.R -b $bam_folder -g $gtf -f $fasta -l $length_range
+    // identify_p_sites.R -b $bam_folder -g $gtf -f $fasta -l $length_range --qc --method --periodicity
 
         """
 

@@ -10,12 +10,13 @@ ml Nextflow/21.10.3
 ml Singularity/3.6.4
 ml Graphviz/2.38.0-foss-2016b
 
-export NXF_SINGULARITY_CACHEDIR=/nemo/lab/ulej/home/users/luscomben/users/iosubi/nfcore/riboseq
-export NXF_HOME=/nemo/lab/ulej/home/users/luscomben/users/iosubi/.nextflow # for Nextflow versions > 22.x
+export NXF_SINGULARITY_CACHEDIR=/nemo/lab/ulej/home/shared/singularity
+export NXF_HOME=/nemo/lab/ulej/home/users/luscomben/users/iosubi/.nextflow
 
 nextflow pull iraiosub/riboseq -r main
 
 nextflow run iraiosub/riboseq -r main \
+
 -profile crick \
 -resume \
 --skip_umi_extract \
