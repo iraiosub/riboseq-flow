@@ -27,7 +27,7 @@ process GET_TRANSCRIPT_INFO {
 }
 
 
-process GENERATE_SMALL_RNA_BOWTIE_INDEX {
+process GENERATE_BOWTIE_INDEX {
     
     tag "$smallrna_fasta"
     label 'process_medium'
