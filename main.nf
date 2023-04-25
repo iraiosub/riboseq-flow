@@ -136,19 +136,60 @@ workflow RIBOSEQ {
     // riboseq QC
     if (!params.skip_qc) {
         // Mapping length analysis
-        MAPPING_LENGTH_ANALYSES(
-            MAP.out.genome_bam,
-            PREPROCESS_READS.out.fastq,
-            DEDUPLICATE.out.dedup_genome_bam,
-            PREMAP.out.unmapped
-        )
 
-        if (params.with_umi && !params.skip_premap) {
+        if (!params.skip_premap && params.with_umi) {
 
-        RIBOSEQ_QC(
+            MAPPING_LENGTH_ANALYSES(
+                MAP.out.genome_bam,
+                PREPROCESS_READS.out.fastq,
+                DEDUPLICATE.out.dedup_genome_bam,
+                PREMAP.out.unmapped
+            )
+
+            RIBOSEQ_QC(
             DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
         )
+
+
+        } else if (params.skip_premap && params.with_umi) {
+
+            MAPPING_LENGTH_ANALYSES(
+                MAP.out.genome_bam,
+                PREPROCESS_READS.out.fastq,
+                DEDUPLICATE.out.dedup_genome_bam,
+                Channel.empty()
+            )
+
+        
+            RIBOSEQ_QC(
+                DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
+
+
+        } else if (!params.skip_premap && !params.with_umi) {
+
+            MAPPING_LENGTH_ANALYSES(
+                MAP.out.genome_bam,
+                PREPROCESS_READS.out.fastq,
+                Channel.empty(),
+                PREMAP.out.unmapped
+            )
+
+            RIBOSEQ_QC(
+                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
+        } else if (params.skip_premap && !params.with_umi) {
+
+            MAPPING_LENGTH_ANALYSES(
+                MAP.out.genome_bam,
+                PREPROCESS_READS.out.fastq,
+                Channel.empty(),
+                Channel.empty()
+            )
+        }
 
         ch_merge_qc = RIBOSEQ_QC.out.qc
             .map { [ it[1] ] }
