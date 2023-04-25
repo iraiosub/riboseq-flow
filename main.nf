@@ -197,7 +197,6 @@ workflow RIBOSEQ {
 
         SUMMARISE_RIBOSEQ_QC(ch_merge_qc)
 
-        }
     }
 
     // Get gene-level counts from BAM alignments using featureCounts
@@ -267,7 +266,8 @@ workflow RIBOSEQ {
     // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)
     if (!params.skip_ribocutter) {
         RUN_RIBOCUTTER(
-            PREPROCESS_READS.out.trimmed_fastq)
+            PREPROCESS_READS.out.trimmed_fastq
+            )
     }
     
 }
