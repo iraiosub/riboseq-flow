@@ -347,7 +347,7 @@
         },
         {
             "name": "Quality control report",
-            "description": "MultiQC report read and alignment quality control metrics.",
+            "description": "MultiQC report of read and alignment quality control metrics.",
             "filetype": "html",
             "process": "MULTIQC"
         }
