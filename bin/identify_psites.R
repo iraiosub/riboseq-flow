@@ -32,6 +32,8 @@ method <- options[5]
 exclude_start <- as.numeric(options[6])
 exclude_stop <- as.numeric(options[7])
 
+longest_cds.df <- options[8]
+
 # Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
 # Create folder for plots
@@ -142,6 +144,10 @@ data.table::fwrite(annotation.dt,
 bams <- as.list(strsplit(bam_dir, ",")[[1]])
 
 name_of_bams <- lapply(bams, function(x) strsplit(x, ".transcriptome.dedup.sorted.bam")[[1]][1])
+
+# In case no UMIs were used
+name_of_bams <- lapply(bams, function(x) strsplit(x, ".Aligned.toTranscriptome.sorted.out.bam")[[1]][1])
+
 names(name_of_bams) <- lapply(bams, function(x) strsplit(x, ".bam")[[1]][1])
 
 
@@ -152,6 +158,15 @@ sample_count <- length(bams)
 reads.ls <- bamtolist(bamfolder = getwd(), 
                       annotation = annotation.dt,
                       name_samples = unlist(name_of_bams))
+
+# Filter to only transcript with longest CDS per gene
+tx <- data.table::fread(longest_cds.df)
+
+reads.ls <- lapply(reads.ls, function(df, tx.df) {
+  df <- df[df$transcript %in% unique(tx.df$transcript_id),]
+  return(df)
+}, tx.df = tx)
+
 
 # Get filtered reads: keep only the ones with periodicity evidence
 filtered.ls <- length_filter(data = reads.ls,

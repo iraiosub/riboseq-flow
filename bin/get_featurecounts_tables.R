@@ -4,12 +4,25 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(optparse))
 
+
+# A function that loads quantification files depending on whether they had been produced from deduplicated bam files or not
 load_count_tables <- function(table_path) {
   
   data <- fread(table_path)
-  data <- data %>%
-    dplyr::select(Geneid, contains(".genome.dedup.sorted.bam")) %>% 
-    rename_with(~str_remove(., '.genome.dedup.sorted.bam'))
+
+  if (str_detect(colnames(data), ".genome.dedup.sorted.bam")) {
+    data <- data %>%
+      dplyr::select(Geneid, contains(".genome.dedup.sorted.bam")) %>% 
+      rename_with(~str_remove(., '.genome.dedup.sorted.bam'))
+
+  } else if (!str_detect(colnames(data), ".genome.dedup.sorted.bam") & str_detect(colnames(data), ".Aligned.sortedByCoord.out.bam")) {
+
+    data <- data %>%
+      dplyr::select(Geneid, contains(".Aligned.sortedByCoord.out.bam")) %>% 
+      rename_with(~str_remove(., '.Aligned.sortedByCoord.out.bam'))
+
+  }
+
   return(data)
 }
 

@@ -226,7 +226,8 @@ workflow RIBOSEQ {
             IDENTIFY_PSITES(
                 DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(),
                 ch_genome_gtf.collect(),
-                ch_genome_fasta.collect()
+                ch_genome_fasta.collect(),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
         
         } else {
@@ -234,7 +235,8 @@ workflow RIBOSEQ {
             IDENTIFY_PSITES(
                 MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(),
                 ch_genome_gtf.collect(),
-                ch_genome_fasta.collect()
+                ch_genome_fasta.collect(),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
         }
@@ -254,7 +256,8 @@ workflow RIBOSEQ {
 
         PCA(
             GET_GENE_LEVEL_COUNTS.out.merged_counts_table,
-            Channel.empty(), Channel.empty(), 
+            Channel.empty(), 
+            Channel.empty(), 
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
     }
