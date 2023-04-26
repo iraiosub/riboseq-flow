@@ -147,9 +147,9 @@ workflow RIBOSEQ {
             )
 
             RIBOSEQ_QC(
-            DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
-            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
-        )
+                DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
 
 
         } else if (params.skip_premap && params.with_umi) {
@@ -188,6 +188,11 @@ workflow RIBOSEQ {
                 PREPROCESS_READS.out.fastq,
                 Channel.empty(),
                 Channel.empty()
+            )
+
+            RIBOSEQ_QC(
+                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
         }
 
