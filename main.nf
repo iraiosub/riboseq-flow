@@ -24,7 +24,7 @@ if (!params.input) {
 ch_optional = Channel
             .fromPath( params.input )
             .splitCsv(header:true)
-            .map { row -> [ row.sample, value(0) ] }
+            .map { row -> [ row.sample, file(params.optional) ] }
             .view()
 
 
