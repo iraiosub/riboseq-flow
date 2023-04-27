@@ -20,15 +20,6 @@ if (!params.input) {
 
 
 
-// Create channels for optional inputs
-ch_optional = Channel
-            .fromPath( params.input )
-            .splitCsv(header:true)
-            .map { row -> [ row.sample, file(params.optional) ] }
-            .view()
-
-
-
 // Check if genome exists in the config file
 if (params.org  && !params.genomes.containsKey(params.org)) {
     exit 1, "The provided genome '${params.org}' is not available. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
@@ -173,7 +164,7 @@ workflow RIBOSEQ {
 
         
             RIBOSEQ_QC(
-                DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(ch_optional).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
 
@@ -188,7 +179,7 @@ workflow RIBOSEQ {
             )
 
             RIBOSEQ_QC(
-                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(ch_optional),
+                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
         } else if (params.skip_premap && !params.with_umi) {
@@ -201,7 +192,7 @@ workflow RIBOSEQ {
             )
 
             RIBOSEQ_QC(
-                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(ch_optional).join(ch_optional),
+                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
         }

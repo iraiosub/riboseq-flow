@@ -132,7 +132,7 @@ length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
 name_colours <- c("after_premap_n" = "#f8766d", "original_n" = "#00BFC4", "before_dedup_bam" = "#7851a9")
 
 # if (!is.null(opt$after_premap)) {
-if (!(basename(opt$after_premap) == "optional.txt")) {
+if (basename(opt$after_premap) != "optional.txt") {
 
   after_premap <- read_csv(opt$after_premap) %>%
   dplyr::select(length, after_premap_n = n)
@@ -205,7 +205,7 @@ if (!(basename(opt$after_premap) == "optional.txt")) {
 # =========
 
 # if (!is.null(opt$after_dedup)) {
-if(!(basename(opt$after_dedup) == "optional.txt")) {
+if(basename(opt$after_dedup) != "optional.txt") {
 
   after_dedup <- read_csv(opt$after_dedup) %>%
     dplyr::select(length, after_dedup_bam = n)
