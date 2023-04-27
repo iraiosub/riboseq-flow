@@ -37,7 +37,7 @@ workflow MAPPING_LENGTH_ANALYSES {
         
     } else {
 
-        after_dedup_length_analysis = ch_optional.join(reads).map { [ it[1] ] }
+        after_dedup_length_analysis = ch_optional.join(reads)
     }
 
 
@@ -48,7 +48,7 @@ workflow MAPPING_LENGTH_ANALYSES {
 
     } else {
 
-        after_premap_length_analysis = ch_optional.join(reads).map { [ it[1] ] }
+        after_premap_length_analysis = ch_optional.join(reads)
     }
 
    
