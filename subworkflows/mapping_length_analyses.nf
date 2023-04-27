@@ -13,7 +13,6 @@ ch_optional = Channel
             .fromPath( params.input )
             .splitCsv(header:true)
             .map { row -> [ row.sample, file(params.optional) ] }
-            .view()
 
 
 // Remove duplicate reads from BAM file based on UMIs
@@ -38,7 +37,7 @@ workflow MAPPING_LENGTH_ANALYSES {
         
     } else {
 
-        after_dedup_length_analysis = ch_optional
+        after_dedup_length_analysis = ch_optional.join(reads).map { [ it[1] ] }
     }
 
 
@@ -49,7 +48,7 @@ workflow MAPPING_LENGTH_ANALYSES {
 
     } else {
 
-        after_premap_length_analysis = ch_optional
+        after_premap_length_analysis = ch_optional.join(reads).map { [ it[1] ] }
     }
 
    
