@@ -17,7 +17,7 @@ process GET_TRANSCRIPT_INFO {
         path(gtf)
 
     output:
-        path("*.longest_cds.transcript_info.tsv.gz"), emit: transcript_info
+        path("*.longest_cds.transcript_info.tsv"), emit: transcript_info
 
     script:
     """
