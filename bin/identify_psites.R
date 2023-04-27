@@ -168,7 +168,7 @@ reads.ls <- lapply(reads.ls, function(df, tx.df) {
 }, tx.df = tx)
 
 
-# Get filtered reads: keep only the ones with periodicity evidence
+# Get filtered reads: keep only the ones with periodicity evidence, periodicity_threshold = 50
 filtered.ls <- length_filter(data = reads.ls,
                              length_filter_mode = "periodicity",
                              periodicity_threshold = 50)
@@ -179,11 +179,16 @@ max_length <- as.integer(strsplit(length_range, ":")[[1]][2])
 
 length_range <- min_length:max_length
 
+
+# Remove sample if no reads 
+
+filtered.ls <- Filter(function(x) dim(x)[1] > 0, filtered.ls)
+
 filtered.ls <- length_filter(data = filtered.ls,
                              length_filter_mode = "custom",
                              length_range = min_length:max_length)
 
-
+filtered.ls <- Filter(function(x) dim(x)[1] > 0, filtered.ls)
 # Length bins used for P-site assignment
 lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
 
