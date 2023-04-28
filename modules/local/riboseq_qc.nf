@@ -22,9 +22,11 @@ process RIBOSEQ_QC {
         path("*.qc_results.pdf"), emit: plots
 
     script:
-            
+        
+        expected_length_range = params.expected_length
+
         """
-        riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --after_premap $after_premap_length_analysis --before_dedup $before_dedup_length_analysis --after_dedup $after_dedup_length_analysis --expected_length ${params}.expected_length
+        riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --after_premap $after_premap_length_analysis --before_dedup $before_dedup_length_analysis --after_dedup $after_dedup_length_analysis --expected_length $expected_length_range
         """
 
 }
