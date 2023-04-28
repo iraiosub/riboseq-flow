@@ -228,6 +228,7 @@ if(basename(opt$after_dedup) != "optional.txt") {
 } else {
 
   duplication_plot <- ggplot() + theme_void() + ggtitle("Duplication") + geom_text(aes(0,0,label='N/A'))
+  duplication_perc <- NA
 }
 
 
