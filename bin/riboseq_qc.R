@@ -245,6 +245,7 @@ tx_map_summary <- 100*nrow(riboseq_info$bam %>% filter(rl >= 26 & rl <= 31)) / n
 summary_df <- useful_df %>%
   mutate(name = actual_name,
           duplication = duplication_perc,
+          expected_length = "26-31",
           percent_expected_length = tx_map_summary)
 
 

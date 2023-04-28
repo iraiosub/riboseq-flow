@@ -23,18 +23,27 @@ summary_df.ls <- as.list(strsplit(opt$input_list, ",")[[1]])
 # summary_df.ls <- list(opt$input_list)
 full_summary.df <- rbindlist(lapply(summary_df.ls, fread), use.names = TRUE)
 
+# If no UMIs, the duplication column has NAs, in that case, the plot should be skipped
 
-dup <- ggplot(full_summary.df, aes(x = name, y = duplication)) + # , fill = name
-  geom_bar(stat="identity") +
-  ggtitle("Duplication %") +
-  ylab("%") +
-  theme_classic() +
-  theme(axis.text.x = element_text(angle = 90))
-  # ggeasy::easy_rotate_x_labels()
+if (is.na(unique(full_summary.df$duplication))) {
+
+  dup <- ggplot() + theme_void() + ggtitle("Duplication %") + geom_text(aes(0,0,label='N/A'))
+
+} else {
+
+  dup <- ggplot(full_summary.df, aes(x = name, y = duplication)) + # , fill = name
+    geom_bar(stat="identity") +
+    ggtitle("Duplication %") +
+    ylab("%") +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 90))
+    # ggeasy::easy_rotate_x_labels()
+
+}
 
 exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length)) + 
   geom_bar(stat="identity") +
-  ggtitle("% Expected length", "Low % indicates over-digestion") +
+  ggtitle( paste0("% Expected length: " , unique(full_summary.df$expected_length)), "Low % indicates over-digestion") +
   ylab("%") +
   theme_classic() +
   # ggeasy::easy_rotate_x_labels() +
@@ -43,7 +52,7 @@ exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length)) +
 
 use <- ggplot(full_summary.df, aes(x = name, y = y)) +
   geom_bar(stat="identity") +
-  ggtitle("% Reads that are useful") +
+  ggtitle("% Reads that are useful", "Reads mapped\nuniquely to longest CDS transcripts") +
   ylab("%") +
   theme_classic() +
   # ggeasy::easy_rotate_x_labels() +
