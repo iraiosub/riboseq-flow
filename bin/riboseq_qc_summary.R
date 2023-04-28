@@ -50,8 +50,9 @@ use <- ggplot(full_summary.df, aes(x = name, y = y)) +
   theme(axis.text.x = element_text(angle = 90)) +
   theme(legend.position = "none")
 
-use | exp | dup
+use + exp + dup + 
+  plot_layout(ncol = 3)
 
 fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
 ggsave("qc_summary.pdf", dpi = 300, height = 12,
-  width = 8*length(unique(full_summary.df$name)))
+  width = 2*length(unique(full_summary.df$name)))
