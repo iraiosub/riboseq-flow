@@ -248,10 +248,19 @@ summary_df <- useful_df %>%
           percent_expected_length = tx_map_summary)
 
 
+
+# Customise sub-title based on whether UMIs were used or not
+if(basename(opt$after_dedup) != "optional.txt") {
+  useful_plot_subtitle <- "UMI-deduplicated reads mapped\nuniquely to longest CDS transcripts"
+} else {
+
+  useful_plot_subtitle <- "Reads mapped\nuniquely to longest CDS transcripts"    
+}
+
 useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
   geom_bar(stat="identity") +
   theme_classic() +
-  ggtitle("% Useful reads", "UMI-deduplicated reads mapped\nuniquely to longest CDS transcripts") +
+  ggtitle("% Useful reads", useful_plot_subtitle) +
   xlab("") +
   ylab("Proportion (%)")
 
