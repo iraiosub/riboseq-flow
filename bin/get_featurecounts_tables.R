@@ -10,6 +10,9 @@ load_count_tables <- function(table_path) {
   
   data <- fread(table_path)
 
+  data <- data %>%
+      dplyr::select(-Chr, -Start, -End, -Strand, -Length)
+
   if (str_detect(colnames(data), ".genome.dedup.sorted.bam")) {
     data <- data %>%
       dplyr::select(Geneid, contains(".genome.dedup.sorted.bam")) %>% 
@@ -19,7 +22,7 @@ load_count_tables <- function(table_path) {
 
     data <- data %>%
       dplyr::select(Geneid, contains(".Aligned.sortedByCoord.out.bam")) %>% 
-      rename_with(~str_remove(., '.Aligned.sortedByCoord.out.bam'))
+      rename_with(~str_remove(., '.Aligned.sortedByCoord.out.bam')) 
 
   }
 
