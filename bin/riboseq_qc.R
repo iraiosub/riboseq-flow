@@ -18,7 +18,8 @@ option_list <- list(make_option(c("-b", "--bam"), action = "store", type = "char
                     make_option(c("-o", "--output_prefix"), action = "store", type = "character", default=NA, help = "prefix for output files"),
                     make_option(c("", "--after_premap"), action = "store", type = "character", default=NA, help = "after_premap length analysis csv file"),
                     make_option(c("", "--before_dedup"), action = "store", type = "character", default=NA, help = "before_dedup length analysis csv file"),
-                    make_option(c("", "--after_dedup"), action = "store", type = "character", default=NA, help = "after_dedup length analysis csv file"))
+                    make_option(c("", "--after_dedup"), action = "store", type = "character", default=NA, help = "after_dedup length analysis csv file"),
+                    make_option(c("", "--expected_length"), action = "store", type = "character", default=NA, help = "string specifying expected length range, in the format min:max"))
 
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
@@ -240,12 +241,15 @@ useful_read_perc <- 100*nrow(riboseq_info$bam) / sum(original_fq$original_n)
 useful_df <- data.frame(x = "", y = useful_read_perc)
 
 
-tx_map_summary <- 100*nrow(riboseq_info$bam %>% filter(rl >= 26 & rl <= 31)) / nrow(riboseq_info$bam)
+min_length <- str_split(opt$expected_length, ":")[[1]][1]
+max_length <- str_split(opt$expected_length, ":")[[1]][2]
+
+tx_map_summary <- 100*nrow(riboseq_info$bam %>% filter(rl >= min_length & rl <= max_length)) / nrow(riboseq_info$bam)
 
 summary_df <- useful_df %>%
   mutate(name = actual_name,
           duplication = duplication_perc,
-          expected_length = "26-31",
+          expected_length = opt$expected_length,
           percent_expected_length = tx_map_summary)
 
 

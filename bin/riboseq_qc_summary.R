@@ -43,7 +43,7 @@ if (is.na(unique(full_summary.df$duplication))) {
 
 exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length)) + 
   geom_bar(stat="identity") +
-  ggtitle( paste0("% Expected length: " , unique(full_summary.df$expected_length)), "Low % indicates over-digestion") +
+  ggtitle( paste0("% Expected length: ", unique(full_summary.df$expected_length)), "Low % indicates over-digestion") +
   ylab("%") +
   theme_classic() +
   # ggeasy::easy_rotate_x_labels() +
@@ -60,7 +60,7 @@ use <- ggplot(full_summary.df, aes(x = name, y = y)) +
   theme(legend.position = "none")
 
 use + exp + dup + 
-  plot_layout(ncol = 3)
+  plot_layout(nrow = 3)
 
 fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
 ggsave("qc_summary.pdf", dpi = 300, height = 12,

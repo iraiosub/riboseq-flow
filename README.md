@@ -141,6 +141,7 @@ If you prepared your library using a TS (template-switching-based protocol) you 
 
 #### Ribocutter options
 
+- `--skip_ribocutter` skips Ribocutter
 - `--guide_number` number of guides to design (default: `50`)
 - `--max_reads` maximum number of reads analysed (default: `1000000`)
 - `--min_read_length` minimum read length threshold for reads to be analysed
@@ -155,24 +156,24 @@ If you prepared your library using a TS (template-switching-based protocol) you 
 
 - `--strandedness` specifies the library strandedness (options: `forward`, `reverse` or `unstranded`) (Required)
 
+#### Ribo-seq quality control options
+
+- `--skip_qc` skips mapping_length_analysis and generation of riboseq QC plots
+- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, and for the generation of riboseq QC plots (default `26:32`).
+
 #### P-site identification and quantification options
 
 P-sites are identified with [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/). It is strongly recommended to check the riboWaltz method to ensure the approach is suitable for your data. 
 By default, the reads must be in length bins that satisfy periodicity to be used for P-site offset calculations.
 Additionally, the user can specify the following options:
 
-- `--length_range` specifies the range of RPF lengths used for P-site identification (default `26:31`)
+- `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
+- `--length_range` specifies the range of RPF lengths used for P-site identification (default `26:32`)
 - `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
      - For `ribowaltz` P-site offsets are defined using [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/).
      - For `global_max_5end` P-site offsets are defined by the distances between the first nucleotide of the translation initiation site and the nucleotide corresponding to the global maximum of the read length-specific 5'end profiles (the first step of the riboWaltz method). Compared to riboWaltz-defined offsets, only the 5' extremities of the reads are considered for calculation and no further offset correction is performed after read-length global maximum identification.
 - `exclude_start` specifies the number of nucleotides 3' from the start codon to be excluded from CDS P-site quantification (default `42`, i.e. exclude the first 14 codons)
 - `exclude_stop` specifies the number of nucleotides 5' from the stop codon to be excluded from CDS P-site quantification (default `27`, i.e. exclude the last 9 codons)
-
-#### Optional pipeline modules
-
-- `--skip_qc` skips mapping_length_analysis and generation of riboseq QC plots
-- `--skip_ribocutter` skips Ribocutter
-- `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
 
 
 ## Pipeline outputs
