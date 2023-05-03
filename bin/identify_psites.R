@@ -317,13 +317,13 @@ ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.
 # Both functions compute the percentage of P-sites falling in the three possible translation reading frames for 5’ UTRs, CDSs and 3’ UTRs with one difference: 
 # frame_psite_length analyses all read lengths separately and generates a heatmap for each transcript region, while frame_psite processes all reads at once, returning three bar plots.
 
-frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", cl = 100)
+frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", length_range = "all")
 frames_stratified.gg <- frames_stratified$plot
 
 ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 400, height = 12 , width = 10)
 
 
-frames <- frame_psite(filtered_psite.ls, region = "all")
+frames <- frame_psite(filtered_psite.ls, region = "all", length_range = "all")
 frames.gg <- frames$plot +
   ggplot2::theme(plot.background = ggplot2::element_blank(), 
                  panel.grid.minor = ggplot2::element_blank(),
