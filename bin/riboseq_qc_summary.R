@@ -52,7 +52,7 @@ exp <- ggplot(full_summary.df , aes(x = name, y = percent_expected_length)) +
 
 use <- ggplot(full_summary.df, aes(x = name, y = y)) +
   geom_bar(stat="identity") +
-  ggtitle("% Reads that are useful", "Reads mapped\nuniquely to longest CDS transcripts") +
+  ggtitle("% Reads that are useful", "Reads mapped uniquely to longest CDS transcripts") +
   ylab("%") +
   theme_classic() +
   # ggeasy::easy_rotate_x_labels() +
