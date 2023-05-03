@@ -79,7 +79,7 @@ if (ncol(featurecounts.df) < 3 ) {
   featurecounts.pca.gg <- ggplot(featurecounts.pca, aes(x = PC1, y = PC2, label = sample)) +
     geom_point(aes(color = sample)) +
     ggtitle("Gene-level counts", "FeatureCounts") +
-    labs(caption = italic("*top 500 most variable CDS")) +
+    labs(caption = "*top 500 most variable CDS") +
     theme_cowplot() +
     scale_fill_manual(values = colours) +
     scale_color_manual(values = colours) +
@@ -105,7 +105,7 @@ if (ncol(featurecounts.df) < 3 ) {
       cds.pca.gg <- ggplot(cds.pca, aes(x = PC1, y = PC2, label = sample)) +
         geom_point(aes(color = sample)) +
         ggtitle("Gene-level CDS occupancy", "P-sites") +
-        labs(caption = italic("*top 500 most variable CDS")) +
+        labs(caption = "*top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
@@ -129,7 +129,7 @@ if (ncol(featurecounts.df) < 3 ) {
       cds_window.pca.gg <- ggplot(cds_window.pca, aes(x = PC1, y = PC2, label = sample)) +
         geom_point(aes(color = sample)) +
         ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "P-sites") +
-        labs(caption = italic("*top 500 most variable CDS")) +
+        labs(caption = "*top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
@@ -145,8 +145,8 @@ if (ncol(featurecounts.df) < 3 ) {
       ggsave("pca.pdf", pca.gg, dpi = 400, height = 21, width = 7)
       
       # save longest CDS tables
-      fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
-      fwrite(semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_window_coverage_psite.tsv.gz", sep = "\t")
+      # fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
+      # fwrite(semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_window_coverage_psite.tsv.gz", sep = "\t")
       
       
     } else {
