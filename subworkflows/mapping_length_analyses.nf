@@ -8,11 +8,11 @@ include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP } from 
 include { MAPPING_LENGTH_ANALYSIS as MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP } from '../modules/local/mapping_length.nf' addParams(length_analysis_type: params.after_premap_length_analysis)
 
 
-// Create channels for optional inputs
+// Create channel for optional input
 ch_optional = Channel
             .fromPath( params.input )
             .splitCsv(header:true)
-            .map { row -> [ row.sample, file(params.optional) ] }
+            .map { row -> [ row.sample, [] ] }
 
 
 // Remove duplicate reads from BAM file based on UMIs
