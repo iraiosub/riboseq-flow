@@ -56,6 +56,10 @@ get_rlog_pca <- function(count_data) {
 
 featurecounts.df <- fread(opt$featurecounts)
 
+
+featurecounts.df <- featurecounts.df %>%
+      rename_with(~str_remove(., '.Aligned.sortedByCoord.out.bam')) 
+
 # If there is only one sample, there is no point in running the analysis
 
 if (ncol(featurecounts.df) < 3 ) {
@@ -142,7 +146,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
       pca.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, rows = 3)
       
-      ggsave("pca.pdf", pca.gg, dpi = 400, height = 21, width = 7)
+      ggsave("pca.pdf", pca.gg, dpi = 600, height = 30, width = 12)
       
       # save longest CDS tables
       # fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
@@ -151,7 +155,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
     } else {
       
-      ggsave("pca.pdf", featurecounts.pca.gg, dpi = 400, height = 7, width = 7)
+      ggsave("pca.pdf", featurecounts.pca.gg, dpi = 600, height = 10, width = 12)
       
     }
 }
