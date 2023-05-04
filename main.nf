@@ -80,6 +80,7 @@ include { MAP } from './modules/local/map.nf'
 include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
+include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { PCA } from './modules/local/featurecounts.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 
@@ -205,18 +206,22 @@ workflow RIBOSEQ {
 
     }
 
-    // Get gene-level counts from BAM alignments using featureCounts
+    // Get gene-level counts from BAM alignments using featureCounts and coverage tracks using deepTools
     if (params.with_umi) {
         GET_GENE_LEVEL_COUNTS(
             DEDUPLICATE.out.dedup_genome_bam,
             ch_genome_gtf.collect()
         )
+
+        GET_COVERAGE_TRACKS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_fasta.collect())
     
     } else {
         GET_GENE_LEVEL_COUNTS(
             MAP.out.genome_bam,
             ch_genome_gtf.collect()
         )
+
+        GET_COVERAGE_TRACKS(MAP.out.genome_bam, ch_genome_fasta.collect())
 
     }
 
