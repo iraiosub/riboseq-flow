@@ -32,6 +32,8 @@ method <- options[5]
 exclude_start <- as.numeric(options[6])
 exclude_stop <- as.numeric(options[7])
 
+longest_cds.df <- options[8]
+
 # Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
 # Create folder for plots
@@ -142,6 +144,10 @@ data.table::fwrite(annotation.dt,
 bams <- as.list(strsplit(bam_dir, ",")[[1]])
 
 name_of_bams <- lapply(bams, function(x) strsplit(x, ".transcriptome.dedup.sorted.bam")[[1]][1])
+
+# In case no UMIs were used
+name_of_bams <- lapply(bams, function(x) strsplit(x, ".Aligned.toTranscriptome.sorted.out.bam")[[1]][1])
+
 names(name_of_bams) <- lapply(bams, function(x) strsplit(x, ".bam")[[1]][1])
 
 
@@ -153,7 +159,16 @@ reads.ls <- bamtolist(bamfolder = getwd(),
                       annotation = annotation.dt,
                       name_samples = unlist(name_of_bams))
 
-# Get filtered reads: keep only the ones with periodicity evidence
+# Filter to only transcript with longest CDS per gene
+tx <- data.table::fread(longest_cds.df)
+
+reads.ls <- lapply(reads.ls, function(df, tx.df) {
+  df <- df[df$transcript %in% unique(tx.df$transcript_id),]
+  return(df)
+}, tx.df = tx)
+
+
+# Get filtered reads: keep only the ones with periodicity evidence, periodicity_threshold = 50
 filtered.ls <- length_filter(data = reads.ls,
                              length_filter_mode = "periodicity",
                              periodicity_threshold = 50)
@@ -164,11 +179,16 @@ max_length <- as.integer(strsplit(length_range, ":")[[1]][2])
 
 length_range <- min_length:max_length
 
+
+# Remove sample if no reads 
+
+filtered.ls <- Filter(function(x) dim(x)[1] > 0, filtered.ls)
+
 filtered.ls <- length_filter(data = filtered.ls,
                              length_filter_mode = "custom",
                              length_range = min_length:max_length)
 
-
+filtered.ls <- Filter(function(x) dim(x)[1] > 0, filtered.ls)
 # Length bins used for P-site assignment
 lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
 
@@ -297,13 +317,15 @@ ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.
 # Both functions compute the percentage of P-sites falling in the three possible translation reading frames for 5’ UTRs, CDSs and 3’ UTRs with one difference: 
 # frame_psite_length analyses all read lengths separately and generates a heatmap for each transcript region, while frame_psite processes all reads at once, returning three bar plots.
 
-frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", cl = 100)
-frames_stratified.gg <- frames_stratified$plot
+frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", length_range = "all")
+frames_stratified.gg <- frames_stratified$plot +
+  ggplot2::scale_y_continuous(limits = c(min_length - 0.5, max_length + 0.5), breaks = seq(min(min_length + ((min_length) %% 2), max_length), max(min_length + ((min_length) %% 2), max_length), 
+                    by = max(2, floor((max_length - min_length) / 7))))
 
 ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 400, height = 12 , width = 10)
 
 
-frames <- frame_psite(filtered_psite.ls, region = "all")
+frames <- frame_psite(filtered_psite.ls, region = "all", length_range = "all")
 frames.gg <- frames$plot +
   ggplot2::theme(plot.background = ggplot2::element_blank(), 
                  panel.grid.minor = ggplot2::element_blank(),

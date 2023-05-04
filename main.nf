@@ -19,6 +19,7 @@ if (!params.input) {
 }
 
 
+
 // Check if genome exists in the config file
 if (params.org  && !params.genomes.containsKey(params.org)) {
     exit 1, "The provided genome '${params.org}' is not available. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
@@ -136,19 +137,65 @@ workflow RIBOSEQ {
     // riboseq QC
     if (!params.skip_qc) {
         // Mapping length analysis
-        MAPPING_LENGTH_ANALYSES(
-            MAP.out.genome_bam,
-            PREPROCESS_READS.out.fastq,
-            DEDUPLICATE.out.dedup_genome_bam,
-            PREMAP.out.unmapped
-        )
 
-        if (params.with_umi && !params.skip_premap) {
+        if (!params.skip_premap && params.with_umi) {
 
-        RIBOSEQ_QC(
-            DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
-            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
-        )
+            MAPPING_LENGTH_ANALYSES(
+                MAP.out.genome_bam,
+                PREPROCESS_READS.out.fastq,
+                DEDUPLICATE.out.dedup_genome_bam,
+                PREMAP.out.unmapped
+            )
+
+            RIBOSEQ_QC(
+                DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
+
+
+        } else if (params.skip_premap && params.with_umi) {
+
+            MAPPING_LENGTH_ANALYSES(
+                MAP.out.genome_bam,
+                PREPROCESS_READS.out.fastq,
+                DEDUPLICATE.out.dedup_genome_bam,
+                Channel.empty()
+            )
+
+        
+            RIBOSEQ_QC(
+                DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
+
+
+        } else if (!params.skip_premap && !params.with_umi) {
+
+            MAPPING_LENGTH_ANALYSES(
+                MAP.out.genome_bam,
+                PREPROCESS_READS.out.fastq,
+                Channel.empty(),
+                PREMAP.out.unmapped
+            )
+
+            RIBOSEQ_QC(
+                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
+        } else if (params.skip_premap && !params.with_umi) {
+
+            MAPPING_LENGTH_ANALYSES(
+                MAP.out.genome_bam,
+                PREPROCESS_READS.out.fastq,
+                Channel.empty(),
+                Channel.empty()
+            )
+
+            RIBOSEQ_QC(
+                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
+        }
 
         ch_merge_qc = RIBOSEQ_QC.out.qc
             .map { [ it[1] ] }
@@ -156,7 +203,6 @@ workflow RIBOSEQ {
 
         SUMMARISE_RIBOSEQ_QC(ch_merge_qc)
 
-        }
     }
 
     // Get gene-level counts from BAM alignments using featureCounts
@@ -181,7 +227,8 @@ workflow RIBOSEQ {
             IDENTIFY_PSITES(
                 DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(),
                 ch_genome_gtf.collect(),
-                ch_genome_fasta.collect()
+                ch_genome_fasta.collect(),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
         
         } else {
@@ -189,7 +236,8 @@ workflow RIBOSEQ {
             IDENTIFY_PSITES(
                 MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(),
                 ch_genome_gtf.collect(),
-                ch_genome_fasta.collect()
+                ch_genome_fasta.collect(),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
         }
@@ -209,7 +257,8 @@ workflow RIBOSEQ {
 
         PCA(
             GET_GENE_LEVEL_COUNTS.out.merged_counts_table,
-            Channel.empty(), Channel.empty(), 
+            Channel.empty(), 
+            Channel.empty(), 
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
     }
@@ -226,7 +275,8 @@ workflow RIBOSEQ {
     // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)
     if (!params.skip_ribocutter) {
         RUN_RIBOCUTTER(
-            PREPROCESS_READS.out.trimmed_fastq)
+            PREPROCESS_READS.out.trimmed_fastq
+            )
     }
     
 }

@@ -17,7 +17,7 @@ process GET_TRANSCRIPT_INFO {
         path(gtf)
 
     output:
-        path("*.longest_cds.transcript_info.tsv.gz"), emit: transcript_info
+        path("*.longest_cds.transcript_info.tsv"), emit: transcript_info
 
     script:
     """
@@ -27,7 +27,7 @@ process GET_TRANSCRIPT_INFO {
 }
 
 
-process GENERATE_SMALL_RNA_BOWTIE_INDEX {
+process GENERATE_BOWTIE_INDEX {
     
     tag "$smallrna_fasta"
     label 'process_medium'

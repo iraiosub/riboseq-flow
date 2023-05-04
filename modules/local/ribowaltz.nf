@@ -19,6 +19,7 @@ process IDENTIFY_PSITES {
     path(bam_list)
     path(gtf)
     path(fasta)
+    path(transcript_info)
 
     output:
     path("psite_offset.tsv.gz"), emit: psite_offset
@@ -41,7 +42,7 @@ process IDENTIFY_PSITES {
 
         INPUT=`echo $bam_list | sed 's/ /,/g'`
         
-        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $method ${params.exclude_start} ${params.exclude_end} 
+        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $method ${params.exclude_start} ${params.exclude_end} $transcript_info
 
         """
 

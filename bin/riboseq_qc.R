@@ -18,7 +18,8 @@ option_list <- list(make_option(c("-b", "--bam"), action = "store", type = "char
                     make_option(c("-o", "--output_prefix"), action = "store", type = "character", default=NA, help = "prefix for output files"),
                     make_option(c("", "--after_premap"), action = "store", type = "character", default=NA, help = "after_premap length analysis csv file"),
                     make_option(c("", "--before_dedup"), action = "store", type = "character", default=NA, help = "before_dedup length analysis csv file"),
-                    make_option(c("", "--after_dedup"), action = "store", type = "character", default=NA, help = "after_dedup length analysis csv file"))
+                    make_option(c("", "--after_dedup"), action = "store", type = "character", default=NA, help = "after_dedup length analysis csv file"),
+                    make_option(c("", "--expected_length"), action = "store", type = "character", default=NA, help = "string specifying expected length range, in the format min:max"))
 
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
@@ -131,7 +132,8 @@ length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
 
 name_colours <- c("after_premap_n" = "#f8766d", "original_n" = "#00BFC4", "before_dedup_bam" = "#7851a9")
 
-if (!is.null(opt$after_premap)) {
+# if (!is.null(opt$after_premap)) {
+if (basename(opt$after_premap) != "optional.txt") {
 
   after_premap <- read_csv(opt$after_premap) %>%
   dplyr::select(length, after_premap_n = n)
@@ -203,7 +205,8 @@ if (!is.null(opt$after_premap)) {
 # Duplication
 # =========
 
-if (!is.null(opt$after_dedup)) {
+# if (!is.null(opt$after_dedup)) {
+if(basename(opt$after_dedup) != "optional.txt") {
 
   after_dedup <- read_csv(opt$after_dedup) %>%
     dplyr::select(length, after_dedup_bam = n)
@@ -226,6 +229,7 @@ if (!is.null(opt$after_dedup)) {
 } else {
 
   duplication_plot <- ggplot() + theme_void() + ggtitle("Duplication") + geom_text(aes(0,0,label='N/A'))
+  duplication_perc <- NA
 }
 
 
@@ -237,18 +241,31 @@ useful_read_perc <- 100*nrow(riboseq_info$bam) / sum(original_fq$original_n)
 useful_df <- data.frame(x = "", y = useful_read_perc)
 
 
-tx_map_summary <- 100*nrow(riboseq_info$bam %>% filter(rl >= 26 & rl <= 31)) / nrow(riboseq_info$bam)
+min_length <- str_split(opt$expected_length, ":")[[1]][1]
+max_length <- str_split(opt$expected_length, ":")[[1]][2]
+
+tx_map_summary <- 100*nrow(riboseq_info$bam %>% filter(rl >= min_length & rl <= max_length)) / nrow(riboseq_info$bam)
 
 summary_df <- useful_df %>%
   mutate(name = actual_name,
           duplication = duplication_perc,
+          expected_length = opt$expected_length,
           percent_expected_length = tx_map_summary)
 
+
+
+# Customise sub-title based on whether UMIs were used or not
+if(basename(opt$after_dedup) != "optional.txt") {
+  useful_plot_subtitle <- "UMI-deduplicated reads mapped\nuniquely to longest CDS transcripts"
+} else {
+
+  useful_plot_subtitle <- "Reads mapped\nuniquely to longest CDS transcripts"    
+}
 
 useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
   geom_bar(stat="identity") +
   theme_classic() +
-  ggtitle("% Useful reads", "UMI-deduplicated reads mapped\nuniquely to longest CDS transcripts") +
+  ggtitle("% Useful reads", useful_plot_subtitle) +
   xlab("") +
   ylab("Proportion (%)")
 

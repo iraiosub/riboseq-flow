@@ -72,6 +72,6 @@ tx.info.dt <- unique.longest.pc.dt %>%
   dplyr::rename(cds_length = cds_len, tx_length = tx_len)
 
 
-output_name <- paste0(str_split(basename(opt$gtf), ".gtf")[[1]][1], ".longest_cds.transcript_info.tsv.gz")
+output_name <- paste0(str_split(basename(opt$gtf), ".gtf")[[1]][1], ".longest_cds.transcript_info.tsv")
 
 fwrite(tx.info.dt, output_name, sep = "\t")

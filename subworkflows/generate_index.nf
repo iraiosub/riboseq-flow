@@ -3,7 +3,7 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-include { GENERATE_SMALL_RNA_BOWTIE_INDEX } from '../modules/local/reference.nf'
+include { GENERATE_BOWTIE_INDEX } from '../modules/local/reference.nf'
 include { GENERATE_GENOME_STAR_INDEX } from '../modules/local/reference.nf'
 
             
@@ -21,8 +21,8 @@ workflow GENERATE_REFERENCE_INDEX {
 
     if(!params.skip_premap) {
 
-        GENERATE_SMALL_RNA_BOWTIE_INDEX(smallrna_fasta)
-        smallrna_bowtie2_index = GENERATE_SMALL_RNA_BOWTIE_INDEX.out.smallrna_index
+        GENERATE_BOWTIE_INDEX(smallrna_fasta)
+        smallrna_bowtie2_index = GENERATE_BOWTIE_INDEX.out.smallrna_index
         
     } else {
 
