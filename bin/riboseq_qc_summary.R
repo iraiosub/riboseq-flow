@@ -63,5 +63,14 @@ use + exp + dup +
   plot_layout(nrow = 3)
 
 fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
-ggsave("qc_summary.pdf", dpi = 300, height = 12,
-  width = 2*length(unique(full_summary.df$name)))
+
+# Set dimensions for plot
+if (length(unique(full_summary.df$name)) >= 3) {
+
+  plot.width <- 2*length(unique(full_summary.df$name))
+} else {
+
+  plot.width <- 6
+}
+
+ggsave("qc_summary.pdf", dpi = 300, height = 12, width = plot.width)
