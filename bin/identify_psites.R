@@ -143,10 +143,11 @@ data.table::fwrite(annotation.dt,
 
 bams <- as.list(strsplit(bam_dir, ",")[[1]])
 
+
 name_of_bams <- lapply(bams, function(x) strsplit(x, ".transcriptome.dedup.sorted.bam")[[1]][1])
 
 # In case no UMIs were used
-name_of_bams <- lapply(bams, function(x) strsplit(x, ".Aligned.toTranscriptome.sorted.out.bam")[[1]][1])
+name_of_bams <- lapply(name_of_bams, function(x) strsplit(x, ".Aligned.toTranscriptome.sorted.out.bam")[[1]][1])
 
 names(name_of_bams) <- lapply(bams, function(x) strsplit(x, ".bam")[[1]][1])
 
