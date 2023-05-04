@@ -319,8 +319,8 @@ ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.
 
 frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", length_range = "all")
 frames_stratified.gg <- frames_stratified$plot +
-  ggplot2::scale_y_continuous(limits = c(minl - 0.5, maxl + 0.5), breaks = seq(min(minl + ((minl) %% 2), maxl), max(minl + ((minl) %% 2), maxl), 
-                    by = max(2, floor((maxl - minl) / 7))))
+  ggplot2::scale_y_continuous(limits = c(min_length - 0.5, max_length + 0.5), breaks = seq(min(min_length + ((min_length) %% 2), max_length), max(min_length + ((min_length) %% 2), max_length), 
+                    by = max(2, floor((max_length - min_length) / 7))))
 
 ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 400, height = 12 , width = 10)
 
