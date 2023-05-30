@@ -51,20 +51,35 @@ export_psites <- function(name, df_list) {
 }
 
 
-
 plot_length_bins <- function(sample_name, df_list) {
 
   comparison_list <- list()
   comparison_list[["start_codon"]] <- df_list[[sample_name]][end5 <= cds_start & end3 >= cds_start]
   comparison_list[["whole_sample"]] <- df_list[[sample_name]]
   
-  rpf_list <- list("Only_start" = c("start_codon"), "All" = c("whole_sample"))
-  
-  length_dist_split <-  rlength_distr(comparison_list,
-                                              sample = rpf_list,
-                                              multisamples = "average",
-                                              plot_style = "split",
-                                              colour = c("#699FC4", "gray70"))
+  if(nrow(comparison_list[["start_codon"]]) == 0) {
+    
+    comparison_list <- list()
+    comparison_list[["whole_sample"]] <- df_list[[sample_name]]
+    
+    rpf_list <- list("All" = c("whole_sample"))
+    
+    length_dist_split <-  rlength_distr(comparison_list,
+                                        sample = rpf_list,
+                                        multisamples = "average",
+                                        plot_style = "split",
+                                        colour = c("gray70"))
+    
+  } else {
+    
+    rpf_list <- list("Only_start" = c("start_codon"), "All" = c("whole_sample"))
+    
+    length_dist_split <-  rlength_distr(comparison_list,
+                                        sample = rpf_list,
+                                        multisamples = "average",
+                                        plot_style = "split",
+                                        colour = c("#699FC4", "gray70"))
+  }
   
   length_dist_split.gg <- length_dist_split$plot +
     ggplot2::theme(plot.background = ggplot2::element_blank(), 
@@ -74,9 +89,7 @@ plot_length_bins <- function(sample_name, df_list) {
   
   ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", sample_name, ".length_bins_for_psite.pdf"), length_dist_split.gg, dpi = 400, width = 10, height = 5)
   
-  
 }
-
 
 
 plot_metaheatmap <- function(name, df_list, annotation) {
@@ -123,6 +136,31 @@ plot_codon_usage <- function(sample_name, psite_info_ls) {
   ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", sample_name, ".codon_usage.pdf"), cu_barplot.gg, dpi = 400, width = 10, height = 7)
 }
 
+exclude_samples <- function(sample_name, df_list) {
+  
+  sample_list <- list()
+  exclude <- c()
+  sample_list[["start_codon"]] <- df_list[[sample_name]][end5 <= cds_start & end3 >= cds_start]
+  
+  if(nrow(sample_list[["start_codon"]]) == 0) {
+    message("No reads overlapping start codon. Removing sample from analysis.")
+    
+    exclude <- sample_name
+    
+  } else {
+    
+    message("This sample will not be excluded")
+  }
+  
+  return(exclude)
+}
+
+
+stop_quietly <- function() {
+  opt <- options(show.error.messages = FALSE)
+  on.exit(options(opt))
+  stop()
+}
 
 
 # =========
@@ -144,13 +182,12 @@ data.table::fwrite(annotation.dt,
 bams <- as.list(strsplit(bam_dir, ",")[[1]])
 
 
-name_of_bams <- lapply(bams, function(x) strsplit(x, ".transcriptome.dedup.sorted.bam")[[1]][1])
+name_of_bams <- lapply(bams, function(x) strsplit(basename(x), ".transcriptome.dedup.sorted.bam")[[1]][1])
 
 # In case no UMIs were used
-name_of_bams <- lapply(name_of_bams, function(x) strsplit(x, ".Aligned.toTranscriptome.sorted.out.bam")[[1]][1])
+name_of_bams <- lapply(name_of_bams, function(x) strsplit(basename(x), ".Aligned.toTranscriptome.sorted.out.bam")[[1]][1])
 
-names(name_of_bams) <- lapply(bams, function(x) strsplit(x, ".bam")[[1]][1])
-
+names(name_of_bams) <- lapply(bams, function(x) strsplit(basename(x), ".bam")[[1]][1])
 
 # Get number of samples
 sample_count <- length(bams)
@@ -159,6 +196,9 @@ sample_count <- length(bams)
 reads.ls <- bamtolist(bamfolder = getwd(), 
                       annotation = annotation.dt,
                       name_samples = unlist(name_of_bams))
+
+# Order named list alphabetically
+reads.ls <- reads.ls[order(names(reads.ls))]
 
 # Filter to only transcript with longest CDS per gene
 tx <- data.table::fread(longest_cds.df)
@@ -181,8 +221,7 @@ max_length <- as.integer(strsplit(length_range, ":")[[1]][2])
 length_range <- min_length:max_length
 
 
-# Remove sample if no reads 
-
+# Remove sample if no reads left
 filtered.ls <- Filter(function(x) dim(x)[1] > 0, filtered.ls)
 
 filtered.ls <- length_filter(data = filtered.ls,
@@ -190,8 +229,20 @@ filtered.ls <- length_filter(data = filtered.ls,
                              length_range = min_length:max_length)
 
 filtered.ls <- Filter(function(x) dim(x)[1] > 0, filtered.ls)
-# Length bins used for P-site assignment
+
+# Plot length bins used for P-site assignment
 lapply(names(filtered.ls), plot_length_bins, df_list = filtered.ls)
+
+# Filter out sample if no reads pass filtering, and stop analysis if no sample passes filering
+exclude.ls <- lapply(names(filtered.ls), exclude_samples, df_list = filtered.ls)
+filtered.ls <- filtered.ls[!names(filtered.ls) %in% exclude.ls]
+
+if (length(filtered.ls) == 0) {
+  
+  message("No sample has reads passing filters for P-site identification. Stopping analysis.")
+  stop_quietly()
+}
+
 
 
 # =========

@@ -22,14 +22,14 @@ process IDENTIFY_PSITES {
     path(transcript_info)
 
     output:
-    path("psite_offset.tsv.gz"), emit: psite_offset
-    path("offset_plot/*"), emit: offset_plot
-    path("*.psite.tsv.gz"), emit: psites
-    path("codon_coverage_rpf.tsv.gz"), emit: codon_coverage_rpf
-    path("codon_coverage_psite.tsv.gz"), emit: codon_coverage_psite
-    path("cds_coverage_psite.tsv.gz"), emit: cds_coverage
-    path("*nt_coverage_psite.tsv.gz"), emit: cds_window_coverage
-    path("ribowaltz_qc/*.pdf"), emit: ribowaltz_qc
+    path("psite_offset.tsv.gz"), emit: psite_offset, optional: true
+    path("offset_plot/*"), emit: offset_plot, optional: true
+    path("*.psite.tsv.gz"), emit: psites, optional: true
+    path("codon_coverage_rpf.tsv.gz"), emit: codon_coverage_rpf, optional: true
+    path("codon_coverage_psite.tsv.gz"), emit: codon_coverage_psite, optional: true
+    path("cds_coverage_psite.tsv.gz"), emit: cds_coverage, optional: true
+    path("*nt_coverage_psite.tsv.gz"), emit: cds_window_coverage, optional: true
+    path("ribowaltz_qc/*.pdf"), emit: ribowaltz_qc, optional: true
 
     script:
 
