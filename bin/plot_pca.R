@@ -86,7 +86,8 @@ if (ncol(featurecounts.df) < 3 ) {
     theme_cowplot() +
     scale_fill_manual(values = colours) +
     scale_color_manual(values = colours) +
-    geom_text(hjust=0, vjust=0.1)
+    # ggrepel::geom_text_repel(aes(label = sample))
+    geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)
 
   fwrite(get_rlog_pca(featurecounts.df)$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
   
@@ -112,7 +113,8 @@ if (ncol(featurecounts.df) < 3 ) {
         theme_cowplot() +
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
-        geom_text(hjust=0.1, vjust=0.1)
+        # ggrepel::geom_text_repel(aes(label = sample))
+        geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)
 
       fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
       
@@ -136,7 +138,8 @@ if (ncol(featurecounts.df) < 3 ) {
         theme_cowplot() +
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
-        geom_text(hjust=0.1, vjust=0.1)
+       # ggrepel::geom_text_repel(aes(label = sample))
+       geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)
 
       fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
       
@@ -145,7 +148,7 @@ if (ncol(featurecounts.df) < 3 ) {
       # Merge PCA plots
       # =========
       
-      pca.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, rows = 3)
+      pca.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, nrow = 3)
       
       ggsave("pca.pdf", pca.gg, dpi = 600, height = 30, width = 12)
       
