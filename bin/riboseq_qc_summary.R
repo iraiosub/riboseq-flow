@@ -67,7 +67,7 @@ fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
 # Set dimensions for plot
 if (length(unique(full_summary.df$name)) >= 3) {
 
-  plot.width <- 2*length(unique(full_summary.df$name))
+  plot.width <- length(unique(full_summary.df$name))
 } else {
 
   plot.width <- 6

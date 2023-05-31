@@ -56,6 +56,8 @@ get_rlog_pca <- function(count_data) {
 
 featurecounts.df <- fread(opt$featurecounts)
 
+featurecounts.df <- featurecounts.df %>%
+      rename_with(~str_remove(., '.genome.dedup.sorted.bam')) 
 
 featurecounts.df <- featurecounts.df %>%
       rename_with(~str_remove(., '.Aligned.sortedByCoord.out.bam')) 
