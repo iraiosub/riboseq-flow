@@ -43,9 +43,9 @@ get_rlog_pca <- function(count_data) {
   # PCA using rlog
   rlog <- rlogTransformation(results.dds)
   
-  count_data.pca <- plotPCA(rlog, intgroup = c("sample"), returnData = TRUE)
+  count_data.pca <- plotPCA(rlog, intgroup = c("sample"), returnData = FALSE)
   
-  return(count_data.pca)
+  return(list(plot = count_data.pca, rlog = rlog))
   
 }
 
@@ -57,9 +57,7 @@ get_rlog_pca <- function(count_data) {
 featurecounts.df <- fread(opt$featurecounts)
 
 featurecounts.df <- featurecounts.df %>%
-      rename_with(~str_remove(., '.genome.dedup.sorted.bam')) 
-
-featurecounts.df <- featurecounts.df %>%
+      rename_with(~str_remove(., '.genome.dedup.sorted.bam')) %>%
       rename_with(~str_remove(., '.Aligned.sortedByCoord.out.bam')) 
 
 # If there is only one sample, there is no point in running the analysis
@@ -80,9 +78,7 @@ if (ncol(featurecounts.df) < 3 ) {
     remove_rownames() %>% 
     column_to_rownames(var = "Geneid") 
   
-  featurecounts.pca <- get_rlog_pca(featurecounts.df)
-  
-  featurecounts.pca.gg <- ggplot(featurecounts.pca, aes(x = PC1, y = PC2, label = sample)) +
+  featurecounts.pca.gg <- get_rlog_pca(featurecounts.df)$plot +
     geom_point(aes(color = sample)) +
     ggtitle("Gene-level counts", "FeatureCounts") +
     labs(caption = "*top 500 most variable CDS") +
@@ -90,6 +86,8 @@ if (ncol(featurecounts.df) < 3 ) {
     scale_fill_manual(values = colours) +
     scale_color_manual(values = colours) +
     geom_text(hjust=0, vjust=0.1)
+
+  fwrite(get_rlog_pca(featurecounts.df)$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
   
   
   if (!is.na(opt$cds)) {
@@ -106,16 +104,16 @@ if (ncol(featurecounts.df) < 3 ) {
         column_to_rownames(var = "transcript")  %>%
         dplyr::select(-length_cds)
       
-      cds.pca <- get_rlog_pca(cds_longest.df)
-      
-      cds.pca.gg <- ggplot(cds.pca, aes(x = PC1, y = PC2, label = sample)) +
+      cds.pca.gg <- get_rlog_pca(cds_longest.df)$plot +
         geom_point(aes(color = sample)) +
         ggtitle("Gene-level CDS occupancy", "P-sites") +
         labs(caption = "*top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
-        geom_text(hjust=0, vjust=0.1)
+        geom_text(hjust=0.1, vjust=0.1)
+
+      fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
       
       
       # =========
@@ -130,16 +128,16 @@ if (ncol(featurecounts.df) < 3 ) {
         column_to_rownames(var = "transcript")  %>%
         dplyr::select(-length_selection, -length_cds)
       
-      cds_window.pca <- get_rlog_pca(cds_window_longest.df)
-      
-      cds_window.pca.gg <- ggplot(cds_window.pca, aes(x = PC1, y = PC2, label = sample)) +
+      cds_window.pca.gg <- get_rlog_pca(cds_window_longest.df)$plot +
         geom_point(aes(color = sample)) +
         ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "P-sites") +
         labs(caption = "*top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
-        geom_text(hjust=0, vjust=0.1)
+        geom_text(hjust=0.1, vjust=0.1)
+
+      fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
       
       
       # =========
