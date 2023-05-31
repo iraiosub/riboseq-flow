@@ -375,7 +375,7 @@ frames_stratified.gg <- frames_stratified$plot +
                     by = max(2, floor((max_length - min_length) / 7)))) +
   ggplot2::theme(axis.text.y = ggplot2::element_text(angle = 0))
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 400, height = 12 , width = 10)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 600, height = 24 , width = 18)
 
 
 frames <- frame_psite(filtered_psite.ls, region = "all", length_range = "all")
@@ -385,7 +385,7 @@ frames.gg <- frames$plot +
                  panel.grid.major = ggplot2::element_blank()) +
   ggplot2::theme(axis.text.y = ggplot2::element_text(angle = 0))
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 400, height = 12 , width = 10)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 600, height = 24 , width = 18)
 
 # Plots should show an enrichment of P-sites in the first frame on the coding sequence but not the UTRs, as expected for ribosome protected fragments from protein coding mRNAs.
 
