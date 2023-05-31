@@ -71,7 +71,17 @@ if (ncol(featurecounts.df) < 3 ) {
 } else {
   
   tx_info.df <- fread(opt$transcript_info)
-  colours <- colorRampPalette(c("#E64B35B2", "#4DBBD5B2", "#00A087B2", "#3C5488B2", "#F39B7FB2", "#8491B4B2","#91D1C2B2", "#DC0000B2", "#7E6148B2", "#f47942","#C39BD3","#fbb04e","#AAB7B8"))(ncol(featurecounts.df))
+
+  # If there are more than 12 samples, do not use more than 1 color for plotting
+  if (ncol(featurecounts.df) > 12 ) {
+
+    colours <- colorRampPalette(c("#606060"))(ncol(featurecounts.df))
+  } else {
+
+    colours <- colorRampPalette(c("#E64B35B2", "#4DBBD5B2", "#00A087B2", "#3C5488B2", "#F39B7FB2", "#8491B4B2","#91D1C2B2", "#DC0000B2", "#7E6148B2", "#f47942","#C39BD3","#fbb04e","#AAB7B8"))(ncol(featurecounts.df))
+
+
+  }
   
   
   # Reformat df and PCA of top 500 genes

@@ -180,8 +180,6 @@ data.table::fwrite(annotation.dt,
 # bams <- list.files(bam_dir, pattern = ".transcriptome.dedup.sorted.bam")
 
 bams <- as.list(strsplit(bam_dir, ",")[[1]])
-
-
 name_of_bams <- lapply(bams, function(x) strsplit(basename(x), ".transcriptome.dedup.sorted.bam")[[1]][1])
 
 # In case no UMIs were used
@@ -372,8 +370,7 @@ ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.
 frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", length_range = "all")
 frames_stratified.gg <- frames_stratified$plot +
   ggplot2::scale_y_continuous(limits = c(min_length - 0.5, max_length + 0.5), breaks = seq(min(min_length + ((min_length) %% 2), max_length), max(min_length + ((min_length) %% 2), max_length), 
-                    by = max(2, floor((max_length - min_length) / 7)))) +
-  ggplot2::theme(axis.text.y = ggplot2::element_text(angle = 0))
+                    by = max(2, floor((max_length - min_length) / 7))))
 
 ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 600, height = 24 , width = 18)
 
@@ -382,8 +379,7 @@ frames <- frame_psite(filtered_psite.ls, region = "all", length_range = "all")
 frames.gg <- frames$plot +
   ggplot2::theme(plot.background = ggplot2::element_blank(), 
                  panel.grid.minor = ggplot2::element_blank(),
-                 panel.grid.major = ggplot2::element_blank()) +
-  ggplot2::theme(axis.text.y = ggplot2::element_text(angle = 0))
+                 panel.grid.major = ggplot2::element_blank())
 
 ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 600, height = 24 , width = 18)
 
@@ -397,7 +393,6 @@ metaprofile <- metaprofile_psite(filtered_psite.ls, annotation.dt, sample = name
 
 metaprofiles.gg.ls <- metaprofile[names(metaprofile) != "dt"]
 lapply(names(metaprofiles.gg.ls), save_metaprofile_psite_plot, plots_ls = metaprofiles.gg.ls)
-
 
 # Codon usage
 lapply(names(filtered_psite.ls), plot_codon_usage, psite_info_ls = filtered_psite.ls)
