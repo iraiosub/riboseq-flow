@@ -42,10 +42,11 @@ get_rlog_pca <- function(count_data) {
   
   # PCA using rlog
   rlog <- rlogTransformation(results.dds)
+  rlog.df <- data.frame(assay(rlog))
   
   count_data.pca <- plotPCA(rlog, intgroup = c("sample"), returnData = FALSE)
   
-  return(list(plot = count_data.pca, rlog = rlog))
+  return(list(plot = count_data.pca, rlog = rlog.df))
   
 }
 
