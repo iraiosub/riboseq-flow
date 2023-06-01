@@ -90,7 +90,7 @@ if (ncol(featurecounts.df) < 3 ) {
   
   featurecounts.pca.gg <- get_rlog_pca(featurecounts.df)$plot +
     geom_point(aes(color = sample)) +
-    ggtitle("Gene-level counts", "FeatureCounts") +
+    ggtitle("Gene-level counts (rlog-normalised)", "FeatureCounts") +
     labs(caption = "*top 500 most variable CDS") +
     theme_cowplot() +
     scale_fill_manual(values = colours) +
@@ -118,7 +118,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds.pca.gg <- get_rlog_pca(cds_longest.df)$plot +
         geom_point(aes(color = sample)) +
-        ggtitle("Gene-level CDS occupancy", "P-sites") +
+        ggtitle("Gene-level CDS occupancy (rlog-normalised)", "P-sites") +
         labs(caption = "*top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
@@ -144,7 +144,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds_window.pca.gg <- get_rlog_pca(cds_window_longest.df)$plot +
         geom_point(aes(color = sample)) +
-        ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy", "P-sites") +
+        ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy (rlog-normalised)", "P-sites") +
         labs(caption = "*top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
@@ -171,7 +171,7 @@ if (ncol(featurecounts.df) < 3 ) {
       
     } else {
       
-      ggsave("pca.pdf", featurecounts.pca.gg, dpi = 600, height = 10, width = 12)
+      ggsave("pca.pdf", featurecounts.pca.gg, dpi = 600, height = 10, width = 10)
       
     }
 }
