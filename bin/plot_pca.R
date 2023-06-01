@@ -80,7 +80,6 @@ if (ncol(featurecounts.df) < 3 ) {
 
     colours <- colorRampPalette(c("#E64B35B2", "#4DBBD5B2", "#00A087B2", "#3C5488B2", "#F39B7FB2", "#8491B4B2","#91D1C2B2", "#DC0000B2", "#7E6148B2", "#f47942","#C39BD3","#fbb04e","#AAB7B8"))(ncol(featurecounts.df))
 
-
   }
   
   
@@ -97,7 +96,8 @@ if (ncol(featurecounts.df) < 3 ) {
     scale_fill_manual(values = colours) +
     scale_color_manual(values = colours) +
     # ggrepel::geom_text_repel(aes(label = sample))
-    geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)
+    geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8) +
+    theme(legend.position = "none")
 
   fwrite(get_rlog_pca(featurecounts.df)$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
   
@@ -124,7 +124,8 @@ if (ncol(featurecounts.df) < 3 ) {
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
         # ggrepel::geom_text_repel(aes(label = sample))
-        geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)
+        geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)+
+        theme(legend.position = "none")
 
       fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
       
@@ -149,7 +150,8 @@ if (ncol(featurecounts.df) < 3 ) {
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
        # ggrepel::geom_text_repel(aes(label = sample))
-       geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)
+       geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8) +
+       theme(legend.position = "none")
 
       fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
       
