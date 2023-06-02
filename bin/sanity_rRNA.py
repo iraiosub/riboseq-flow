@@ -2,6 +2,7 @@ import dnaio
 import gzip
 import argparse
 
+
 def break_to_list(sequence, length):
 	list = []
 	i = -1
@@ -13,6 +14,7 @@ def break_to_list(sequence, length):
 
 	return list
 
+
 def main():
 
 	parser = argparse.ArgumentParser()
@@ -22,8 +24,8 @@ def main():
 	parser.add_argument("-l", "--length", type=int, default=14)
 	args = parser.parse_args()
 
-
 	rRNA_list = []
+
 	with open(args.reference) as fasta:
 		for i, line in enumerate(fasta):
 			if i % 2 == 0:
@@ -44,3 +46,7 @@ def main():
 				out_list += [str(record.name), str(record.sequence), "+", str(record.qualities)]
 
 		out.write(('\n'.join(out_list)).encode())
+
+
+if __name__ == "__main__":
+	main()
