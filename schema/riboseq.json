@@ -346,20 +346,32 @@
         },
         {
             "name": "P-sites CDS coverage",
-            "description": "P-site count table for CDS. (Note: coverage for the CDS windows excluding specified regions downstream start and upstream stop codons are also available.)",
-            "filetype": "tsv.gz",
+            "description": "P-site count table for CDS, for all samples. (Note: coverage for the CDS windows excluding specified regions downstream start and upstream stop codons are also available.)",
+            "filetype": "cds_coverage_psite.tsv.gz",
             "process": "IDENTIFY_PSITES"
         },
         {
-            "name": "P-sites and RPF codon coverage",
-            "description": "P-site and RPF codon coverage.",
-            "filetype": "tsv.gz",
+            "name": "P-sites codon coverage",
+            "description": "P-site codon coverage, for all samples.",
+            "filetype": "codon_coverage_psite.tsv.gz",
+            "process": "IDENTIFY_PSITES"
+        },
+        {
+            "name": "Rbosome footprints codon coverage",
+            "description": "Rbosome footprints codon coverage, for all samples.",
+            "filetype": "codon_coverage_rpf.tsv.gz",
             "process": "IDENTIFY_PSITES"
         },
         {
             "name": "P-site offsets",
-            "description": "P-site offsets for each analysed read length.",
-            "filetype": "tsv.gz",
+            "description": "P-site offsets for each analysed read length, for all samples.",
+            "filetype": "psite_offset.tsv.gz",
+            "process": "IDENTIFY_PSITES"
+        },
+        {
+            "name": "P-site information",
+            "description": "Per-sample TSV file with P-site information for each read.",
+            "filetype": ".psite.tsv.gz",
             "process": "IDENTIFY_PSITES"
         },
         {
