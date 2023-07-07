@@ -1,0 +1,54 @@
+{
+    "inputs": {
+        "file_options": {
+            "name": "File options",
+            "description": "Files needed to build the genome.",
+            "properties": {
+                "fasta": {
+                    "name": "Genome FASTA",
+                    "type": "file",
+                    "pattern": "fasta|fa$",
+                    "genome_file": "fasta",
+                    "required": true,
+                    "description": "A raw genome FASTA file."
+                },
+                "gtf": {
+                    "name": "GTF",
+                    "type": "file",
+                    "pattern": "gtf",
+                    "genome_file": "gtf",
+                    "required": true,
+                    "description": "An annotation for the genome."
+                },
+                "smallrna_fasta": {
+                    "name": "small RNA FASTA",
+                    "type": "file",
+                    "pattern": "fasta|fa$",
+                    "required": true,
+                    "genome_file": "fasta|fa$",
+                    "description": "FASTA file to be mapped to before the genome file, containing rRNA, tRNA sequences, snRNAs and other contaminant sequences."
+                }
+            }
+        }
+    },
+    "outputs": [
+        {
+            "name": "Transcripts Info",
+            "description": "A TSV file containing a representative, longest CDS transcript for each gene, with information on UTRs and CDS lengths.",
+            "process": "GET_TRANSCRIPT_INFO",
+            "filetype": "tsv"
+        },
+        {
+            "name": "Bowtie2 Index",
+            "description": "A small RNA genome index which bowtie2 can align reads to.",
+            "process": "GENERATE_BOWTIE_INDEX",
+            "filetype": ""
+        },
+        {
+            "name": "STAR Index",
+            "description": "A genome index which STAR can align reads to.",
+            "process": "GENERATE_GENOME_STAR_INDEX",
+            "filetype": ""
+        }
+    ]
+}
