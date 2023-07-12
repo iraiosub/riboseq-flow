@@ -4,7 +4,8 @@
 nextflow.enable.dsl=2
 
 include { GENERATE_BOWTIE_INDEX } from '../modules/local/reference.nf'
-include { GENERATE_GENOME_STAR_INDEX } from '../modules/local/reference.nf'
+include { STAR_GENOMEGENERATE } from '../modules/nf-core/star/genomegenerate/main'
+// include { GENERATE_GENOME_STAR_INDEX } from '../modules/local/reference.nf'
 
             
 workflow GENERATE_REFERENCE_INDEX {
@@ -33,8 +34,8 @@ workflow GENERATE_REFERENCE_INDEX {
 
     if (!params.star_index) {
 
-        GENERATE_GENOME_STAR_INDEX(genome_fasta, genome_gtf)
-        genome_star_index = GENERATE_GENOME_STAR_INDEX.out.star_index
+        STAR_GENOMEGENERATE(genome_fasta, genome_gtf)
+        genome_star_index = STAR_GENOMEGENERATE.out.index
 
     } else {
 

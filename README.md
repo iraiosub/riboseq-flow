@@ -5,7 +5,7 @@
 1. [Introduction](#introduction)
 2. [Pipeline summary](#pipeline-summary)
 3. [Quick start (test the pipeline)](#quick-start-testing)
-4. [Quick start (run the pipeline)](#quick-start-running)
+4. [Quick start (run the pipeline on your data)](#quick-start-running)
 5. [Pipeline parameters](#pipeline-parameters)
 6. [Pipeline outputs](#pipeline-outputs)
 7. [Authors and contact](#authors-contact)
