@@ -8,11 +8,11 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-include { GUNZIP as GUNZIP_FASTA } from '../modules/nf-core/gunzip/main.nf'
-include { GUNZIP as GUNZIP_GTF } from '../modules/nf-core/gunzip/main.nf'
-include { GUNZIP as GUNZIP_SMALLRNA_FASTA } from '../modules/nf-core/gunzip/main.nf'
+include { GUNZIP as GUNZIP_FASTA } from '../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_GTF } from '../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_SMALLRNA_FASTA } from '../modules/nf-core/gunzip/main'
 include { GENERATE_REFERENCE_INDEX } from '../subworkflows/generate_index.nf'
-include { GET_TRANSCRIPT_INFO } from '../modules/local/reference.nf'
+include { GET_TRANSCRIPT_INFO } from '../modules/local/transcript_info.nf'
 
 
 workflow PREPARE_RIBOSEQ_REFERENCE {
