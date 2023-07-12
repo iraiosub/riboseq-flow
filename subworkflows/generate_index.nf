@@ -22,7 +22,7 @@ workflow GENERATE_REFERENCE_INDEX {
 
     if(!params.skip_premap) {
 
-        GENERATE_BOWTIE_INDEX(smallrna_fasta)
+        GENERATE_BOWTIE_INDEX(smallrna_fasta.map{ it[1] })
         smallrna_bowtie2_index = GENERATE_BOWTIE_INDEX.out.smallrna_index
         
     } else {
@@ -34,7 +34,7 @@ workflow GENERATE_REFERENCE_INDEX {
 
     if (!params.star_index) {
 
-        STAR_GENOMEGENERATE(genome_fasta, genome_gtf)
+        STAR_GENOMEGENERATE(genome_fasta.map{ it[1] }, genome_gtf.map{ it[1] })
         genome_star_index = STAR_GENOMEGENERATE.out.index
 
     } else {

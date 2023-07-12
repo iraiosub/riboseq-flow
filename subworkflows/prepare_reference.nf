@@ -25,32 +25,35 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     main:
 
     // Prepare annotation: unzip annotation and genome files if necessary
+    ch_genome_fasta = Channel.empty()
     if (genome_fasta.toString().endsWith('.gz')) {
         ch_genome_fasta = GUNZIP_FASTA ( [ [:], genome_fasta ] ).gunzip
     } else {
-        ch_genome_fasta = genome_fasta
+        ch_genome_fasta = Channel.from( [ [ [:], genome_fasta ] ] )
     }
 
 
+    ch_genome_gtf = Channel.empty()
     if (genome_gtf.toString().endsWith('.gz')) {
         ch_genome_gtf = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip
     } else {
 
-        ch_genome_gtf = genome_gtf
+        ch_genome_gtf = gChannel.from( [ [ [:], genome_gtf ] ] )
     }
 
+    ch_smallrna_fasta = Channel.empty()
     if (!params.skip_premap && smallrna_fasta.toString().endsWith('.gz')) {
         ch_smallrna_fasta = GUNZIP_SMALLRNA_FASTA ( [ [:], smallrna_fasta ] ).gunzip
     } else {
         // ch_smallrna_fasta = file(params.smallrna_fasta)
-        ch_smallrna_fasta = smallrna_fasta
+        ch_smallrna_fasta = Channel.from( [ [ [:], smallrna_fasta ] ] )
     }
 
     // Prepare annotation: create index for alignment
     GENERATE_REFERENCE_INDEX(ch_smallrna_fasta, ch_genome_fasta, ch_genome_gtf)
 
     if (!params.skip_qc) {
-        GET_TRANSCRIPT_INFO(ch_genome_gtf)
+        GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] })
     }
 
     emit:
