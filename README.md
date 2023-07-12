@@ -37,7 +37,7 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 
 1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system.
 
-**Note:** The pipeline has so far been tested on the Crick HPC (NEMO) with `Nextflow` version `21.10.3`. `Singularity` version `3.6.4` is required for the time being to run the pipeline.
+**Note:** The pipeline has been tested on with `Nextflow` versions `21.10.3`, `22.10.3` and `23.04.2`. `Singularity` version `3.6.4` is required for the time being to run the pipeline.
 
 2. Pull the desired version of the pipeline from the GitHub repository:
 
@@ -56,7 +56,7 @@ nextflow run iraiosub/riboseq -r main -profile test,singularity,crick
 **Note:** An example script for running the test is provided [`run.sh`](https://github.com/iraiosub/riboseq/blob/main/run.sh).
 
 
-## Quick start (run the pipeline)
+## Quick start (run the pipeline on your data)
 
 1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system
 2. Pull the main version of the pipeline from the GitHub repository:
@@ -176,7 +176,7 @@ Additionally, the user can specify the following options:
 - `exclude_start` specifies the number of nucleotides 3' from the start codon to be excluded from CDS P-site quantification (default `42`, i.e. exclude the first 14 codons)
 - `exclude_stop` specifies the number of nucleotides 5' from the stop codon to be excluded from CDS P-site quantification (default `27`, i.e. exclude the last 9 codons)
 
-P-sites and information are identified and reported using transcriptomic coordinates. For the analyses, a representative transcript is selected for each gene. The selection is based on the following hierarchy: CDS length > total length > number of exons > 3'UTR length > 5'UTR length.
+P-sites and information are identified and reported using transcriptomic coordinates. For the analyses, a representative transcript is selected for each gene. The selection is based on the following hierarchy: CDS length > total length > number of exons > 5'UTR length > 3'UTR length.
 The selection is performed automatically by the pipeline using the information in the provided GTF file, and stored in `*.longest_cds.transcript_info.tsv`
 
 

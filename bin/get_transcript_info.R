@@ -59,7 +59,7 @@ longest.pc.dt <- gtf.dt[gene_type %in% pc & transcript_type %in% pc, longest := 
 longest.pc.dt <- longest.pc.dt[gene_type %in% pc & transcript_type %in% pc & cds_len == longest] # selects longest
 
 # hierarchy
-longest.pc.dt <- longest.pc.dt %>% arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr3_len), desc(utr5_len))
+longest.pc.dt <- longest.pc.dt %>% arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr5_len), desc(utr3_len))
 
 unique.longest.pc.dt <- longest.pc.dt[!duplicated(longest.pc.dt$gene_id), ] 
 
