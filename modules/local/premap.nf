@@ -20,7 +20,7 @@ process PREMAP {
 
     input:
     tuple val(sample_id), path(reads)
-    path(smallrna_index)
+    tuple val(meta), path(smallrna_index)
     
 
     output:
@@ -35,6 +35,7 @@ process PREMAP {
 
     
     """
+
     bowtie2 $args \
         -U $reads \
         -p ${task.cpus} \

@@ -17,7 +17,6 @@ workflow GENERATE_REFERENCE_INDEX {
     main:
     
     // Generate small RNA index
-
     if(!params.skip_premap) {
 
         BOWTIE2_BUILD(smallrna_fasta)

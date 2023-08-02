@@ -38,7 +38,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
         ch_genome_gtf = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip
     } else {
 
-        ch_genome_gtf = gChannel.from( [ [ [:], genome_gtf ] ] )
+        ch_genome_gtf = Channel.from( [ [ [:], genome_gtf ] ] )
     }
 
     ch_smallrna_fasta = Channel.empty()
