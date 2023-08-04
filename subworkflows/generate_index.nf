@@ -3,7 +3,7 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-include { BOWTIE2_BUILD } from '${workflow.projectDir}/modules/nf-core/bowtie2/build/main'
+include { BOWTIE2_BUILD } from '/${workflow.projectDir}/modules/nf-core/bowtie2/build/main'
 include { STAR_GENOMEGENERATE } from '../modules/nf-core/star/genomegenerate/main'
             
 workflow GENERATE_REFERENCE_INDEX {
