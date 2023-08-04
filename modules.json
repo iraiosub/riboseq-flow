@@ -10,8 +10,7 @@
                         "git_sha": "6a24fbe314bb2e6fe6306c29a63076ea87e8eb3c",
                         "installed_by": [
                             "modules"
-                        ],
-                        "patch": "modules/nf-core/bowtie2/build/bowtie2-build.diff"
+                        ]
                     },
                     "fastqc": {
                         "branch": "master",
