@@ -138,10 +138,8 @@ data/
 results/
 results*
 res_nf/
+res_nf*
 
 # Local test
 local_test.sh
 slurm-*
-res_nf/ribocutter/ribocutter.pdf
-res_nf/ribocutter/test_data.csv
-res_nf/ribocutter/test_data.min23.csv

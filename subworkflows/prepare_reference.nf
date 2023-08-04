@@ -61,6 +61,8 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     smallrna_bowtie2_index = GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index
     genome_star_index = GENERATE_REFERENCE_INDEX.out.genome_star_index
     transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
-
+    genome_gtf = ch_genome_gtf
+    genome_fasta = ch_genome_fasta
+    smallrna_fasta = ch_smallrna_fasta
 
 }

@@ -19,7 +19,6 @@ if (!params.input) {
 }
 
 
-
 // Check if genome exists in the config file
 if (params.org  && !params.genomes.containsKey(params.org)) {
     exit 1, "The provided genome '${params.org}' is not available. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
@@ -45,14 +44,9 @@ if(params.org) {
 }
 
 
-// Create channels for static files
-// ch_genome_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
-
-// ch_genome_gtf = Channel.fromPath(params.gtf, checkIfExists: true)
-
-ch_genome_fasta       = file(params.fasta, checkIfExists: true)
+ch_genome_fasta = file(params.fasta, checkIfExists: true)
 ch_smallrna_fasta = file(params.smallrna_fasta, checkIfExists: true)
-ch_genome_gtf         = file(params.gtf, checkIfExists: true)
+ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
 // if (!params.skip_premap) {
 //     ch_smallrna_fasta = Channel.fromPath(params.smallrna_fasta, checkIfExists: true)
@@ -214,18 +208,18 @@ workflow RIBOSEQ {
     if (params.with_umi) {
         GET_GENE_LEVEL_COUNTS(
             DEDUPLICATE.out.dedup_genome_bam,
-            ch_genome_gtf.collect()
+            PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }
         )
 
-        GET_COVERAGE_TRACKS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_fasta.collect())
+        GET_COVERAGE_TRACKS(DEDUPLICATE.out.dedup_genome_bam)
     
     } else {
         GET_GENE_LEVEL_COUNTS(
             MAP.out.genome_bam,
-            ch_genome_gtf.collect()
+            PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }
         )
 
-        GET_COVERAGE_TRACKS(MAP.out.genome_bam, ch_genome_fasta.collect())
+        GET_COVERAGE_TRACKS(MAP.out.genome_bam)
 
     }
 
@@ -235,8 +229,8 @@ workflow RIBOSEQ {
          if (params.with_umi) {
             IDENTIFY_PSITES(
                 DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(),
-                ch_genome_gtf.collect(),
-                ch_genome_fasta.collect(),
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] },
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_fasta.map{ it[1] },
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
         
@@ -244,8 +238,8 @@ workflow RIBOSEQ {
             
             IDENTIFY_PSITES(
                 MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(),
-                ch_genome_gtf.collect(),
-                ch_genome_fasta.collect(),
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] },
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_fasta.map{ it[1] },
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
@@ -272,12 +266,25 @@ workflow RIBOSEQ {
             )
     }
 
+
     // Run MULTIQC
-    ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
-        .map { [ it[1], it[2] ] }
-        .collect()
-        .mix(PREMAP.out.log.collect(), MAP.out.log.collect())
-        .collect()
+    if (!params.skip_premap) {
+   
+        ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
+            .map { [ it[1], it[2] ] }
+            .collect()
+            .mix(PREMAP.out.log.collect(), MAP.out.log.collect())
+            .collect()
+    } else {
+
+        ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
+            .map { [ it[1], it[2] ] }
+            .collect()
+            .mix(MAP.out.log.collect())
+            .collect()
+
+
+    }
     
     MULTIQC(ch_logs)
 
