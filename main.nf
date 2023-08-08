@@ -49,15 +49,6 @@ ch_genome_fasta = file(params.fasta, checkIfExists: true)
 ch_smallrna_fasta = file(params.smallrna_fasta, checkIfExists: true)
 ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
-// if (!params.skip_premap) {
-//     ch_smallrna_fasta = Channel.fromPath(params.smallrna_fasta, checkIfExists: true)
-//     // if (ch_smallrna_fasta.isEmpty()) {exit 1, "File provided with --smallrna_fasta is empty: ${ch_smallrna_fasta.getName()}!"}
-// } else {
-
-//     // Create empty channel so GENERATE_REFERENCE_INDEX doesn't break
-//     ch_smallrna_fasta = Channel.empty()
-// }
-
 /* 
 SUBWORKFLOWS
 */
