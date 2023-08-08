@@ -28,9 +28,9 @@ process MULTIQC {
 
     script:
 
-    // config_file = "--config ${params.multiqc_config}"
+    config_file = "--config ${params.multiqc_config}"
 
     """
-    multiqc -f .
+    multiqc -f $config_file .
     """
 }
