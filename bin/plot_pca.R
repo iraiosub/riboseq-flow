@@ -164,9 +164,10 @@ if (ncol(featurecounts.df) < 3 ) {
       # =========
       
       pca.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, nrow = 3)
-      
       ggsave("pca.pdf", pca.gg, dpi = 600, height = 30, width = 12)
-      ggsave("pca_mqc.png", pca.gg, dpi = 600, height = 7.5, width = 3)
+
+      pca_mqc.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, ncol = 3)
+      ggsave("pca_mqc.png", pca_mqc.gg, dpi = 600, height = 5, width = 18)
       
       # save longest CDS tables
       # fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
@@ -176,7 +177,7 @@ if (ncol(featurecounts.df) < 3 ) {
     } else {
       
       ggsave("pca.pdf", featurecounts.pca.gg, dpi = 600, height = 10, width = 10)
-      gsave("pca_mqc.png", pca.gg, dpi = 600, height = 2.5, width = 3)
+      gsave("pca_mqc.png", pca.gg, dpi = 600, height = 5, width = 6)
       
     }
 }
