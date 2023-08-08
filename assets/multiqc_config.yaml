@@ -5,18 +5,13 @@ report_comment: >
 
 data_format: 'yaml'
 
-pca:
-        parent_id: PCA
-        parent_name: 'PCA'
-        file_format: 'png'
-        section_name: ''
-        description: 'PCA on RPF counts from FeatureCounts and P-site counts on CDS'
-        pconfig:
-            id: 'pca'
+custom_data:
+  pca:
+    section_name: 'PCA Analysis'
+    description: 'This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS'
 
 sp:
-    
-    pca:
-        fn: 'pca_mqc.png'
+  pca:
+  fn: 'pca_mqc.png'
 
 export_plots: false
