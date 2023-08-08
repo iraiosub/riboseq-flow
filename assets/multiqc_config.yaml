@@ -5,7 +5,7 @@ report_comment: >
 
 data_format: 'yaml'
 
-regions:
+pca:
         parent_id: PCA
         parent_name: 'PCA'
         file_format: 'png'
