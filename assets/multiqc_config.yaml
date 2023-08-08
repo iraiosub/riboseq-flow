@@ -1,12 +1,7 @@
 custom_data:
-  module_order:
-    - pca:
-      name: "PCA"
-
   pca:
     section_name: 'PCA Analysis'
     description: 'This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS.'
-
 sp:
   pca:
     fn: 'pca_mqc.png'
