@@ -1,10 +1,17 @@
 custom_data:
-  pca:
+  PCA:
     section_name: 'PCA Analysis'
     description: 'This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS.'
+  ribo_summary:
+    section_name: 'Ribo-seq QC Summary'
+    description: 'This plot shows the summary of key features of Ribo-seq data, such as proportion of useful reads, reads of expected length, and duplication percentage.'
+
+
 sp:
-  pca:
+  PCA:
     fn: 'pca_mqc.png'
+  ribo_summary:
+    fn: 'qc_summary_mqc.png'
 
 ignore_images: false
 export_plots: false

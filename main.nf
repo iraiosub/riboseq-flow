@@ -101,6 +101,13 @@ workflow RIBOSEQ {
     PREPROCESS_READS(ch_input)
     FASTQC(PREPROCESS_READS.out.fastq)
 
+    // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)
+    if (!params.skip_ribocutter) {
+        RUN_RIBOCUTTER(
+            PREPROCESS_READS.out.trimmed_fastq
+            )
+    }
+
     
     // Align reads
     if (!params.skip_premap) {
@@ -274,27 +281,20 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(PREMAP.out.log.collect(), MAP.out.log.collect(), PCA.out.pca_mqc)
+            .mix(PREMAP.out.log.collect(), MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.mqc_plot)
             .collect()
     } else {
 
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(MAP.out.log.collect(), PCA.out.pca_mqc)
+            .mix(MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.mqc_plot)
             .collect()
 
 
     }
     
     MULTIQC(ch_logs)
-
-    // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)
-    if (!params.skip_ribocutter) {
-        RUN_RIBOCUTTER(
-            PREPROCESS_READS.out.trimmed_fastq
-            )
-    }
     
 }
 

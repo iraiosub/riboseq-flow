@@ -93,7 +93,7 @@ if (ncol(featurecounts.df) < 3 ) {
   
   featurecounts.pca.gg <- get_rlog_pca(featurecounts.df)$plot +
     geom_point(aes(color = sample)) +
-    ggtitle("Gene-level counts (rlog-normalised)", "FeatureCounts") +
+    ggtitle("Gene-level counts", "FeatureCounts (rlog-normalised counts)") +
     labs(caption = "*top 500 most variable genes") +
     theme_cowplot() +
     scale_fill_manual(values = colours) +

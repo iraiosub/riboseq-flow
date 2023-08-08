@@ -74,3 +74,4 @@ if (length(unique(full_summary.df$name)) >= 3) {
 }
 
 ggsave("qc_summary.pdf", dpi = 300, height = 12, width = plot.width)
+ggsave("qc_summary_mqc.png", dpi = 300, height = 12, width = plot.width)

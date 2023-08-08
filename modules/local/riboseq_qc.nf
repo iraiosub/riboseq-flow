@@ -48,7 +48,8 @@ process SUMMARISE_RIBOSEQ_QC {
     
     output:
         path("qc_summary.tsv.gz"), emit: qc_summary
-        path("qc_summary.pdf"), emit: plots
+        path("qc_summary.pdf"), emit: plot
+        path("qc_summary_mqc.png"), emit: mqc_plot
 
     script:
 
