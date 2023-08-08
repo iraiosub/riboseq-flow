@@ -34,6 +34,7 @@ if(params.org) {
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
+    params.transcript_info = params.genomes[ params.org ].transcript_info
 
 }  else {
 
@@ -273,14 +274,14 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(PREMAP.out.log.collect(), MAP.out.log.collect())
+            .mix(PREMAP.out.log.collect(), MAP.out.log.collect(), PCA.out.pca_mqc)
             .collect()
     } else {
 
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(MAP.out.log.collect())
+            .mix(MAP.out.log.collect(), PCA.out.pca_mqc)
             .collect()
 
 

@@ -52,17 +52,21 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     // Prepare annotation: create index for alignment
     GENERATE_REFERENCE_INDEX(ch_smallrna_fasta, ch_genome_fasta, ch_genome_gtf)
 
-    if (!params.skip_qc) {
+    if (!params.transcript_info) {
         GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] })
+        ch_transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
+    } else {
+
+        ch_transcript_info = Channel.fromPath(params.transcript_info, checkIfExists: true)
     }
 
     emit:
 
     smallrna_bowtie2_index = GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index
     genome_star_index = GENERATE_REFERENCE_INDEX.out.genome_star_index
-    transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
     genome_gtf = ch_genome_gtf
     genome_fasta = ch_genome_fasta
     smallrna_fasta = ch_smallrna_fasta
+    transcript_info = ch_transcript_info
 
 }

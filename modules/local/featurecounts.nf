@@ -93,7 +93,7 @@ process PCA {
 
     output:
     path("pca.pdf"), emit: pca, optional: true
-    path("pca_mqc.png"), emit: pca_mqc, optional: true
+    path("pca_mqc.png"), emit: pca_mqc
     path("longest_cds_coverage_psite.tsv.gz"), emit: longest_cds_counts, optional: true
     path("*nt_coverage_psite.tsv.gz"),  emit: longest_cds_window_counts, optional: true
     path("*rlog.tsv.gz"), emit: rlog, optional: true

@@ -55,6 +55,9 @@ get_rlog_pca <- function(count_data) {
 # RPF gene-level counts from FeatureCounts
 # =========
 
+# Create empty file if plot cannot be made 
+file.create("pca_mqc.png")
+
 featurecounts.df <- fread(opt$featurecounts)
 
 featurecounts.df <- featurecounts.df %>%
