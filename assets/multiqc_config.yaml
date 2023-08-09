@@ -3,16 +3,64 @@ custom_data:
   ribocutter:
     file_format: "tsv"
     section_name: "Ribocutter"
-    description: "Percentage of reads targeted by 50 guides with Ribocutter using two different read length thresholds. The higher, the better."
+    description: "Percentage of reads targeted by 50 guides with Ribocutter using two different read length thresholds. The higher the proportion targeted, the better."
     plot_type: "bargraph"
     pconfig:
       id: "ribocutter_barplot"
       title: "Ribocutter: proportion of reads targeted by 50 guides"
-      ylab: "Percentage reads targeted"
+      ylab: "Percentage reads targeted (%)"
       xmax: 100
       xmin: 0
       cpswitch: False
       stacking: null
+  pcoding_percentage:
+    parent_id: riboseq_qc
+    parent_name: "Ribo-seq QC"
+    parent_description: "This parent section contains one or more sub-sections below it"
+    file_format: "tsv"
+    section_name: "Protein-coding Genes Mapping Percentage"
+    description: "Percentage of reads mapping to protein-coding transcripts. For each gene, a single representative transcript was used (by default, the one with the longest CDS was used). The higher the percentage, the better."
+    plot_type: "bargraph"
+    pconfig:
+      id: "pcoding_percentage_barplot"
+      title: "Reads mapping to protein-coding transcripts"
+      ylab: "Percentage (%)"
+      xmax: 100
+      xmin: 0
+      cpswitch: False
+      stacking: null
+      tt_percentages: False
+  expected_length:
+    parent_id: riboseq_qc
+    parent_name: "Ribo-seq QC"
+    parent_description: "This parent section contains one or more sub-sections below it"
+    file_format: "tsv"
+    section_name: "Expected Read Length Percentage"
+    description: "Percentage of uniquely mapping reads of expected footprint length. The higher the percentage, the better."
+    plot_type: "bargraph"
+    pconfig:
+      id: "expected_length_barplot"
+      title: "Reads of expected length"
+      ylab: "Percentage (%)"
+      xmax: 100
+      xmin: 0
+      cpswitch: False
+      stacking: null
+      tt_percentages: False
+  duplication:
+    file_format: "tsv"
+    section_name: "Duplication"
+    description: "Percentage of duplicated reads based on UMIs."
+    plot_type: "bargraph"
+    pconfig:
+      id: "duplication_barplot"
+      title: "Duplication"
+      ylab: "Percentage (%)"
+      xmax: 100
+      xmin: 0
+      cpswitch: False
+      stacking: null
+      tt_percentages: False
   pca:
     section_name: "PCA Analysis"
     description: "This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS."
@@ -21,6 +69,12 @@ sp:
     fn: "ribocutter_mqc.tsv"
   pca:
     fn: "pca_mqc.png"
+  pcoding_percentage:
+    fn: "pcoding_percentage_mqc.tsv"
+  expected_length:
+    fn: "expected_length_mqc.tsv"
+  duplication:
+    fn: "duplication_mqc.tsv"
 
 
 export_plots: false

@@ -62,9 +62,9 @@ use <- ggplot(full_summary.df, aes(x = name, y = y)) +
 use + exp + dup + 
   plot_layout(nrow = 3)
 
-fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
+# fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
 
-# Set dimensions for plot
+# Set dimensions for plot based on the number of samples
 if (length(unique(full_summary.df$name)) >= 3) {
 
   plot.width <- length(unique(full_summary.df$name))
@@ -74,4 +74,24 @@ if (length(unique(full_summary.df$name)) >= 3) {
 }
 
 ggsave("qc_summary.pdf", dpi = 300, height = 12, width = plot.width)
-ggsave("qc_summary_mqc.png", dpi = 300, height = 12, width = plot.width)
+# ggsave("qc_summary_mqc.png", dpi = 300, height = 12, width = plot.width)
+
+# MultiQC tsv preparation
+pcoding_percentage_mqc.df <- full_summary.df %>%
+  dplyr::select(name, y) %>%
+  dplyr::rename(sample = name, pcoding_percentage = y)
+
+fwrite(pcoding_percentage_mqc.df, "pcoding_percentage_mqc.tsv", row.names = FALSE, sep = "\t")
+
+expected_length_mqc.df <- full_summary.df %>%
+  dplyr::select(name, percent_expected_length) %>%
+  dplyr::rename(sample = name, expected_length_percentage = percent_expected_length)
+
+fwrite(expected_length_mqc.df, "expected_length_mqc.tsv", row.names = FALSE, sep = "\t")
+
+duplication_mqc.df <- full_summary.df %>%
+  dplyr::select(name, duplication) %>%
+  dplyr::rename(sample = name)
+
+fwrite(duplication_mqc.df, "duplication_mqc.tsv", row.names = FALSE, sep = "\t")
+

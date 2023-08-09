@@ -47,9 +47,10 @@ process SUMMARISE_RIBOSEQ_QC {
         path(qc_tables)
     
     output:
-        path("qc_summary.tsv.gz"), emit: qc_summary
         path("qc_summary.pdf"), emit: plot
-        path("qc_summary_mqc.png"), emit: mqc_plot
+        path("pcoding_percentage_mqc.tsv"), emit: pcoding_percentage_mqc
+        path("expected_length_mqc.tsv"), emit: expected_length_mqc
+        path("duplication_mqc.tsv"), emit: duplication_mqc
 
     script:
 
