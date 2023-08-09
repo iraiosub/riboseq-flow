@@ -54,6 +54,7 @@ ggsave("ribocutter.pdf", ribocutter.gg, dpi = 300)
 # Reformat for MultiQC report plotting 
 ribocutter_mqc.df <- ribocutter.df %>%
   distinct(name, min_length, total_library_fraction_targeted) %>%
+  mutate(min_length = paste0(min_length, " nt")) %>%
   pivot_wider(names_from = min_length, values_from = total_library_fraction_targeted) %>%
   dplyr::rename(sample = name)
 

@@ -3,17 +3,19 @@ custom_data:
   ribocutter:
     file_format: "tsv"
     section_name: "Ribocutter"
-    description: "This plot comes from files acommpanied by a mutliqc_config.yaml file for configuration"
+    description: "Percentage of reads targeted by 50 guides with Ribocutter using two different read length thresholds. The higher, the better."
     plot_type: "bargraph"
     pconfig:
       id: "ribocutter_barplot"
-      title: "Ribocutter"
+      title: "Ribocutter: proportion of reads targeted by 50 guides"
       ylab: "Percentage reads targeted"
-      ymax: 100
-      ymin: 0
-    pca:
-      section_name: "PCA Analysis"
-      description: "This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS."
+      xmax: 100
+      xmin: 0
+      cpswitch: False
+      stacking: null
+  pca:
+    section_name: "PCA Analysis"
+    description: "This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS."
 sp:
   ribocutter:
     fn: "ribocutter_mqc.tsv"
