@@ -272,14 +272,14 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(PREMAP.out.log.collect(), MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.mqc_plot)
+            .mix(PREMAP.out.log.collect(), MAP.out.log.collect(), PCA.out.pca_mqc, RUN_RIBOCUTTER.out.ribocutter_mqc)
             .collect()
     } else {
 
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.mqc_plot)
+            .mix(MAP.out.log.collect(), PCA.out.pca_mqc, RUN_RIBOCUTTER.out.ribocutter_mqc)
             .collect()
 
 

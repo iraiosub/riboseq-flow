@@ -1,17 +1,24 @@
+# Other MultiQC config stuff here
 custom_data:
-  pca:
-    section_name: 'PCA Analysis'
-    description: 'This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS.'
-  ribo_summary:
-    section_name: 'Ribo-seq QC Summary'
-    description: 'This plot shows the summary of key features of Ribo-seq data, such as proportion of useful reads, reads of expected length, and duplication percentage.'
-
-
+  ribocutter:
+    file_format: "tsv"
+    section_name: "Ribocutter"
+    description: "This plot comes from files acommpanied by a mutliqc_config.yaml file for configuration"
+    plot_type: "bargraph"
+    pconfig:
+      id: "ribocutter_barplot"
+      title: "Ribocutter"
+      ylab: "Percentage reads targeted"
+      ymax: 100
+      ymin: 0
+    pca:
+      section_name: "PCA Analysis"
+      description: "This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS."
 sp:
+  ribocutter:
+    fn: "ribocutter_mqc.tsv"
   pca:
-    fn: 'pca_mqc.png'
-  ribo_summary:
-    fn: 'qc_summary_mqc.png'
+    fn: "pca_mqc.png"
 
-ignore_images: false
+
 export_plots: false
