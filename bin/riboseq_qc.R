@@ -116,14 +116,24 @@ original_fq <- read_csv(opt$before_dedup) %>%
 before_dedup <- read_csv(opt$before_dedup) %>%
   dplyr::select(length, before_dedup_bam = n_bam)
 
-
+# Plot length distribution in the trimmed fastq
 length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
   geom_bar(stat="identity") +
   xlim(0,70) +
   # ggpubr::theme_pubr() +
   theme_classic() +
-  ylab("N reads in original fastq") +
+  ylab("N reads in fastq") +
   ggtitle("Read length distribution")  
+
+# Reformat length dataframe to export for MultiQC
+fq_length_mqc.df <- original_fq %>%
+  mutate(sample = actual_name) %>%
+  dplyr::rename(number_of_reads = original_n) %>%
+  dplyr::select(sample, length, number_of_reads) %>%
+  # mutate(length = paste0(length, " nt")) %>%
+  pivot_wider(names_from = length, values_from = number_of_reads)
+
+fwrite(fq_length_mqc.df, paste0(actual_name, "_fq_length_mqc.tsv"), sep = "\t", row.names = FALSE)
 
 
 # =========
@@ -205,6 +215,8 @@ if (basename(opt$after_premap) != "optional.txt") {
 # Duplication
 # =========
 
+
+# If UMIs were used, calculate the proprtion of duplicated reads within the expected RPF length range
 # if (!is.null(opt$after_dedup)) {
 if(basename(opt$after_dedup) != "optional.txt") {
 
