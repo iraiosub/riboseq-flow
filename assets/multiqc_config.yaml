@@ -10,6 +10,7 @@ custom_data:
       title: "Read Length Distribution"
       xlab: Length (nt)
       ylab: Frequency
+      yDecimals: False
   ribocutter:
     file_format: "tsv"
     section_name: "Ribocutter"
@@ -40,13 +41,14 @@ custom_data:
       cpswitch: False
       stacking: null
       tt_percentages: False
+      use_legend: False
   expected_length:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
     parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Expected Read Length Percentage"
-    description: "Percentage of uniquely mapping reads of expected RPF length. The higher the percentage, the better."
+    description: "Percentage of uniquely mapping reads of expected RPF length. The higher the percentage, the better. Unless specified, the expected read length range is between 26 and 32 nt."
     plot_type: "bargraph"
     pconfig:
       id: "expected_length_barplot"
@@ -57,14 +59,16 @@ custom_data:
       cpswitch: False
       stacking: null
       tt_percentages: False
+      use_legend: False
   duplication:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
     parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Duplication"
-    description: "Percentage of duplicated reads of expected RPF length based on UMIs."
+    description: "Percentage of duplicated reads of expected RPF length based on UMIs. Unless specified, the expected read length range is between 26 and 32 nt."
     plot_type: "bargraph"
+    use_legend: False
     pconfig:
       id: "duplication_barplot"
       title: "Duplication"
