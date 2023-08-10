@@ -133,7 +133,9 @@ fq_length_mqc.df <- original_fq %>%
   # mutate(length = paste0(length, " nt")) %>%
   pivot_wider(names_from = length, values_from = number_of_reads)
 
-fwrite(fq_length_mqc.df, paste0(actual_name, "_fq_length_mqc.tsv"), sep = "\t", row.names = FALSE)
+
+# append = T so we can skip merging of all tables for all samples
+fwrite(fq_length_mqc.df, "fq_length_mqc.tsv", sep = "\t", row.names = FALSE)
 
 
 # =========
