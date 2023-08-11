@@ -135,7 +135,7 @@ fq_length_mqc.df <- original_fq %>%
 
 
 # append = T so we can skip merging of all tables for all samples
-fwrite(fq_length_mqc.df, "fq_length_mqc.tsv", sep = "\t", row.names = FALSE)
+fwrite(fq_length_mqc.df, "fq_length_mqc.tsv", sep = "\t", row.names = FALSE, append = TRUE)
 
 
 # =========

@@ -8,7 +8,8 @@ suppressPackageStartupMessages(library(patchwork))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(optparse))
 
-option_list <- list(make_option(c("-i", "--input_list"), action = "store", type = "character", default=NA, help = "list of comma separated qc summary tables"))
+option_list <- list(make_option(c("-i", "--summary_list"), action = "store", type = "character", default=NA, help = "list of comma separated qc summary tables"),
+                    make_option(c("-l", "--read_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated read length distribution"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
@@ -18,7 +19,7 @@ opt <- parse_args(opt_parser)
 # =========
 
 # Summary files produced by riboseq_qc.R
-summary_df.ls <- as.list(strsplit(opt$input_list, ",")[[1]])
+summary_df.ls <- as.list(strsplit(opt$summary_list, ",")[[1]])
 
 # summary_df.ls <- list(opt$input_list)
 full_summary.df <- rbindlist(lapply(summary_df.ls, fread), use.names = TRUE)
@@ -95,3 +96,11 @@ duplication_mqc.df <- full_summary.df %>%
 
 fwrite(duplication_mqc.df, "duplication_mqc.tsv", row.names = FALSE, sep = "\t")
 
+# Read length files produced by riboseq_qc.R
+summary_df.ls <- as.list(strsplit(opt$summary_list, ",")[[1]])
+
+# summary_df.ls <- list(opt$input_list)
+read_length.ls <- as.list(strsplit(opt$read_len_list, ",")[[1]])
+read_length.df <- rbindlist(lapply(read_length.ls , fread), use.names = TRUE)
+
+fwrite(read_length.df, "fq_length_mqc.tsv", row.names = FALSE, sep = "\t")
