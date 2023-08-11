@@ -69,8 +69,13 @@ get_info_from_bam <- function(bam, info) {
 actual_name <- opt$output_prefix
 message(paste0("Analysing ", actual_name))
 
+
+# Define minimum and max read length based on the expected length parameter
+min_length <- str_split(opt$expected_length, ":")[[1]][1]
+max_length <- str_split(opt$expected_length, ":")[[1]][2]
+
 # =========
-# Frame, distance from start and end codon analyses
+# Frame, distance from start and end codon analyses using transcriptomic coord
 # =========
 
 riboseq_info <- get_info_from_bam(opt$bam, opt$transcript_info)
@@ -116,7 +121,7 @@ original_fq <- read_csv(opt$before_dedup) %>%
 before_dedup <- read_csv(opt$before_dedup) %>%
   dplyr::select(length, before_dedup_bam = n_bam)
 
-# Plot length distribution in the trimmed fastq
+# Plot length distribution in the adaptor trimmed and quality and length filtered fastq
 length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
   geom_bar(stat="identity") +
   xlim(0,70) +
@@ -133,9 +138,7 @@ fq_length_mqc.df <- original_fq %>%
   mutate(length = paste0(length, "nt")) %>%
   pivot_wider(names_from = length, values_from = number_of_reads)
 
-
-# append = T so we can skip merging of all tables for all samples
-fwrite(fq_length_mqc.df, paste0(actual_name, "_fq_length_mqc.tsv"), sep = "\t", row.names = FALSE, append = FALSE)
+fwrite(fq_length_mqc.df, paste0(actual_name, "_fq_length_mqc.tsv"), sep = "\t", row.names = FALSE)
 
 
 # =========
@@ -210,7 +213,6 @@ if (basename(opt$after_premap) != "optional.txt") {
   mapping_plot  <- ggplot() + theme_void() + ggtitle("Premapping vs mapping") + geom_text(aes(0,0,label='N/A'))
   premapping_plot <- ggplot() + theme_void() + ggtitle("Original vs mapping") + geom_text(aes(0,0,label='N/A'))
 
-
 }
 
 # =========
@@ -228,12 +230,14 @@ if(basename(opt$after_dedup) != "optional.txt") {
   duplicate_df <- inner_join(before_dedup, after_dedup) %>%
     mutate(perc_duplicates = 100*(before_dedup_bam-after_dedup_bam)/before_dedup_bam)
 
+  # Filter based on expected RPF length 
   duplication_summary <- duplicate_df %>%
-    dplyr::filter(length >= 26 & length <= 31)
+    dplyr::filter(length >= min_length & length <= max_length)
   
+  # This is the percentage reported in the ribo-seq summary
   duplication_perc <- 100- 100*sum(duplication_summary$after_dedup_bam) / sum(duplication_summary$before_dedup_bam) 
 
-  duplication_plot <- ggplot(duplicate_df %>% filter(length >= 26 & length <= 32), 
+  duplication_plot <- ggplot(duplicate_df %>% filter(length >= min_length & length <= max_length), 
         aes(x = length, y = perc_duplicates)) +
   geom_bar(stat="identity", position="dodge") +
   ylab("% Duplicates") +
@@ -251,21 +255,19 @@ if(basename(opt$after_dedup) != "optional.txt") {
 # Useful reads
 # =========
 
+# Useful reads are defined as reads mapping to protein coding/number of preprocessed reads
 useful_read_perc <- 100*nrow(riboseq_info$bam) / sum(original_fq$original_n)
 useful_df <- data.frame(x = "", y = useful_read_perc)
 
-
-min_length <- str_split(opt$expected_length, ":")[[1]][1]
-max_length <- str_split(opt$expected_length, ":")[[1]][2]
-
-tx_map_summary <- 100*nrow(riboseq_info$bam %>% filter(rl >= min_length & rl <= max_length)) / nrow(riboseq_info$bam)
+# Proprtion of uniquely mapped reads to reppresentative pcoding transcripts that are of expected read length
+tx_map_summary <- 100*nrow(riboseq_info$bam %>% 
+  filter(rl >= min_length & rl <= max_length)) / nrow(riboseq_info$bam)
 
 summary_df <- useful_df %>%
   mutate(name = actual_name,
           duplication = duplication_perc,
           expected_length = opt$expected_length,
           percent_expected_length = tx_map_summary)
-
 
 
 # Customise sub-title based on whether UMIs were used or not

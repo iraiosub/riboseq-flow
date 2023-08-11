@@ -14,11 +14,11 @@ custom_data:
   ribocutter:
     file_format: "tsv"
     section_name: "Ribocutter"
-    description: "Percentage of reads targeted by 50 guides with Ribocutter using two different read length thresholds. The higher the proportion targeted, the better."
+    description: "Percentage of reads targeted by guides designed by Ribocutter (50 guides by default) using two different read length thresholds. The higher the proportion targeted, the better."
     plot_type: "bargraph"
     pconfig:
       id: "ribocutter_barplot"
-      title: "Ribocutter: proportion of reads targeted by 50 guides"
+      title: "Ribocutter: proportion of reads targeted"
       ylab: "Percentage reads targeted (%)"
       xmax: 100
       xmin: 0
@@ -45,10 +45,10 @@ custom_data:
   expected_length:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
     file_format: "tsv"
     section_name: "Expected Read Length Percentage"
-    description: "Percentage of uniquely mapping reads of expected RPF length. The higher the percentage, the better. Unless specified, the expected read length range is between 26 and 32 nt."
+    description: "Percentage of uniquely mapping reads to protein-coding transcripts of expected RPF length. The higher the percentage, the better. Unless specified, the expected read length range is between 26 and 32 nt."
     plot_type: "bargraph"
     pconfig:
       id: "expected_length_barplot"
