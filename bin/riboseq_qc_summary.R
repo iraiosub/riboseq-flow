@@ -103,4 +103,8 @@ summary_df.ls <- as.list(strsplit(opt$summary_list, ",")[[1]])
 read_length.ls <- as.list(strsplit(opt$read_len_list, ",")[[1]])
 read_length.df <- rbindlist(lapply(read_length.ls , fread), use.names = TRUE)
 
+# Strip nt from colnames to allow linegraph
+read_length.df <- read_length.df %>%
+  rename_with(~str_remove(., 'nt'))
+
 fwrite(read_length.df, "fq_length_mqc.tsv", row.names = FALSE, sep = "\t")

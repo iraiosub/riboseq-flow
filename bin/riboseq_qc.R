@@ -130,7 +130,7 @@ fq_length_mqc.df <- original_fq %>%
   mutate(sample = actual_name) %>%
   dplyr::rename(number_of_reads = original_n) %>%
   dplyr::select(sample, length, number_of_reads) %>%
-  # mutate(length = paste0(length, " nt")) %>%
+  mutate(length = paste0(length, "nt")) %>%
   pivot_wider(names_from = length, values_from = number_of_reads)
 
 
