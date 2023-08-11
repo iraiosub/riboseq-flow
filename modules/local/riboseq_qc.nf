@@ -20,7 +20,7 @@ process RIBOSEQ_QC {
     output:
         tuple val(sample_id), path("*.qc_results.tsv.gz"), emit: qc
         path("*.qc_results.pdf"), emit: plots
-        path("*_fq_length_mqc.tsv"), emit: fq_length_distr
+        tuple val(sample_id), path("*_fq_length_mqc.tsv"), emit: fq_length_distr
 
     script:
         
