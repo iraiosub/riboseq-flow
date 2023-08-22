@@ -259,7 +259,7 @@ if(basename(opt$after_dedup) != "optional.txt") {
 useful_read_perc <- 100*nrow(riboseq_info$bam) / sum(original_fq$original_n)
 useful_df <- data.frame(x = "", y = useful_read_perc)
 
-# Proprtion of uniquely mapped reads to reppresentative pcoding transcripts that are of expected read length
+# Proprtion of uniquely mapped reads to reppresentative pcoding transcripts ie useful reads that are of expected read length
 tx_map_summary <- 100*nrow(riboseq_info$bam %>% 
   filter(rl >= min_length & rl <= max_length)) / nrow(riboseq_info$bam)
 
