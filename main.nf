@@ -309,6 +309,7 @@ workflow RIBOSEQ {
             .collect()
             .mix(MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.fq_length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
             .collect()
+    }
     
     MULTIQC(ch_logs)
     
