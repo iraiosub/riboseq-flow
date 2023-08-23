@@ -24,15 +24,20 @@ options <- commandArgs(trailingOnly = TRUE)
 bam_dir <- options[1]
 gtf <- options[2]
 fasta <- options[3]
+
 # Filter out reads outside this length range for P-site indetification
 length_range <- options[4]
-# P-site identification method
-method <- options[5]
-# Optionally exclude reads near either initiating or terminating ribosome which do not behave like elongating ribosomes. e.g. Ingolia CDS = +15th codon of the CDS to -10th codon of CDS
-exclude_start <- as.numeric(options[6])
-exclude_stop <- as.numeric(options[7])
 
-longest_cds.df <- options[8]
+# Filter out read lengths that below periodicity threshold for P-site indetification (good default = 50)
+periodicity_thresh <- options[5]
+
+# P-site identification method
+method <- options[6]
+# Optionally exclude reads near either initiating or terminating ribosome which do not behave like elongating ribosomes. e.g. Ingolia CDS = +15th codon of the CDS to -10th codon of CDS
+exclude_start <- as.numeric(options[7])
+exclude_stop <- as.numeric(options[8])
+
+longest_cds.df <- options[9]
 
 # Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
@@ -210,7 +215,7 @@ reads.ls <- lapply(reads.ls, function(df, tx.df) {
 # Get filtered reads: keep only the ones with periodicity evidence, periodicity_threshold = 50
 filtered.ls <- length_filter(data = reads.ls,
                              length_filter_mode = "periodicity",
-                             periodicity_threshold = 50)
+                             periodicity_threshold = periodicity_thresh)
 
 # Additionally filter them by length
 min_length <- as.integer(strsplit(length_range, ":")[[1]][1])

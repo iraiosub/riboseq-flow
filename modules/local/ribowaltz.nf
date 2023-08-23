@@ -34,6 +34,7 @@ process IDENTIFY_PSITES {
     script:
 
     length_range = params.length_range
+    periodicity_threshold = params.periodicity_threshold
     method = params.psite_method
 
     // identify_p_sites.R -b $bam_folder -g $gtf -f $fasta -l $length_range --qc --method --periodicity
@@ -42,7 +43,7 @@ process IDENTIFY_PSITES {
 
         INPUT=`echo $bam_list | sed 's/ /,/g'`
         
-        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $method ${params.exclude_start} ${params.exclude_end} $transcript_info
+        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info
 
         """
 
