@@ -89,7 +89,7 @@ if (ncol(featurecounts.df) < 3 ) {
   # Reformat df and PCA of top 500 genes
   featurecounts.df <- featurecounts.df %>%
     remove_rownames() %>% 
-    column_to_rownames(var = "Geneid") 
+    column_to_rownames(var = "Gene") 
   
   featurecounts.pca.gg <- get_rlog_pca(featurecounts.df)$plot +
     geom_point(aes(color = sample)) +
