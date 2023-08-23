@@ -48,3 +48,31 @@ process IDENTIFY_PSITES {
         """
 
 }
+
+
+
+process GET_GENOMIC_PSITES {
+ 
+    label 'process_single'
+
+    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    container 'iraiosub/nf-riboseq:latest'
+
+    publishDir "${params.outdir}/coverage_tracks", pattern: "*._psite.genomic.bed", mode: 'copy', overwrite: true
+    
+    input:
+    path(psite_tables)
+    path(gtf)
+
+    output:
+    path("*._psite.genomic.bed"), emit: psite_bed
+
+    script:
+
+        """
+        INPUT=`echo $psite_tables | sed 's/ /,/g'`
+            
+        get_psite_bed.R -p \$INPUT -g $gtf
+        """
+
+}
