@@ -111,9 +111,9 @@ custom_plot_config:
 
 sp:
   fq_length:
-    fn: "fq_length_mqc.tsv"
+    fn: "fq_read_length_mqc.tsv"
   useful_length:
-    fn: "useful_length_mqc.tsv"
+    fn: "useful_read_length_mqc.tsv"
   ribocutter:
     fn: "ribocutter_mqc.tsv"
   pca:
