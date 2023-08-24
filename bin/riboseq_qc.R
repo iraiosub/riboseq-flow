@@ -232,7 +232,8 @@ if (basename(opt$after_premap) != "optional.txt") {
 
 # If UMIs were used, calculate the proprtion of duplicated reads within the expected RPF length range
 # if (!is.null(opt$after_dedup)) {
-if(basename(opt$after_dedup) != "optional.txt") {
+# if(basename(opt$after_dedup) != "optional.txt") {
+if(!is.na(opt$after_dedup)) {
 
   after_dedup <- read_csv(opt$after_dedup) %>%
     dplyr::select(length, after_dedup_bam = n)
