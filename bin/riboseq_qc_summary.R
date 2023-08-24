@@ -9,13 +9,14 @@ suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(optparse))
 
 option_list <- list(make_option(c("-i", "--summary_list"), action = "store", type = "character", default=NA, help = "list of comma separated qc summary tables"),
-                    make_option(c("-l", "--read_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated read length distribution"))
+                    make_option(c("-l", "--read_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated read length distribution"),
+                    make_option(c("-u", "--useful_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read length distribution"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
 
 # =========
-# Collate results
+# Collate summary results
 # =========
 
 # Summary files produced by riboseq_qc.R
@@ -77,7 +78,12 @@ if (length(unique(full_summary.df$name)) >= 3) {
 ggsave("qc_summary.pdf", dpi = 300, height = 12, width = plot.width)
 # ggsave("qc_summary_mqc.png", dpi = 300, height = 12, width = plot.width)
 
+
+
+# =========
 # MultiQC tsv preparation
+# =========
+
 pcoding_percentage_mqc.df <- full_summary.df %>%
   dplyr::select(name, y) %>%
   dplyr::rename(sample = name, pcoding_percentage = y)
@@ -96,10 +102,7 @@ duplication_mqc.df <- full_summary.df %>%
 
 fwrite(duplication_mqc.df, "duplication_mqc.tsv", row.names = FALSE, sep = "\t")
 
-# Read length files produced by riboseq_qc.R
-summary_df.ls <- as.list(strsplit(opt$summary_list, ",")[[1]])
-
-# summary_df.ls <- list(opt$input_list)
+# FASTQ Read length files produced by riboseq_qc.R
 read_length.ls <- as.list(strsplit(opt$read_len_list, ",")[[1]])
 read_length.df <- rbindlist(lapply(read_length.ls , fread), use.names = TRUE)
 
@@ -108,3 +111,13 @@ read_length.df <- read_length.df %>%
   rename_with(~str_remove(., 'nt'))
 
 fwrite(read_length.df, "fq_length_mqc.tsv", row.names = FALSE, sep = "\t")
+
+# Useful read length files produced by riboseq_qc.R
+useful_length.ls <- as.list(strsplit(opt$useful_len_list, ",")[[1]])
+useful_length.df <- rbindlist(lapply(useful_length.ls , fread), use.names = TRUE)
+
+# Strip nt from colnames to allow linegraph
+useful_length.df <- useful_length.df %>%
+  rename_with(~str_remove(., 'nt'))
+
+fwrite(useful_length.df, "useful_length_mqc.tsv", row.names = FALSE, sep = "\t")

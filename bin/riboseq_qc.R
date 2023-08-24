@@ -140,6 +140,16 @@ fq_length_mqc.df <- original_fq %>%
 
 fwrite(fq_length_mqc.df, paste0(actual_name, "_fq_length_mqc.tsv"), sep = "\t", row.names = FALSE)
 
+# Read length distribution of useful reads
+useful_length_mqc.df <- riboseq_info$bam %>%
+  mutate(sample = actual_name) %>%
+  group_by(sample, rl) %>%
+  summarise(number_of_reads = n()) %>%
+  dplyr::rename(length = rl) %>%
+  mutate(length = paste0(length, "nt")) %>%
+  pivot_wider(names_from = length, values_from = number_of_reads)
+
+fwrite(useful_length_mqc.df, paste0(actual_name, "_useful_length_mqc.tsv"), sep = "\t", row.names = FALSE)
 
 # =========
 # Premapping

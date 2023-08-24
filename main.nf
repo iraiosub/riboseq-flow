@@ -293,7 +293,7 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(PREMAP.out.log.collect(), MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.fq_length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
+            .mix(PREMAP.out.log.collect(), MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
             .collect()
     } else if (!params.skip_premap && params.skip_qc) {
 
@@ -315,7 +315,7 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.fq_length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
+            .mix(MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
             .collect()
     }
     
