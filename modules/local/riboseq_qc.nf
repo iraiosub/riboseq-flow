@@ -55,7 +55,7 @@ process SUMMARISE_RIBOSEQ_QC {
         path("pcoding_percentage_mqc.tsv"), emit: pcoding_percentage_mqc
         path("expected_length_mqc.tsv"), emit: expected_length_mqc
         path("duplication_mqc.tsv"), emit: duplication_mqc
-        path("*_length_mqc.tsv"), emit: length_mqc
+        path("*_read_length_mqc.tsv"), emit: length_mqc
         // path("useful_length_mqc.tsv"), emit: fq_length_mqc
 
 
