@@ -104,8 +104,7 @@ psites.df.ls <- lapply(psites.ls, fread)
 psites.df <- rbindlist(psites.df.ls)
 
 # Load annotation and subset transcripts of interest
-txdb <- make_txdb("~/Documents/projects/riboseq/ribowaltz_test/gencode.v29.primary_assembly.annotation.gtf.gz", org = 'Homo sapiens')
-seqinfo(txdb) <- seqinfo(TxDb.Hsapiens.UCSC.hg38.knownGene)[seqnames(seqinfo(txdb))]
+txdb <- make_txdb(opt$gtf, org = 'Homo sapiens')
 
 # Load fai and extract chromosome lengths
 fai <- fread(opt$fai)

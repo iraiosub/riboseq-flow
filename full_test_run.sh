@@ -21,7 +21,5 @@ nextflow pull iraiosub/riboseq -r dev-nf
 
 nextflow run iraiosub/riboseq -r dev-nf \
 -profile test,crick \
--resume \
 --input ./data/samplesheet.csv \
---skip_riboseq_qc \
---outdir results_full_test_dev_nf_nodedup
+--outdir results_full_test_dev_nf_xxx
