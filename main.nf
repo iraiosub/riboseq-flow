@@ -74,7 +74,7 @@ include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
-inclue { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
+include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
 include { PCA } from './modules/local/featurecounts.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 
