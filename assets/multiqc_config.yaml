@@ -10,7 +10,7 @@ custom_data:
       title: "Read Length Distribution"
       xlab: Length (nt)
       ylab: Frequency
-      xDecimals: False
+      yDecimals: False
   ribocutter:
     file_format: "tsv"
     section_name: "Ribocutter"
@@ -81,17 +81,6 @@ custom_data:
   pca:
     section_name: "PCA Analysis"
     description: "This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS."
-  useful_length:
-    file_format: "tsv"
-    section_name: "Useful Read Length Distribution"
-    description: "Length distribution for reads that have been pre-processed (e.g. UMI moved to header, adaptor trimmed, quality-or length-filtered depending on user settings)."
-    plot_type: "linegraph"
-    pconfig:
-      id: "useful_length_linegraph"
-      title: "Read Length Distribution"
-      xlab: Length (nt)
-      ylab: Frequency
-      xDecimals: False
 
 custom_plot_config:
   pcoding_percentage:
@@ -114,8 +103,6 @@ sp:
     fn: "expected_length_mqc.tsv"
   duplication:
     fn: "duplication_mqc.tsv"
-  useful_length:
-    fn: "useful_read_length_mqc.tsv"
 
 
 export_plots: false
