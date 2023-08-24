@@ -64,7 +64,7 @@ process SUMMARISE_RIBOSEQ_QC {
         """
         INPUT_QC=`echo $qc_tables | sed 's/ /,/g'`
         INPUT_FQ_LEN=`echo $fq_length_tables | sed 's/ /,/g'`
-        INPUT_USEFUL_LEN=`echo $fq_length_tables | sed 's/ /,/g'`
+        INPUT_USEFUL_LEN=`echo $useful_length_tables | sed 's/ /,/g'`
 
         riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN
         """
