@@ -14,6 +14,7 @@ custom_data:
       xlab: Length (nt)
       ylab: Frequency
       yDecimals: False
+      categories: True
   useful_length:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
@@ -27,7 +28,8 @@ custom_data:
       title: "Read Length Distribution"
       xlab: Length (nt)
       ylab: Frequency
-      yDecimals: False  
+      yDecimals: False
+      categories: True
   ribocutter:
     file_format: "tsv"
     section_name: "Ribocutter"
