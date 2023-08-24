@@ -207,7 +207,11 @@ workflow RIBOSEQ {
             .map { [ it[1] ] }
             .collect()
 
-        SUMMARISE_RIBOSEQ_QC(ch_merge_qc, ch_merge_read_length)
+        ch_merge_useful_length = RIBOSEQ_QC.out.useful_length_distr
+            .map { [ it[1] ] }
+            .collect()
+
+        SUMMARISE_RIBOSEQ_QC(ch_merge_qc, ch_merge_read_length, ch_merge_useful_length)
 
     }
 
