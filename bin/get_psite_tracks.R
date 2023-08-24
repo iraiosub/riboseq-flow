@@ -9,6 +9,8 @@ suppressPackageStartupMessages(library(rtracklayer))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(tidyverse))
 
+# setconfig(config(sslverifypeer = 0L))
+
 # =========
 # Options and paths
 # =========
@@ -78,7 +80,7 @@ convert_coordinates <- function(tx.gr, annotation, chr_lengths) {
   
   # Sum up scores for identical positions
   genomic.gr <- sum_scores(genomic.gr)
-  export.bed(genomic.gr, paste0(unique(tx.gr$sample), ".psite.genomic.bed"))
+  export.bed(genomic.gr, paste0(unique(tx.gr$sample), ".psites.bed"))
   
   # Separate plus and minus strand and export bigwigs
   plus.gr <- genomic.gr[strand(genomic.gr) == "+" ]
@@ -88,8 +90,8 @@ convert_coordinates <- function(tx.gr, annotation, chr_lengths) {
   seqlengths(plus.gr) <- chr_lengths[names(seqlengths(plus.gr))]
   seqlengths(minus.gr) <- chr_lengths[names(seqlengths(minus.gr))]
   
-  export.bw(plus.gr, paste0(unique(tx.gr$sample), ".psite.genomic.plus.bigWig"))
-  export.bw(minus.gr, paste0(unique(tx.gr$sample), ".psite.genomic.minus.bigWig"))
+  export.bw(plus.gr, paste0(unique(tx.gr$sample), ".psites.forward.bigwig"))
+  export.bw(minus.gr, paste0(unique(tx.gr$sample), ".psites.reverse.bigwig"))
   
   return(genomic.gr)
   

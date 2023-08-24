@@ -58,8 +58,8 @@ process GET_PSITE_TRACKS {
     // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
     container 'iraiosub/nf-riboseq:latest'
 
-    publishDir "${params.outdir}/coverage_tracks", pattern: "*._psite.genomic.bed", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/coverage_tracks", pattern: "*.bigWig", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.bed", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.bigWig", mode: 'copy', overwrite: true
     
     input:
     path(psite_tables)
@@ -67,8 +67,8 @@ process GET_PSITE_TRACKS {
     path(fai)
 
     output:
-    path("*.psite.genomic.bed"), emit: psite_bed
-    path("*.bigWig"), emit: psite_bigwig
+    path("*.psites.bed"), emit: psite_bed
+    path("*.bigwig"), emit: psite_bigwig
 
     script:
 
