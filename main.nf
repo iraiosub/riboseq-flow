@@ -31,6 +31,7 @@ PREPARE GENOME CHANNELS
 if(params.org) {
 
     params.fasta = params.genomes[ params.org ].fasta
+    params.fai = params.genomes[ params.org ].fai
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
@@ -39,6 +40,7 @@ if(params.org) {
 }  else {
 
     if(!params.fasta ) { exit 1, '--fasta is not specified.' } 
+    if(!params.fai ) { exit 1, '--fai is not specified.' } 
     if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
     if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, '--smallrna_fasta is not specified.' }
 
@@ -46,6 +48,7 @@ if(params.org) {
 
 
 ch_genome_fasta = file(params.fasta, checkIfExists: true)
+ch_genome_fai = file(params.fai, checkIfExists: true)
 ch_smallrna_fasta = file(params.smallrna_fasta, checkIfExists: true)
 ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
@@ -71,6 +74,7 @@ include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
+inclue { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
 include { PCA } from './modules/local/featurecounts.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 
@@ -249,6 +253,10 @@ workflow RIBOSEQ {
         }
 
     }
+
+
+    // Get P-site tracks
+    GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
    
     // PCA on gene-level RPF counts and transcript-level P sites
     if (!params.skip_psite) {

@@ -29,7 +29,7 @@ fasta <- options[3]
 length_range <- options[4]
 
 # Filter out read lengths that below periodicity threshold for P-site indetification (good default = 50)
-periodicity_thresh <- options[5]
+periodicity_thresh <- as.integer(options[5])
 
 # P-site identification method
 method <- options[6]

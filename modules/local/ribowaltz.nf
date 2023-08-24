@@ -51,7 +51,7 @@ process IDENTIFY_PSITES {
 
 
 
-process GET_GENOMIC_PSITES {
+process GET_PSITE_TRACKS {
  
     label 'process_single'
 
@@ -63,6 +63,7 @@ process GET_GENOMIC_PSITES {
     input:
     path(psite_tables)
     path(gtf)
+    path(fai)
 
     output:
     path("*._psite.genomic.bed"), emit: psite_bed
@@ -72,7 +73,7 @@ process GET_GENOMIC_PSITES {
         """
         INPUT=`echo $psite_tables | sed 's/ /,/g'`
             
-        get_psite_bed.R -p \$INPUT -g $gtf
+        get_psite_bed.R -p \$INPUT -g $gtf -f $fai
         """
 
 }
