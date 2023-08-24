@@ -2,7 +2,7 @@
 custom_data:
   fq_length:
     file_format: "tsv"
-    section_name: "Starting Read Length Distribution"
+    section_name: "Read Length Distribution"
     description: "Length distribution for reads that have been pre-processed (e.g. UMI moved to header, adaptor trimmed, quality-or length-filtered depending on user settings)."
     plot_type: "linegraph"
     pconfig:
@@ -10,20 +10,7 @@ custom_data:
       title: "Read Length Distribution"
       xlab: Length (nt)
       ylab: Frequency
-      yDecimals: False
-      categories: True
-  useful_length:
-    file_format: "tsv"
-    section_name: "Useful Read Length Distribution"
-    description: "Length distribution for reads uniquely mapped to protein-coding transcripts. This is the propprtion of reads of the entire library that are useful for most downstream analyses."
-    plot_type: "linegraph"
-    pconfig:
-      id: "useful_length_linegraph"
-      title: "Read Length Distribution"
-      xlab: Length (nt)
-      ylab: Frequency
-      yDecimals: False
-      categories: True
+      xDecimals: False
   ribocutter:
     file_format: "tsv"
     section_name: "Ribocutter"
@@ -43,7 +30,7 @@ custom_data:
     parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Protein-coding Genes Mapping Percentage"
-    description: "Percentage of reads mapping uniquely to protein-coding transcripts. This is the propprtion of reads of the entire library that are useful for most downstream analyses. For each gene, a single representative transcript was used (by default, the one with the longest CDS was used). The higher the percentage, the better."
+    description: "Percentage of reads mapping uniquely to protein-coding transcripts. This is the proprtion of reads of the entire library that are useful for most downstream analyses. For each gene, a single representative transcript was used (by default, the one with the longest CDS was used). The higher the percentage, the better."
     plot_type: "bargraph"
     pconfig:
       id: "pcoding_percentage_barplot"
@@ -94,6 +81,17 @@ custom_data:
   pca:
     section_name: "PCA Analysis"
     description: "This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS."
+  useful_length:
+    file_format: "tsv"
+    section_name: "Useful Read Length Distribution"
+    description: "Length distribution for reads that have been pre-processed (e.g. UMI moved to header, adaptor trimmed, quality-or length-filtered depending on user settings)."
+    plot_type: "linegraph"
+    pconfig:
+      id: "useful_length_linegraph"
+      title: "Read Length Distribution"
+      xlab: Length (nt)
+      ylab: Frequency
+      xDecimals: False
 
 custom_plot_config:
   pcoding_percentage:
@@ -106,8 +104,6 @@ custom_plot_config:
 sp:
   fq_length:
     fn: "fq_read_length_mqc.tsv"
-  useful_length:
-    fn: "useful_read_length_mqc.tsv"
   ribocutter:
     fn: "ribocutter_mqc.tsv"
   pca:
@@ -118,6 +114,8 @@ sp:
     fn: "expected_length_mqc.tsv"
   duplication:
     fn: "duplication_mqc.tsv"
+  useful_length:
+    fn: "useful_read_length_mqc.tsv"
 
 
 export_plots: false

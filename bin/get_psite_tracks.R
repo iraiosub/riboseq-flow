@@ -68,7 +68,6 @@ sum_scores <- function(gr) {
   
   return(gr.unique)
   
-  
 }
 
 # A function that converts transcript to genomic coordinates and exports bed and bigwig files
@@ -78,7 +77,6 @@ convert_coordinates <- function(tx.gr, annotation, chr_lengths) {
   genomic.gr$score <- 1L
   
   # Sum up scores for identical positions
-  
   genomic.gr <- sum_scores(genomic.gr)
   export.bed(genomic.gr, paste0(unique(tx.gr$sample), ".psite.genomic.bed"))
   
@@ -91,7 +89,7 @@ convert_coordinates <- function(tx.gr, annotation, chr_lengths) {
   seqlengths(minus.gr) <- chr_lengths[names(seqlengths(minus.gr))]
   
   export.bw(plus.gr, paste0(unique(tx.gr$sample), ".psite.genomic.plus.bigWig"))
-  export.bw(minus.gr, paste0(unique(tx.gr$sample), ".psite.genomic.plus.bigWig"))
+  export.bw(minus.gr, paste0(unique(tx.gr$sample), ".psite.genomic.minus.bigWig"))
   
   return(genomic.gr)
   
