@@ -282,7 +282,8 @@ summary_df <- useful_df %>%
 
 
 # Customise sub-title based on whether UMIs were used or not
-if(basename(opt$after_dedup) != "optional.txt") {
+# if(basename(opt$after_dedup) != "optional.txt") {
+if(!is.na(opt$after_dedup)) {
   useful_plot_subtitle <- "UMI-deduplicated reads mapped\nuniquely to longest CDS transcripts"
 } else {
 
