@@ -21,7 +21,7 @@ opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
 make_txdb <- function(gtf, org) {
-
+  
   # Get name of db
   name <- paste0(str_split(gtf, ".gtf")[[1]][1], ".sqlite")
   
@@ -33,15 +33,15 @@ make_txdb <- function(gtf, org) {
     
     TxDb <- makeTxDbFromGFF(opt$gtf, format="gtf",
                             organism = org) # chrominfo = seqinfo(TxDb.Hsapiens.UCSC.hg38.knownGene
+    
     saveDb(TxDb, file=name)
     # TxDb <- loadDb(name)
   }
   
   TxDb <- keepStandardChromosomes(TxDb, pruning.mode="coarse")
-  
   return(TxDb)
-  
 }
+
 
 
 # A function that makes a GRanges object for each sample from the psite tsv from ribowaltz
