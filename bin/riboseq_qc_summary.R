@@ -108,9 +108,10 @@ read_length.df <- rbindlist(lapply(read_length.ls , fread), use.names = TRUE)
 
 # Strip nt from colnames to allow linegraph
 read_length.df <- read_length.df %>%
-  rename_with(~str_remove(., 'nt'))
+  rename_with(~str_remove(., 'nt')) %>%
+  column_to_rownames(var = "sample")
 
-fwrite(read_length.df, "fq_read_length_mqc.tsv", row.names = FALSE, sep = "\t")
+fwrite(read_length.df, "fq_read_length_mqc.tsv", row.names = TRUE, sep = "\t")
 
 # Useful read length files produced by riboseq_qc.R
 useful_length.ls <- as.list(strsplit(opt$useful_len_list, ",")[[1]])
@@ -118,6 +119,7 @@ useful_length.df <- rbindlist(lapply(useful_length.ls , fread), use.names = TRUE
 
 # Strip nt from colnames to allow linegraph
 useful_length.df <- useful_length.df %>%
-  rename_with(~str_remove(., 'nt'))
+  rename_with(~str_remove(., 'nt')) %>%
+  column_to_rownames(var = "sample")
 
-fwrite(useful_length.df, "useful_read_length_mqc.tsv", row.names = FALSE, sep = "\t")
+fwrite(useful_length.df, "useful_read_length_mqc.tsv", row.names = TRUE, sep = "\t")
