@@ -67,6 +67,7 @@ process GET_PSITE_TRACKS {
 
     output:
     path("*._psite.genomic.bed"), emit: psite_bed
+     path("*.bigWig"), emit: psite_bigwig
 
     script:
 
