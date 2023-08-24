@@ -45,7 +45,7 @@ process UMITOOLS_DEDUPLICATE {
 
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bam.bai", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.bed.gz", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage_tracks", pattern: "*.dedup.bed.gz", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated", pattern: "*.log", mode: 'copy', overwrite: true
 
 
