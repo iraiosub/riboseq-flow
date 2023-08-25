@@ -61,8 +61,8 @@ process SUMMARISE_RIBOSEQ_QC {
         path("pcoding_percentage_mqc.tsv"), emit: pcoding_percentage_mqc
         path("expected_length_mqc.tsv"), emit: expected_length_mqc
         path("duplication_mqc.tsv"), emit: duplication_mqc
-        path("fq_read_length_mqc.tsv"), emit: length_mqc
-        path("useful_read_length_mqc.tsv"), emit: useful_length_mqc
+        path("starting_length_mqc.tsv"), emit: length_mqc
+        path("useful_length_mqc.tsv"), emit: useful_length_mqc
 
 
     script:

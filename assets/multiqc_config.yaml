@@ -1,12 +1,23 @@
 # Other MultiQC config stuff here
 custom_data:
-  fq_length:
+  starting_length:
     file_format: "tsv"
     section_name: "Read Length Distribution"
-    description: "Length distribution for reads that have been pre-processed (e.g. UMI moved to header, adaptor trimmed, quality-or length-filtered depending on user settings)."
+    description: "Length distribution for reads."
     plot_type: "linegraph"
     pconfig:
-      id: "fq_length_linegraph"
+      id: "starting_length_linegraph"
+      title: "Starting Read Length Distribution"
+      xlab: Length (nt)
+      ylab: Frequency
+      yDecimals: False
+    useful_length:
+    file_format: "tsv"
+    section_name: "Useful Read Length Distribution"
+    description: "Length distribution for reads ...."
+    plot_type: "linegraph"
+    pconfig:
+      id: "useful_length_linegraph"
       title: "Read Length Distribution"
       xlab: Length (nt)
       ylab: Frequency
@@ -91,8 +102,10 @@ custom_plot_config:
       'color' : '#80CBC4'
 
 sp:
-  fq_length:
-    fn: "fq_read_length_mqc.tsv"
+  starting_length:
+    fn: "starting_length_mqc.tsv"
+  useful_length:
+    fn: "useful_length_mqc.tsv"
   ribocutter:
     fn: "ribocutter_mqc.tsv"
   pca:
