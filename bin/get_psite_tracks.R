@@ -11,8 +11,8 @@ suppressPackageStartupMessages(library(tidyverse))
 
 # setconfig(config(sslverifypeer = 0L))
 # httr::set_config(httr::config(ssl_verifypeer=0L))
-httr::set_config(httr::config(ssl_verifypeer=0L, ssl_verifyhost=0L, sslversion=3))
-# httr::set_config(config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
+# httr::set_config(httr::config(ssl_verifypeer=0L, ssl_verifyhost=0L, sslversion=3))
+httr::set_config(config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
 
 
 # new_config <- httr::config(ssl_verifypeer = FALSE)
