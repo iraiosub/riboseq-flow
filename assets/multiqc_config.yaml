@@ -2,7 +2,7 @@
 custom_data:
   starting_length:
     file_format: "tsv"
-    section_name: "Read Length Distribution"
+    section_name: "Starting Read Length Distribution"
     description: "Length distribution for reads."
     plot_type: "linegraph"
     pconfig:
@@ -11,7 +11,7 @@ custom_data:
       xlab: Length (nt)
       ylab: Frequency
       yDecimals: False
-    useful_length:
+  useful_length:
     file_format: "tsv"
     section_name: "Useful Read Length Distribution"
     description: "Length distribution for reads ...."
