@@ -158,6 +158,8 @@ workflow RIBOSEQ {
         // Track read fate through pipeline
             TRACK_READS(
                 PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc)
+                .map { [ it[1] ] }
+                .flatten()
             )
 
 
