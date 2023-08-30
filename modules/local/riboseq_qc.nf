@@ -76,3 +76,29 @@ process SUMMARISE_RIBOSEQ_QC {
         """
 
 }
+
+
+process TRACK_READS {
+    
+    tag "${workflow.runName}"
+    label 'process_low'
+
+    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    // container 'iraiosub/mapping-length:latest'
+
+    publishDir "${params.outdir}/riboseq_qc/sankey", mode: 'copy', overwrite: true
+
+    input:
+        path(logs)
+    
+    output:
+        path("*_sankey.html"), emit: sankey
+
+    script:
+
+        """
+        plot_sankey.R -d .
+        """
+
+
+}

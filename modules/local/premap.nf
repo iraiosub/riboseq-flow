@@ -27,7 +27,7 @@ process PREMAP {
     tuple val(sample_id), path("*.bam"), emit: premapped_bam
     tuple val(sample_id), path("*.seqs.gz"), emit: seqs
     tuple val(sample_id), path("*unmapped.fastq.gz"), emit: unmapped
-    path("*.premap.log"), emit: log
+    tuple val(sample_id), path("*.premap.log"), emit: log
 
     script:
 

@@ -24,7 +24,7 @@ process MAP {
     output:
     tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), path("*.Aligned.sortedByCoord.out.bam.bai"), emit: genome_bam
     tuple val(sample_id), path("*.Aligned.toTranscriptome.sorted.out.bam"), path("*.Aligned.toTranscriptome.sorted.out.bam.bai"), emit: transcriptome_bam
-    path("*.Log.final.out"), emit: log
+    tuple val(sample_id), path("*.Log.final.out"), emit: log
 
     script:
     

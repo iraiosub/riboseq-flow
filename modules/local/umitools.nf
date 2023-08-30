@@ -18,7 +18,7 @@ process UMITOOLS_EXTRACT {
 
     output:
         tuple val(sample_id), path("${sample_id}.umi_extract.fastq.gz"), emit: fastq
-        path("*.umi_extract.log"), emit: log
+        tuple val(sample_id), path("*.umi_extract.log"), emit: log
 
     script:
     args = " --bc-pattern=" + params.umi_pattern

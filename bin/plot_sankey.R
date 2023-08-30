@@ -225,4 +225,4 @@ p <- sankeyNetwork(
   sinksRight = F# effectively prevent the placement algorithm from running, so your nodes will be ordered as they were in the original data
 )
 
-saveNetwork(p, paste0(logs.dir,'/',sample_id, '_sankey.html'), selfcontained = FALSE)
+saveNetwork(p, paste0(sample_id, '_sankey.html'), selfcontained = FALSE)

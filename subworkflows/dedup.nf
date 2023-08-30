@@ -33,6 +33,7 @@ workflow DEDUPLICATE {
     // Genome dedup
     dedup_genome_bam = DEDUPLICATE_GENOME.out.dedup_bam
     dedup_genome_bed = DEDUPLICATE_GENOME.out.dedup_bed
+    dedup_genome_log = DEDUPLICATE_GENOME.out.log
 
     // Transcriptome dedup
     dedup_transcriptome_bam = DEDUPLICATE_TRANSCRIPTOME.out.dedup_bam

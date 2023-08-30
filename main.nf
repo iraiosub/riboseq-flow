@@ -72,6 +72,7 @@ include { PREMAP } from './modules/local/premap.nf'
 include { MAP } from './modules/local/map.nf'
 include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
+include { TRACK_READS } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
@@ -154,6 +155,11 @@ workflow RIBOSEQ {
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
 
+        // Track read fate through pipeline
+            TRACK_READS(
+                PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc)
+            )
+
 
         } else if (params.skip_premap && params.with_umi) {
 
@@ -164,10 +170,13 @@ workflow RIBOSEQ {
                 Channel.empty()
             )
 
-        
             RIBOSEQ_QC(
                 DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
+
+            TRACK_READS(
+                PREPROCESS_READS.out.logs.join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc)
             )
 
 
@@ -184,6 +193,11 @@ workflow RIBOSEQ {
                 MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
+
+            TRACK_READS(
+                PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(RIBOSEQ_QC.out.qc)
+            )
+
         } else if (params.skip_premap && !params.with_umi) {
 
             MAPPING_LENGTH_ANALYSES(
@@ -196,6 +210,10 @@ workflow RIBOSEQ {
             RIBOSEQ_QC(
                 MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
+
+            TRACK_READS(
+                PREPROCESS_READS.out.logs.join(MAP.out.log).join(RIBOSEQ_QC.out.qc)
             )
         }
 
