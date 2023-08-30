@@ -28,6 +28,7 @@ workflow PREPROCESS_READS {
             CUTADAPT(UMITOOLS_EXTRACT.out.fastq)
             fastq = CUTADAPT.out.fastq
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
+            logs = CUTADAPT.out.logs
             
             
         }  
@@ -43,12 +44,13 @@ workflow PREPROCESS_READS {
             CUTADAPT(reads)
             fastq = CUTADAPT.out.fastq
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
-            
+            logs = CUTADAPT.out.logs
             
         }  else {
 
             fastq = reads
             trimmed_fastq = reads
+            logs = Channel.empty()
         }
     }
 
