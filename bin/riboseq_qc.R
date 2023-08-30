@@ -280,7 +280,7 @@ summary_df <- useful_df %>%
           duplication = duplication_perc,
           expected_length = opt$expected_length,
           percent_expected_length = tx_map_expected_length_perc,
-          tx_map_expected_length_n = tx_map_expected_length_count)
+          expected_length_n = tx_map_expected_length_count)
 
 
 # Customise sub-title based on whether UMIs were used or not

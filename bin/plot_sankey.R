@@ -2,6 +2,7 @@
 
 suppressPackageStartupMessages(library(networkD3))
 suppressPackageStartupMessages(library(optparse))
+suppressPackageStartupMessages(library(tidyverse))
 
 # =========
 # Options and paths
@@ -25,6 +26,7 @@ cutadapt.log <- all.logs[str_detect(all.logs, ".cutadapt_filter.log")]
 premap.log <- all.logs[str_detect(all.logs, ".premap.log")]
 map.log <- all.logs[str_detect(all.logs, ".Log.final.out")]
 dedup.log <- all.logs[str_detect(all.logs, ".dedup.log")]
+pcoding.log <- all.logs[str_detect(all.logs, ".qc_results.tsv.gz")]
 
 # Extract sample name
 sample_id <- str_split(basename(map.log), ".Log.final.out")[[1]][1]
@@ -36,6 +38,10 @@ message("Analysing ", sample_id)
 cutadapt.log <- readLines(cutadapt.log)
 total.reads <- cutadapt.log[grep("^Total reads processed:", cutadapt.log)]
 too.short <- cutadapt.log[grep("^Reads that were too short:", cutadapt.log)]
+
+# Extract min length from cutadapt command
+min.length <- cutadapt.log[grep("^Command line parameters:", cutadapt.log)]
+min.length <- parse_number(str_split(min.length, "--minimum-length ")[[1]][2])
 
 # Extract the read numbers from logs
 total.reads <- parse_number(total.reads)
@@ -84,12 +90,18 @@ dedup.reads <- dedup.log[grep("INFO Number of reads out:", dedup.log)]
 dedup.reads <- parse_number(str_split(dedup.reads, "INFO")[[1]][2])
 dup.reads <- input_dedup.reads - dedup.reads
 
-# TO DO
 ## MAP to pcoding transcripts
 ## Map to pcoding transcripts and of expected length range
+pcoding.log <- read_table(pcoding.log)
+pcoding.reads <- as.integer(pcoding.log$useful_read_n)
+not_pcoding.reads <- dedup.reads - pcoding.reads
 
+expected.reads <- as.integer(pcoding.log$expected_length_n)
+out_expected.reads <- pcoding.reads - expected.reads
 
-# Now build the data for the actual Sankey plot
+expected.length <- pcoding.log$expected_length
+
+# Build the data for the actual Sankey plot
 read_list <- list()
 
 # Length filter
@@ -112,12 +124,18 @@ read_list['unmapped_other'] <- other.reads
 read_list['deduplicated'] <- dedup.reads
 read_list['duplicated'] <- dup.reads
 
+# Pcoding
+read_list['pcoding'] <- pcoding.reads
+read_list['not_pcoding'] <- not_pcoding.reads
+read_list['expected'] <- expected.reads
+read_list['out_expected'] <- out_expected.reads
+
 # PLOTTING
 
 nodes <- data.frame(
   name=c(
     'Total',
-    'Too short',
+    paste0('Too short - less than ', min.length, ' nt'),
     'Passing length filter',
     'Premapped',
     'Not premapped',
@@ -127,7 +145,11 @@ nodes <- data.frame(
     'Unmapped - other',
     'Uniquely mapped',
     'Duplicated',
-    'Deduplicated'
+    'Deduplicated',
+    'Not mapped to protein-coding transcripts',
+    'Mapped to protein-coding transcripts (useful)',
+    'Not in the expected length range',
+    paste0('Expected length - ', expected.length, " nt")
   ),
   group=c(
     'a',
@@ -141,7 +163,11 @@ nodes <- data.frame(
     'd',
     'd',
     'e',
-    'e'
+    'e',
+    'f',
+    'f',
+    'g',
+    'g'
   )
 )
 
@@ -156,7 +182,11 @@ links <- as.data.frame(rbind(
   c( 4,  8, read_list[['unmapped_other']]),
   c( 4,  9, read_list[['uniquely_mapped']]),
   c( 9, 10, read_list[['duplicated']]),
-  c( 9, 11, read_list[['deduplicated']])
+  c( 9, 11, read_list[['deduplicated']]),
+  c( 11, 12, read_list[['not_pcoding']]),
+  c( 12, 13, read_list[['pcoding']]),
+  c( 13, 14, read_list[['out_expected']]),
+  c( 13, 15, read_list[['expected']])
 ))
 
 
@@ -170,7 +200,7 @@ links$link_source <- nodes$name[links$source + 1]
 message("Plotting Sankey diagram for ", sample_id)
 
 # my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d","e", "reads_group"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B", "grey"])'
-my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d","e"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B"])'
+my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d", "e", "f", "g"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B", "#7D7A70", "#5C625C"])'
 
 
 p <- sankeyNetwork(
