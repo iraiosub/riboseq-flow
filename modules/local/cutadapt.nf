@@ -20,7 +20,7 @@ process CUTADAPT {
     output:
         tuple val(sample_id), path("${sample_id}.trimmed.fastq.gz"), emit: trimmed_fastq // necessary for ribocutter
         tuple val(sample_id), path("${sample_id}.trimmed.filtered.fastq.gz"), emit: fastq
-        path("*.log"), emit: log
+        tuple val(sample_id), path("*.log"), emit: log
 
     script:
 
