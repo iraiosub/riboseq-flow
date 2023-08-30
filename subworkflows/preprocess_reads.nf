@@ -58,6 +58,7 @@ workflow PREPROCESS_READS {
 
     fastq
     trimmed_fastq
+    logs
 
 }
 
