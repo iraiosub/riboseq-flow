@@ -6,6 +6,11 @@ nextflow.enable.dsl=2
 include { CUTADAPT } from '../modules/local/cutadapt.nf'
 include { UMITOOLS_EXTRACT } from '../modules/local/umitools.nf'
 
+// Create channel for optional input
+ch_optional = Channel
+            .fromPath( params.input )
+            .splitCsv(header:true)
+            .map { row -> [ row.sample, [] ] }
 
 // reads.into { reads_raw; reads_trimmed }
 
@@ -49,7 +54,7 @@ workflow PREPROCESS_READS {
 
             fastq = reads
             trimmed_fastq = reads
-            log = Channel.empty()
+            log = ch_optional
         }
     }
 
