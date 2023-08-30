@@ -7,8 +7,7 @@ suppressPackageStartupMessages(library(optparse))
 # Options and paths
 # =========
 
-option_list <- list(make_option(c("-d", "--dir"), action = "store", type = "character", default=NA, help = "results directory"),
-                    make_option(c("-p", "--prefix"), action = "store", type = "character", default=NA, help = "sample and output file prefix"))
+option_list <- list(make_option(c("-d", "--dir"), action = "store", type = "character", default=NA, help = "results directory"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
@@ -17,10 +16,10 @@ opt <- parse_args(opt_parser)
 # Functions
 # =========
 
-results.dir <- opt$dir
+logs.dir <- opt$dir
 
 # Parse logs
-all.logs <- list.files(results.dir, full.names = TRUE)
+all.logs <- list.files(logs.dir, full.names = TRUE)
 
 cutadapt.log <- all.logs[str_detect(all.logs, ".cutadapt_filter.log")]
 premap.log <- all.logs[str_detect(all.logs, ".premap.log")]
@@ -40,11 +39,9 @@ too.short <- cutadapt.log[grep("^Reads that were too short:", cutadapt.log)]
 
 # Extract the read numbers from logs
 total.reads <- parse_number(total.reads)
-# names(total.reads) <- "total_reads"
 too.short <- parse_number(too.short)
-# names(too.short) <- "too_short"
 passing_length_filter.reads <- total.reads - too.short
-# names(passing_length_filter.reads) <- "passing length filter"
+
 
 ## PREMAP, reads that pre-map to rRNA, tRNA, etc are filtered out
 premap.log <- readLines(premap.log)
@@ -55,9 +52,6 @@ stopifnot(input_premap.reads == passing_length_filter.reads)
 
 not_premapped.reads <- parse_number(premap.log[grep("aligned 0 times", premap.log)])
 premapped.reads <- input_premap.reads - not_premapped.reads
-# names(premapped.reads) <- "premapped"
-# names(not_premapped.reads) <- "not_premapped"
-
 
 ## MAP, only the reads that mapped uniquely to the genome are kept
 map.log <- readLines(map.log)
@@ -89,41 +83,34 @@ stopifnot(input_dedup.reads == uniquemap.reads)
 dedup.reads <- dedup.log[grep("INFO Number of reads out:", dedup.log)]
 dedup.reads <- parse_number(str_split(dedup.reads, "INFO")[[1]][2])
 dup.reads <- input_dedup.reads - dedup.reads
-# names(dedup.reads) <- "after_deduplication"
-# names(dup.reads) <- "duplicated"
-
 
 # TO DO
 ## MAP to pcoding transcripts
 ## Map to pcoding transcripts and of expected length range
 
 
-# Now build the actual Sankey plot
-
+# Now build the data for the actual Sankey plot
 read_list <- list()
 
-# length filter
+# Length filter
 read_list['total_reads'] <- total.reads
-
 read_list['passing_length_filter'] <- passing_length_filter.reads
 read_list['too_short'] <- tooshort.reads
 
-# premap
+# Premap
 read_list['premapped'] <- premapped.reads
 read_list['not_premapped'] <- not_premapped.reads
 
-# map
+# Map
 read_list['uniquely_mapped'] <- uniquemap.reads
 read_list['multi_mapped'] <- multimap.reads
 read_list['unmapped_too_many_mismatches'] <- mismatches.reads
 read_list['unmapped_too_short'] <- tooshort.reads
 read_list['unmapped_other'] <- other.reads
 
-# dedup
+# Dedup
 read_list['deduplicated'] <- dedup.reads
 read_list['duplicated'] <- dup.reads
-
-
 
 # PLOTTING
 
@@ -180,11 +167,9 @@ links$link_source <- nodes$name[links$source + 1]
 # Add group hoping for single color for links
 # links$group <- as.factor(c("reads_group"))
 
-print('plotting')
-
+message("Plotting Sankey diagram for ", sample_id)
 
 # my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d","e", "reads_group"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B", "grey"])'
-
 my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d","e"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B"])'
 
 
@@ -210,11 +195,4 @@ p <- sankeyNetwork(
   sinksRight = F# effectively prevent the placement algorithm from running, so your nodes will be ordered as they were in the original data
 )
 
-saveNetwork(p, paste0(results.dir,'/',sample_id, '_sankey.html'), selfcontained = FALSE)
-
-
-# for custom colors
-# d3.scaleOrdinal().range(["#7d3945", "#e0677b", "#244457"])
-
-# the number of colors in the palette you choose/define must be equal to or greater than the total number of unique groups defined in your data
-
+saveNetwork(p, paste0(logs.dir,'/',sample_id, '_sankey.html'), selfcontained = FALSE)

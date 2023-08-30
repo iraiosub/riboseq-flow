@@ -29,7 +29,7 @@ get_info_from_bam <- function(bam, info) {
 
   info.df <- fread(info)
 
-  # add sample name
+  # Add sample name, keep only pcoding transcripts mapping reads
   bam.df <- data.frame(scanBam(bam)) %>%
       mutate(rl = str_length(seq)) %>%
       dplyr::rename(transcript_id = rname) %>%
@@ -268,17 +268,19 @@ if(!is.na(opt$after_dedup)) {
 
 # Useful reads are defined as reads mapping to protein coding/number of preprocessed reads
 useful_read_perc <- 100*nrow(riboseq_info$bam) / sum(original_fq$original_n)
-useful_df <- data.frame(x = "", y = useful_read_perc)
+useful_df <- data.frame(x = "", y = useful_read_perc,
+                        useful_read_n = nrow(riboseq_info$bam))
 
 # Proprtion of uniquely mapped reads to reppresentative pcoding transcripts ie useful reads that are of expected read length
-tx_map_summary <- 100*nrow(riboseq_info$bam %>% 
-  filter(rl >= min_length & rl <= max_length)) / nrow(riboseq_info$bam)
+tx_map_expected_length_perc <- 100*nrow(riboseq_info$bam %>% filter(rl >= min_length & rl <= max_length)) / nrow(riboseq_info$bam)
+tx_map_expected_length_count <- nrow(riboseq_info$bam %>% filter(rl >= min_length & rl <= max_length))
 
 summary_df <- useful_df %>%
   mutate(name = actual_name,
           duplication = duplication_perc,
           expected_length = opt$expected_length,
-          percent_expected_length = tx_map_summary)
+          percent_expected_length = tx_map_expected_length_perc,
+          tx_map_expected_length_n = tx_map_expected_length_count)
 
 
 # Customise sub-title based on whether UMIs were used or not
@@ -304,4 +306,5 @@ fig <- ((p1 + ggtitle(paste("Sample:", actual_name)) | useful_plot) +  plot_layo
 
 # Save results
 ggsave(paste0(actual_name, ".qc_results.pdf"), plot = fig, dpi = 300, height = 18, width = 12)
-fwrite(summary_df, paste0(actual_name, ".qc_results.tsv.gz"), sep = "\t")
+fwrite(summary_df, paste0(actual_name, ".qc_results.tsv.gz"), sep = "\t", row.names = FALSE)
+

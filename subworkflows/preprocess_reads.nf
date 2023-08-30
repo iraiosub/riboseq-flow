@@ -9,7 +9,7 @@ include { UMITOOLS_EXTRACT } from '../modules/local/umitools.nf'
 
 // reads.into { reads_raw; reads_trimmed }
 
-           
+
 workflow PREPROCESS_READS {
 
     take:
