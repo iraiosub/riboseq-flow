@@ -19,8 +19,8 @@ workflow PREPROCESS_READS {
     if (params.with_umi && !params.skip_umi_extract) {
 
         UMITOOLS_EXTRACT(reads)
-        fastq = UMITOOLS_EXTRACT.out.fastq
-        trimmed_fastq = UMITOOLS_EXTRACT.out.fastq
+        // fastq = UMITOOLS_EXTRACT.out.fastq
+        // trimmed_fastq = UMITOOLS_EXTRACT.out.fastq
 
         if (!params.skip_preprocessing) {
 
@@ -29,7 +29,12 @@ workflow PREPROCESS_READS {
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
             logs = CUTADAPT.out.log
             
-        }  
+        }  else {
+
+            fastq = UMITOOLS_EXTRACT.out.fastq
+            trimmed_fastq = UMITOOLS_EXTRACT.out.fastq
+            logs = Channel.empty()
+        }
 
     } else if (!params.with_umi && !params.skip_umi_extract) {
 

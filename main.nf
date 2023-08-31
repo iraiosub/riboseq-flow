@@ -158,7 +158,7 @@ workflow RIBOSEQ {
         // Track read fate through pipeline
             TRACK_READS(
                 PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc)
-                .map { [ it[1] ] }
+                .map { [ it[1], it[2], it[3], it[4], it[5] ] }
                 .flatten()
             )
 
@@ -179,6 +179,8 @@ workflow RIBOSEQ {
 
             TRACK_READS(
                 PREPROCESS_READS.out.logs.join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc)
+                .map { [ it[1], it[2], it[3], it[4] ] }
+                .flatten()
             )
 
 
@@ -198,6 +200,8 @@ workflow RIBOSEQ {
 
             TRACK_READS(
                 PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(RIBOSEQ_QC.out.qc)
+                .map { [ it[1], it[2], it[3], it[4] ] }
+                .flatten()
             )
 
         } else if (params.skip_premap && !params.with_umi) {
@@ -216,6 +220,8 @@ workflow RIBOSEQ {
 
             TRACK_READS(
                 PREPROCESS_READS.out.logs.join(MAP.out.log).join(RIBOSEQ_QC.out.qc)
+                .map { [ it[1], it[2], it[3] ] }
+                .flatten()
             )
         }
 
@@ -280,7 +286,7 @@ workflow RIBOSEQ {
 
 
     // Get P-site tracks
-    GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
+    // GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
    
     // PCA on gene-level RPF counts and transcript-level P sites
     if (!params.skip_psite) {
@@ -317,21 +323,23 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(PREMAP.out.log.collect(), MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
+            .mix(PREMAP.out.log.map{ it[1] }.collect(), MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
             .collect()
+
     } else if (!params.skip_premap && params.skip_qc) {
 
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(MAP.out.log.collect(), PCA.out.pca_mqc, ch_ribocutter)
+            .mix(PREMAP.out.log.map{ it[1] }.collect(), MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, ch_ribocutter)
             .collect()
+
     } else if (params.skip_premap && params.skip_qc) {
 
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(MAP.out.log.collect(), PCA.out.pca_mqc, ch_ribocutter)
+            .mix(MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, ch_ribocutter)
             .collect()
 
     } else {
@@ -339,11 +347,11 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(MAP.out.log.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
+            .mix(MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
             .collect()
     }
     
-    MULTIQC(ch_logs)
+    // MULTIQC(ch_logs)
     
 }
 
