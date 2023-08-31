@@ -20,7 +20,7 @@ export NXF_HOME=/nemo/lab/ulej/home/users/luscomben/users/iosubi/.nextflow
 nextflow pull iraiosub/riboseq -r dev-nf
 
 nextflow run iraiosub/riboseq -r dev-nf \
--profile test,crick \
+-profile crick \
 -resume \
 --input ./data/samplesheet.csv \
 --outdir results_full_test_dev_nf_xxx
