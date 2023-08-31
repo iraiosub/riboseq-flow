@@ -9,7 +9,7 @@ process RIBOSEQ_QC {
     label 'process_medium'
 
     // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
-    container 'iraiosub/mapping-length:latest'
+    container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/riboseq_qc", mode: 'copy', overwrite: true
 
@@ -47,7 +47,7 @@ process SUMMARISE_RIBOSEQ_QC {
     label 'process_low'
 
     // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
-    container 'iraiosub/mapping-length:latest'
+    container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/riboseq_qc", mode: 'copy', overwrite: true
 
@@ -84,7 +84,7 @@ process TRACK_READS {
     label 'process_low'
 
     // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
-    // container 'iraiosub/mapping-length:latest'
+    container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/riboseq_qc/sankey", mode: 'copy', overwrite: true
 
