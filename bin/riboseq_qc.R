@@ -24,6 +24,30 @@ option_list <- list(make_option(c("-b", "--bam"), action = "store", type = "char
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
+
+# If a read is assigned to 2 overlapping transcripts belonging to different genes, pick the one mapped to transcript with longest CDS
+keep_unique_reads <- function(bam_info) {
+  
+  multi.ls <- bam_info$qname[duplicated(bam_info$qname)]
+  
+  # If we dont separate the df, slice_max is very slow
+  multi.df <- bam_info %>%
+    dplyr::filter(qname %in% multi.ls)
+  
+  original_uniq.df <- anti_join(bam_info, multi.df, by = "qname")
+  
+  multi2uniq.df <- multi.df %>%
+    group_by(qname) %>%
+    dplyr::slice_max(cds_length, with_ties = FALSE) %>%
+    ungroup()
+  
+  uniq.df <- rbind(original_uniq.df, multi2uniq.df)
+  stopifnot(length(unique((bam_info$qname))) == nrow(uniq.df))
+  
+  return(uniq.df)
+  
+}
+
 # A function that extracts relevant positional information from transcriptomic bam for representative protein-coding transcripts
 get_info_from_bam <- function(bam, info) {
 
@@ -35,6 +59,8 @@ get_info_from_bam <- function(bam, info) {
       dplyr::rename(transcript_id = rname) %>%
       inner_join(info.df) %>%
       dplyr::filter(strand == "+") %>% # only keep sense reads
+  
+  bam.df <- keep_unique_reads(bam.df) %>%
       mutate(distance_from_start = pos - cds_start,
         distance_from_end = pos - cds_end) %>%
       mutate(frame = distance_from_start %% 3)
