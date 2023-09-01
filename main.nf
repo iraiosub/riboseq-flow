@@ -158,8 +158,6 @@ workflow RIBOSEQ {
         // Track read fate through pipeline
             TRACK_READS(
                 PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc)
-                .map { [ it[1], it[2], it[3], it[4], it[5] ] }
-                .flatten()
             )
 
 
@@ -177,11 +175,9 @@ workflow RIBOSEQ {
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
 
-            TRACK_READS(
-                PREPROCESS_READS.out.logs.join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc)
-                .map { [ it[1], it[2], it[3], it[4] ] }
-                .flatten()
-            )
+            // TRACK_READS(
+            //     PREPROCESS_READS.out.logs.join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc)
+            // )
 
 
         } else if (!params.skip_premap && !params.with_umi) {
@@ -198,11 +194,9 @@ workflow RIBOSEQ {
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
 
-            TRACK_READS(
-                PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(RIBOSEQ_QC.out.qc)
-                .map { [ it[1], it[2], it[3], it[4] ] }
-                .flatten()
-            )
+            // TRACK_READS(
+            //     PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(RIBOSEQ_QC.out.qc)
+            // )
 
         } else if (params.skip_premap && !params.with_umi) {
 
@@ -218,11 +212,9 @@ workflow RIBOSEQ {
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
 
-            TRACK_READS(
-                PREPROCESS_READS.out.logs.join(MAP.out.log).join(RIBOSEQ_QC.out.qc)
-                .map { [ it[1], it[2], it[3] ] }
-                .flatten()
-            )
+            // TRACK_READS(
+            //     PREPROCESS_READS.out.logs.join(MAP.out.log).join(RIBOSEQ_QC.out.qc)
+            // )
         }
 
         ch_merge_qc = RIBOSEQ_QC.out.qc
@@ -287,7 +279,7 @@ workflow RIBOSEQ {
         }
 
         // Get P-site tracks
-        GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
+        // GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
 
     }
 
@@ -327,7 +319,7 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(PREMAP.out.log.map{ it[1] }.collect(), MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
+            .mix(PREMAP.out.log.map{ it[1] }.collect(), MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, SUMMARISE_RIBOSEQ_QC.out.start_dist_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
             .collect()
 
     } else if (!params.skip_premap && params.skip_qc) {
@@ -351,7 +343,7 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
+            .mix(MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, SUMMARISE_RIBOSEQ_QC.out.start_dist_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
             .collect()
     }
     

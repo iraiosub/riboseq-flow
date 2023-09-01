@@ -99,7 +99,7 @@ not_pcoding.reads <- dedup.reads - pcoding.reads
 expected.reads <- as.integer(pcoding.log$expected_length_n)
 out_expected.reads <- pcoding.reads - expected.reads
 
-expected.length <- pcoding.log$expected_length
+expected.length <- as.character(pcoding.log$expected_length)
 
 # Build the data for the actual Sankey plot
 read_list <- list()
@@ -184,7 +184,7 @@ links <- as.data.frame(rbind(
   c( 9, 10, read_list[['duplicated']]),
   c( 9, 11, read_list[['deduplicated']]),
   c( 11, 12, read_list[['not_pcoding']]),
-  c( 12, 13, read_list[['pcoding']]),
+  c( 11, 13, read_list[['pcoding']]),
   c( 13, 14, read_list[['out_expected']]),
   c( 13, 15, read_list[['expected']])
 ))
@@ -216,7 +216,7 @@ p <- sankeyNetwork(
   fontSize=15,
   nodeWidth=30,
   fontFamily="sans-serif",
-  width = 1440, # outer width, in pixels
+  width = 1600, # outer width, in pixels
   height = 1000, # outer height, in pixels
   margin = c(top = 5, right = 1, bottom = 5, left = 1),
   nodePadding = 10, # vertical separation between adjacent nodes

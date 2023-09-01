@@ -118,7 +118,7 @@ sp:
   useful_length:
     fn: "useful_length_mqc.tsv"
   start_dist:
-    fn: "starting_length_mqc.tsv"
+    fn: "start_dist_mqc.tsv"
   ribocutter:
     fn: "ribocutter_mqc.tsv"
   pca:

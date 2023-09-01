@@ -94,10 +94,10 @@ process TRACK_READS {
     publishDir "${params.outdir}/riboseq_qc/sankey", mode: 'copy', overwrite: true
 
     input:
-        path(logs)
+        tuple val(sample_id), path(preprocess_log), path(premap_log), path(map_log), path(dedup_log), path(qc_log)
     
     output:
-        path("*_sankey.html"), emit: sankey
+        tuple val(sample_id), path("*_sankey.html"), path("*_sankey_files"), emit: sankey
 
     script:
 
