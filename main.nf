@@ -237,7 +237,11 @@ workflow RIBOSEQ {
             .map { [ it[1] ] }
             .collect()
 
-        SUMMARISE_RIBOSEQ_QC(ch_merge_qc, ch_merge_read_length, ch_merge_useful_length)
+        ch_merge_start_dist = RIBOSEQ_QC.out.start_dist
+            .map { [ it[1] ] }
+            .collect()
+
+        SUMMARISE_RIBOSEQ_QC(ch_merge_qc, ch_merge_read_length, ch_merge_useful_length, ch_merge_start_dist)
 
     }
 
@@ -282,11 +286,11 @@ workflow RIBOSEQ {
 
         }
 
+        // Get P-site tracks
+        GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
+
     }
 
-
-    // Get P-site tracks
-    GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
    
     // PCA on gene-level RPF counts and transcript-level P sites
     if (!params.skip_psite) {

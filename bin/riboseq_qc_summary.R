@@ -10,7 +10,8 @@ suppressPackageStartupMessages(library(optparse))
 
 option_list <- list(make_option(c("-i", "--summary_list"), action = "store", type = "character", default=NA, help = "list of comma separated qc summary tables"),
                     make_option(c("-l", "--read_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated read length distribution"),
-                    make_option(c("-u", "--useful_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read length distribution"))
+                    make_option(c("-u", "--useful_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read length distribution"),
+                    make_option(c("", "--start_dist_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read count density around start codon"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
@@ -123,3 +124,14 @@ useful_length.df <- useful_length.df %>%
   column_to_rownames(var = "sample")
 
 fwrite(useful_length.df, "useful_length_mqc.tsv", row.names = TRUE, sep = "\t")
+
+# Distance from start files produced by riboseq_qc.R
+start_dist.ls <- as.list(strsplit(opt$start_dist_list, ",")[[1]])
+start_dist.df <- rbindlist(lapply(start_dist.ls , fread), use.names = TRUE)
+
+# Strip nt from colnames to allow linegraph
+start_dist.df <- start_dist.df %>%
+  rename_with(~str_remove(., 'nt')) %>%
+  column_to_rownames(var = "sample")
+
+fwrite(start_dist.df, "start_dist_mqc.tsv", row.names = TRUE, sep = "\t")

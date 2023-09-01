@@ -22,6 +22,17 @@ custom_data:
       xlab: Length (nt)
       ylab: Frequency
       yDecimals: False
+  start_dist:
+    file_format: "tsv"
+    section_name: "Distance from START codon"
+    description: "Distance of 5'ends of reads of expected length from START codon ...."
+    plot_type: "linegraph"
+    pconfig:
+      id: "start_dist_linegraph"
+      title: "Distance from START codon (nt)"
+      xlab: Distance (nt)
+      ylab: Count
+      yDecimals: False
   ribocutter:
     file_format: "tsv"
     section_name: "Ribocutter"
@@ -106,6 +117,8 @@ sp:
     fn: "starting_length_mqc.tsv"
   useful_length:
     fn: "useful_length_mqc.tsv"
+  start_dist:
+    fn: "starting_length_mqc.tsv"
   ribocutter:
     fn: "ribocutter_mqc.tsv"
   pca:

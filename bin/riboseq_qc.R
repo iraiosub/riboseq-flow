@@ -34,6 +34,7 @@ get_info_from_bam <- function(bam, info) {
       mutate(rl = str_length(seq)) %>%
       dplyr::rename(transcript_id = rname) %>%
       inner_join(info.df) %>%
+      dplyr::filter(strand == "+") %>% # only keep sense reads
       mutate(distance_from_start = pos - cds_start,
         distance_from_end = pos - cds_end) %>%
       mutate(frame = distance_from_start %% 3)
@@ -151,6 +152,20 @@ useful_length_mqc.df <- riboseq_info$bam %>%
 
 fwrite(useful_length_mqc.df, paste0(actual_name, "_useful_length_mqc.tsv"), sep = "\t", row.names = FALSE)
 
+# Start dist, reformat length dataframe to export for MultiQC
+start_dist_mqc.df <- riboseq_info$start_dist %>%
+  mutate(sample = actual_name) %>%
+  dplyr::filter(distance_from_start <=50 & distance_from_start >= -50) %>%
+  dplyr::filter(rl >= min_length & rl <= max_length) %>%
+  group_by(sample, distance_from_start) %>%
+  summarise(number_of_reads = sum(n)) %>%
+  dplyr::select(sample, distance_from_start, number_of_reads) %>%
+  mutate(distance_from_start = paste0(distance_from_start, "nt")) %>%
+  pivot_wider(names_from = distance_from_start, values_from = number_of_reads)
+
+fwrite(start_dist_mqc.df, paste0(actual_name, "_start_dist_mqc.tsv"), sep = "\t", row.names = FALSE)
+
+
 # =========
 # Premapping
 # =========
@@ -224,6 +239,9 @@ if (basename(opt$after_premap) != "optional.txt") {
   premapping_plot <- ggplot() + theme_void() + ggtitle("Original vs mapping") + geom_text(aes(0,0,label='N/A'))
 
 }
+
+
+
 
 # =========
 # Duplication
