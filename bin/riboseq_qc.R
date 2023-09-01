@@ -58,7 +58,7 @@ get_info_from_bam <- function(bam, info) {
       mutate(rl = str_length(seq)) %>%
       dplyr::rename(transcript_id = rname) %>%
       inner_join(info.df) %>%
-      dplyr::filter(strand == "+") %>% # only keep sense reads
+      dplyr::filter(strand == "+") # only keep sense reads
   
   bam.df <- keep_unique_reads(bam.df) %>%
       mutate(distance_from_start = pos - cds_start,
