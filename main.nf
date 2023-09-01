@@ -286,7 +286,7 @@ workflow RIBOSEQ {
 
 
     // Get P-site tracks
-    /GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
+    GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
    
     // PCA on gene-level RPF counts and transcript-level P sites
     if (!params.skip_psite) {
