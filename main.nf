@@ -229,11 +229,15 @@ workflow RIBOSEQ {
             .map { [ it[1] ] }
             .collect()
 
+        ch_merge_region_counts = RIBOSEQ_QC.out.region_counts
+            .map { [ it[1] ] }
+            .collect()
+
         ch_merge_start_dist = RIBOSEQ_QC.out.start_dist
             .map { [ it[1] ] }
             .collect()
 
-        SUMMARISE_RIBOSEQ_QC(ch_merge_qc, ch_merge_read_length, ch_merge_useful_length, ch_merge_start_dist)
+        SUMMARISE_RIBOSEQ_QC(ch_merge_qc, ch_merge_read_length, ch_merge_useful_length, ch_merge_region_counts, ch_merge_start_dist)
 
     }
 

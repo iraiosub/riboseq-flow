@@ -157,7 +157,7 @@ length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
   ylab("N reads in fastq") +
   ggtitle("Read length distribution")  
 
-# Reformat length dataframe to export for MultiQC
+# Reformat length dataframe to export for MultiQC, read length distribution of starting reads
 fq_length_mqc.df <- original_fq %>%
   mutate(sample = actual_name) %>%
   dplyr::rename(number_of_reads = original_n) %>%
@@ -177,6 +177,25 @@ useful_length_mqc.df <- riboseq_info$bam %>%
   pivot_wider(names_from = length, values_from = number_of_reads)
 
 fwrite(useful_length_mqc.df, paste0(actual_name, "_useful_length_mqc.tsv"), sep = "\t", row.names = FALSE)
+
+
+# Regional distribution of useful reads
+# Assign CDS or UTR based on relative position of the starts of useful reads to CDS start and ends
+region_counts.df <- riboseq_info$bam %>%
+  dplyr::select(qname, pos, rl, cds_start, cds_end) %>%
+  mutate(region = case_when(pos < cds_start ~ "5UTR",
+                            pos > cds_end ~ "3UTR",
+                            TRUE ~ "CDS"),
+         sample = actual_name) %>%
+  group_by(sample, region) %>%
+  summarise(region_counts = n())
+
+# Now reformat for multiqc
+region_counts_mqc.df <- region_counts.df %>%
+  pivot_wider(names_from = region, values_from = region_counts)
+
+fwrite(region_counts_mqc.df, paste0(actual_name, "_region_counts_mqc.tsv"), sep = "\t", row.names = FALSE)
+
 
 # Start dist, reformat length dataframe to export for MultiQC
 start_dist_mqc.df <- riboseq_info$start_dist %>%

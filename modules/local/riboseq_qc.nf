@@ -22,7 +22,9 @@ process RIBOSEQ_QC {
         path("*.qc_results.pdf"), emit: plots
         tuple val(sample_id), path("*_fq_length_mqc.tsv"), emit: fq_length_distr
         tuple val(sample_id), path("*_useful_length_mqc.tsv"), emit: useful_length_distr
+        tuple val(sample_id), path("*_region_counts_mqc.tsv"), emit: region_counts
         tuple val(sample_id), path("*_start_dist_mqc.tsv"), emit: start_dist
+        
 
     script:
         
@@ -56,6 +58,7 @@ process SUMMARISE_RIBOSEQ_QC {
         path(qc_tables)
         path(fq_length_tables)
         path(useful_length_tables)
+        path(region_counts_tables)
         path(start_dist_tables)
     
     output:
@@ -65,6 +68,7 @@ process SUMMARISE_RIBOSEQ_QC {
         path("duplication_mqc.tsv"), emit: duplication_mqc
         path("starting_length_mqc.tsv"), emit: length_mqc
         path("useful_length_mqc.tsv"), emit: useful_length_mqc
+        path("region_counts_mqc.tsv"), emit: region_counts_mqc
         path("start_dist_mqc.tsv"), emit: start_dist_mqc
 
 
@@ -74,9 +78,11 @@ process SUMMARISE_RIBOSEQ_QC {
         INPUT_QC=`echo $qc_tables | sed 's/ /,/g'`
         INPUT_FQ_LEN=`echo $fq_length_tables | sed 's/ /,/g'`
         INPUT_USEFUL_LEN=`echo $useful_length_tables | sed 's/ /,/g'`
+        INPUT_REGION_COUNTS=`echo $region_counts_tables | sed 's/ /,/g'`
         INPUT_START_DIST=`echo $start_dist_tables | sed 's/ /,/g'`
+        
 
-        riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN --start_dist_list \$INPUT_START_DIST
+        riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN -r \$INPUT_REGION_COUNTS --start_dist_list \$INPUT_START_DIST
         
         """
 

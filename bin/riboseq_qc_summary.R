@@ -11,6 +11,7 @@ suppressPackageStartupMessages(library(optparse))
 option_list <- list(make_option(c("-i", "--summary_list"), action = "store", type = "character", default=NA, help = "list of comma separated qc summary tables"),
                     make_option(c("-l", "--read_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated read length distribution"),
                     make_option(c("-u", "--useful_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read length distribution"),
+                    make_option(c("-r", "--region_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated region counts"),
                     make_option(c("", "--start_dist_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read count density around start codon"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
@@ -103,7 +104,7 @@ duplication_mqc.df <- full_summary.df %>%
 
 fwrite(duplication_mqc.df, "duplication_mqc.tsv", row.names = FALSE, sep = "\t")
 
-# FASTQ Read length files produced by riboseq_qc.R
+# FASTQ Read length files produced by riboseq_qc.R (starting read length distribution)
 read_length.ls <- as.list(strsplit(opt$read_len_list, ",")[[1]])
 read_length.df <- rbindlist(lapply(read_length.ls , fread), use.names = TRUE)
 
@@ -135,3 +136,10 @@ start_dist.df <- start_dist.df %>%
   column_to_rownames(var = "sample")
 
 fwrite(start_dist.df, "start_dist_mqc.tsv", row.names = TRUE, sep = "\t")
+
+
+# Region counts
+region_counts.ls <- as.list(strsplit(opt$region_counts_list, ",")[[1]])
+region_counts.df <- rbindlist(lapply(region_counts.ls , fread), use.names = TRUE)
+fwrite(region_counts.df, "region_counts_mqc.tsv", row.names = FALSE, sep = "\t")
+

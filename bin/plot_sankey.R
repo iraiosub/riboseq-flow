@@ -3,6 +3,7 @@
 suppressPackageStartupMessages(library(networkD3))
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(data.table))
 
 # =========
 # Options and paths
@@ -92,7 +93,7 @@ dup.reads <- input_dedup.reads - dedup.reads
 
 ## MAP to pcoding transcripts
 ## Map to pcoding transcripts and of expected length range
-pcoding.log <- read_table(pcoding.log)
+pcoding.log <- fread(pcoding.log)
 pcoding.reads <- as.integer(pcoding.log$useful_read_n)
 not_pcoding.reads <- dedup.reads - pcoding.reads
 
@@ -100,6 +101,7 @@ expected.reads <- as.integer(pcoding.log$expected_length_n)
 out_expected.reads <- pcoding.reads - expected.reads
 
 expected.length <- as.character(pcoding.log$expected_length)
+print(expected.length)
 
 # Build the data for the actual Sankey plot
 read_list <- list()
