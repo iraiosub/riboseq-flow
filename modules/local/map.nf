@@ -49,9 +49,13 @@ process MAP {
     $args
 
     samtools index -@ ${task.cpus} ${sample_id}.Aligned.sortedByCoord.out.bam
-    samtools sort -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.out.bam > ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
+
+    samtools view -@ ${task.cpus} ${sample_id}.Aligned.sortedByCoord.out.bam | cut -f1 | sort | uniq > ${sample_id}.qnames_list.txt
+    samtools view -@ ${task.cpus} -N ${sample_id}.qnames_list.txt -o ${sample_id}.Aligned.toTranscriptome.filtered.out.bam ${sample_id}.Aligned.toTranscriptome.out.bam
+
+    samtools sort -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.filtered.out.bam > ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
     samtools index -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
-    
+
     """
 
 }

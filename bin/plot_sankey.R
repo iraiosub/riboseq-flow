@@ -27,7 +27,7 @@ cutadapt.log <- all.logs[str_detect(all.logs, ".cutadapt_filter.log")]
 premap.log <- all.logs[str_detect(all.logs, ".premap.log")]
 map.log <- all.logs[str_detect(all.logs, ".Log.final.out")]
 dedup.log <- all.logs[str_detect(all.logs, ".dedup.log")]
-# pcoding.log <- all.logs[str_detect(all.logs, ".qc_results.tsv.gz")]
+pcoding.log <- all.logs[str_detect(all.logs, ".qc_results.tsv.gz")]
 
 # Extract sample name
 sample_id <- str_split(basename(map.log), ".Log.final.out")[[1]][1]
@@ -91,17 +91,17 @@ dedup.reads <- dedup.log[grep("INFO Number of reads out:", dedup.log)]
 dedup.reads <- parse_number(str_split(dedup.reads, "INFO")[[1]][2])
 dup.reads <- input_dedup.reads - dedup.reads
 
-# ## MAP to pcoding transcripts
-# ## Map to pcoding transcripts and of expected length range
-# pcoding.log <- fread(pcoding.log)
-# pcoding.reads <- as.integer(pcoding.log$useful_read_n)
-# not_pcoding.reads <- dedup.reads - pcoding.reads
+## MAP to pcoding transcripts
+## Map to pcoding transcripts and of expected length range
+pcoding.log <- fread(pcoding.log)
+pcoding.reads <- as.integer(pcoding.log$useful_read_n)
+not_pcoding.reads <- dedup.reads - pcoding.reads
 
-# expected.reads <- as.integer(pcoding.log$expected_length_n)
-# out_expected.reads <- pcoding.reads - expected.reads
+expected.reads <- as.integer(pcoding.log$expected_length_n)
+out_expected.reads <- pcoding.reads - expected.reads
 
-# expected.length <- as.character(pcoding.log$expected_length)
-# print(expected.length)
+expected.length <- as.character(pcoding.log$expected_length)
+print(expected.length)
 
 # Build the data for the actual Sankey plot
 read_list <- list()
@@ -126,11 +126,11 @@ read_list['unmapped_other'] <- other.reads
 read_list['deduplicated'] <- dedup.reads
 read_list['duplicated'] <- dup.reads
 
-# # Pcoding
-# read_list['pcoding'] <- pcoding.reads
-# read_list['not_pcoding'] <- not_pcoding.reads
-# read_list['expected'] <- expected.reads
-# read_list['out_expected'] <- out_expected.reads
+# Pcoding
+read_list['pcoding'] <- pcoding.reads
+read_list['not_pcoding'] <- not_pcoding.reads
+read_list['expected'] <- expected.reads
+read_list['out_expected'] <- out_expected.reads
 
 # PLOTTING
 
@@ -147,11 +147,11 @@ nodes <- data.frame(
     'Unmapped - other',
     'Uniquely mapped',
     'Duplicated',
-    'Deduplicated'
-    # 'Not mapped to protein-coding transcripts',
-    # 'Mapped to protein-coding transcripts (useful)',
-    # 'Not in the expected length range',
-    # paste0('Expected length - ', expected.length, " nt")
+    'Deduplicated',
+    'Not mapped to protein-coding transcripts',
+    'Mapped to protein-coding transcripts (useful)',
+    'Not in the expected length range',
+    paste0('Expected length - ', expected.length, " nt")
   ),
   group=c(
     'a',
@@ -165,11 +165,11 @@ nodes <- data.frame(
     'd',
     'd',
     'e',
-    'e'
-    # 'f',
-    # 'f',
-    # 'g',
-    # 'g'
+    'e',
+    'f',
+    'f',
+    'g',
+    'g'
   )
 )
 
@@ -184,11 +184,11 @@ links <- as.data.frame(rbind(
   c( 4,  8, read_list[['unmapped_other']]),
   c( 4,  9, read_list[['uniquely_mapped']]),
   c( 9, 10, read_list[['duplicated']]),
-  c( 9, 11, read_list[['deduplicated']])
-  # c( 11, 12, read_list[['not_pcoding']]),
-  # c( 11, 13, read_list[['pcoding']]),
-  # c( 13, 14, read_list[['out_expected']]),
-  # c( 13, 15, read_list[['expected']])
+  c( 9, 11, read_list[['deduplicated']]),
+  c( 11, 12, read_list[['not_pcoding']]),
+  c( 11, 13, read_list[['pcoding']]),
+  c( 13, 14, read_list[['out_expected']]),
+  c( 13, 15, read_list[['expected']])
 ))
 
 
@@ -202,11 +202,8 @@ links$link_source <- nodes$name[links$source + 1]
 message("Plotting Sankey diagram for ", sample_id)
 
 # my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d","e", "reads_group"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B", "grey"])'
-# my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d", "e", "f", "g"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B", "#7D7A70", "#5C625C"])'
-
-my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d", "e"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B"])'
-
-
+my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d", "e", "f", "g"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B", "#7D7A70", "#5C625C"])'
+# my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d", "e"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B"])'
 
 p <- sankeyNetwork(
   Links=links,
@@ -218,16 +215,16 @@ p <- sankeyNetwork(
   NodeID='name',
   NodeGroup='group',
   units='reads',
-  fontSize=15,
-  nodeWidth=30,
+  fontSize=12,
+  nodeWidth=45,
   fontFamily="sans-serif",
-  width = 1600, # outer width, in pixels
+  width = 1800, # outer width, in pixels
   height = 1000, # outer height, in pixels
   margin = c(top = 5, right = 1, bottom = 5, left = 1),
-  nodePadding = 10, # vertical separation between adjacent nodes
+  nodePadding = 15, # vertical separation between adjacent nodes
   iterations = 10,
   colourScale=my_color,
-  sinksRight = F# effectively prevent the placement algorithm from running, so your nodes will be ordered as they were in the original data
+  sinksRight = F # effectively prevent the placement algorithm from running, so your nodes will be ordered as they were in the original data
 )
 
 saveNetwork(p, paste0(sample_id, '_sankey.html'), selfcontained = FALSE)

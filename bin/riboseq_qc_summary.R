@@ -106,7 +106,7 @@ fwrite(duplication_mqc.df, "duplication_mqc.tsv", row.names = FALSE, sep = "\t")
 
 # FASTQ Read length files produced by riboseq_qc.R (starting read length distribution)
 read_length.ls <- as.list(strsplit(opt$read_len_list, ",")[[1]])
-read_length.df <- rbindlist(lapply(read_length.ls , fread), use.names = TRUE)
+read_length.df <- rbindlist(lapply(read_length.ls , fread), use.names = TRUE, fill = TRUE)
 
 # Strip nt from colnames to allow linegraph
 read_length.df <- read_length.df %>%
@@ -117,7 +117,7 @@ fwrite(read_length.df, "starting_length_mqc.tsv", row.names = TRUE, sep = "\t")
 
 # Useful read length files produced by riboseq_qc.R
 useful_length.ls <- as.list(strsplit(opt$useful_len_list, ",")[[1]])
-useful_length.df <- rbindlist(lapply(useful_length.ls , fread), use.names = TRUE)
+useful_length.df <- rbindlist(lapply(useful_length.ls , fread), use.names = TRUE, fill = TRUE)
 
 # Strip nt from colnames to allow linegraph
 useful_length.df <- useful_length.df %>%
