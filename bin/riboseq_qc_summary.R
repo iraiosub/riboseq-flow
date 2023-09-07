@@ -12,7 +12,8 @@ option_list <- list(make_option(c("-i", "--summary_list"), action = "store", typ
                     make_option(c("-l", "--read_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated read length distribution"),
                     make_option(c("-u", "--useful_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read length distribution"),
                     make_option(c("-r", "--region_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated region counts"),
-                    make_option(c("", "--start_dist_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read count density around start codon"))
+                    make_option(c("", "--start_dist_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read count density around start codon"),
+                    make_option(c("-m", "--mapping_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated mapping counts"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
@@ -143,3 +144,7 @@ region_counts.ls <- as.list(strsplit(opt$region_counts_list, ",")[[1]])
 region_counts.df <- rbindlist(lapply(region_counts.ls , fread), use.names = TRUE)
 fwrite(region_counts.df, "region_counts_mqc.tsv", row.names = FALSE, sep = "\t")
 
+# Mapping counts
+mapping_counts.ls <- as.list(strsplit(opt$mapping_counts_list, ",")[[1]])
+mapping_counts.df <- rbindlist(lapply(mapping_counts.ls , fread), use.names = TRUE)
+fwrite(mapping_counts.df, "mapping_counts_mqc.tsv", row.names = FALSE, sep = "\t")

@@ -13,62 +13,32 @@ option_list <- list(make_option(c("-d", "--dir"), action = "store", type = "char
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
-
 # =========
-# Functions
+# Load data
 # =========
 
 logs.dir <- opt$dir
-
-# Parse logs
 all.logs <- list.files(logs.dir, full.names = TRUE)
 
-cutadapt.log <- all.logs[str_detect(all.logs, ".cutadapt_filter.log")]
-premap.log <- all.logs[str_detect(all.logs, ".premap.log")]
+# =========
+# Load logs that are always present
+# =========
+
 map.log <- all.logs[str_detect(all.logs, ".Log.final.out")]
-dedup.log <- all.logs[str_detect(all.logs, ".dedup.log")]
-pcoding.log <- all.logs[str_detect(all.logs, ".qc_results.tsv.gz")]
+pcoding.log <- all.logs[str_detect(all.logs, ".qc_results.tsv.gz")] # only if riboseq qc enabled, but this script is run only if qc enabled
 
 # Extract sample name
 sample_id <- str_split(basename(map.log), ".Log.final.out")[[1]][1]
 message("Analysing ", sample_id)
 
-# Extract information from logs
+# =========
+# Extract information from mappimg logs
+# =========
 
-## LENGTH FILTER, reads that were too short are filtered out
-cutadapt.log <- readLines(cutadapt.log)
-total.reads <- cutadapt.log[grep("^Total reads processed:", cutadapt.log)]
-too.short <- cutadapt.log[grep("^Reads that were too short:", cutadapt.log)]
-
-# Extract min length from cutadapt command
-min.length <- cutadapt.log[grep("^Command line parameters:", cutadapt.log)]
-min.length <- parse_number(str_split(min.length, "--minimum-length ")[[1]][2])
-
-# Extract the read numbers from logs
-total.reads <- parse_number(total.reads)
-too.short <- parse_number(too.short)
-passing_length_filter.reads <- total.reads - too.short
-
-
-## PREMAP, reads that pre-map to rRNA, tRNA, etc are filtered out
-premap.log <- readLines(premap.log)
-input_premap.reads <- parse_number(premap.log[grep("reads; of these:", premap.log)])
-
-# Sanity check the input reads for pre-mapping is identical to output from length filter
-stopifnot(input_premap.reads == passing_length_filter.reads)
-
-not_premapped.reads <- parse_number(premap.log[grep("aligned 0 times", premap.log)])
-premapped.reads <- input_premap.reads - not_premapped.reads
-
-## MAP, only the reads that mapped uniquely to the genome are kept
+## MAP, only the reads that mapped uniquely to the genome are kept in the pipeline
 map.log <- readLines(map.log)
 input_map.reads <- parse_number(map.log[grep("Number of input reads", map.log)])
-
-# Sanity check the input reads for mapping is identical to output from pre-mapping filter
-stopifnot(input_map.reads == not_premapped.reads)
-
 uniquemap.reads <- parse_number(map.log[grep("Uniquely mapped reads number", map.log)])
-
 multimap.reads <- parse_number(map.log[grep("Number of reads mapped to too many loci", map.log)])
 mismatches.reads <- parse_number(map.log[grep("Number of reads unmapped: too many mismatches", map.log)])
 tooshort.reads <- parse_number(map.log[grep("Number of reads unmapped: too short", map.log)])
@@ -78,32 +48,234 @@ other.reads <- parse_number(map.log[grep("Number of reads unmapped: other", map.
 unmapped.reads <- multimap.reads + mismatches.reads + tooshort.reads + other.reads
 stopifnot(unmapped.reads + uniquemap.reads == input_map.reads)
 
-## DUPLICATED
-dedup.log <- readLines(dedup.log)
+# =========
+# Load optional logs
+# =========
 
-input_dedup.reads <- dedup.log[grep("INFO Reads: Input Reads:", dedup.log)]
-input_dedup.reads <- parse_number(str_split(input_dedup.reads, "INFO")[[1]][2])
+cutadapt.log <- all.logs[str_detect(all.logs, ".cutadapt_filter.log")] # only if preprocessed reads
+premap.log <- all.logs[str_detect(all.logs, ".premap.log")] # only if premapping enabled
+dedup.log <- all.logs[str_detect(all.logs, ".dedup.log")] # only if umi dedup enabled
 
-# Sanity check input for dedup identical to unique output from map
-stopifnot(input_dedup.reads == uniquemap.reads)
+# Extract information from logs based on their presence
+if (length(cutadapt.log) == 0 & length(premap.log) == 0 & length(dedup.log) == 0) {
+  message("Condition 1: All logs are empty")
+  
+  total.reads <- input_map.reads
+  passing_length_filter.reads <- total.reads
+  tooshort.reads <- 0
+  min.length <- 0
+  
+  premapped.reads <- 0
+  not_premapped.reads <- input_map.reads
+  
+  dup.reads <- 0
+  dedup.reads <- uniquemap.reads
+  
+} else if (length(cutadapt.log) == 0 & length(premap.log) == 0 & length(dedup.log) != 0) {
+  message("Condition 2: Only dedup.log is not empty")
+  
+  total.reads <- input_map.reads
+  passing_length_filter.reads <- total.reads
+  tooshort.reads <- 0
+  min.length <- 0
+  
+  premapped.reads <- 0
+  not_premapped.reads <- input_map.reads
+  
+  ## DUPLICATED
+  dedup.log <- readLines(dedup.log)
+  input_dedup.reads <- dedup.log[grep("INFO Reads: Input Reads:", dedup.log)]
+  input_dedup.reads <- parse_number(str_split(input_dedup.reads, "INFO")[[1]][2])
+  # Sanity check input for dedup identical to unique output from map
+  stopifnot(input_dedup.reads == uniquemap.reads)
+  dedup.reads <- dedup.log[grep("INFO Number of reads out:", dedup.log)]
+  dedup.reads <- parse_number(str_split(dedup.reads, "INFO")[[1]][2])
+  dup.reads <- input_dedup.reads - dedup.reads
+  
+} else if (length(cutadapt.log) == 0 & length(premap.log) != 0 & length(dedup.log) == 0) {
+  message("Condition 3: Only premap.log is not empty")
+  
+  # total.reads <- input_map.reads
+  # passing_length_filter.reads <- input_map.reads
+  tooshort.reads <- 0
+  min.length <- 0
+  
+  ## PREMAP, reads that pre-map to rRNA, tRNA, etc are filtered out
+  premap.log <- readLines(premap.log)
+  input_premap.reads <- parse_number(premap.log[grep("reads; of these:", premap.log)])
+  not_premapped.reads <- parse_number(premap.log[grep("aligned 0 times", premap.log)])
+  premapped.reads <- input_premap.reads - not_premapped.reads
+  
+  total.reads <- input_premap.reads
+  passing_length_filter.reads <- total.reads
+  
+  dup.reads <- 0
+  dedup.reads <- uniquemap.reads
 
-dedup.reads <- dedup.log[grep("INFO Number of reads out:", dedup.log)]
-dedup.reads <- parse_number(str_split(dedup.reads, "INFO")[[1]][2])
-dup.reads <- input_dedup.reads - dedup.reads
+} else if (length(cutadapt.log) == 0 & length(premap.log) != 0 & length(dedup.log) != 0) {
+  message("Condition 4: premap.log and dedup.log are not empty")
+  
+  tooshort.reads <- 0
+  min.length <- 0
+  
+  ## PREMAP, reads that pre-map to rRNA, tRNA, etc are filtered out
+  premap.log <- readLines(premap.log)
+  input_premap.reads <- parse_number(premap.log[grep("reads; of these:", premap.log)])
+  # Sanity check the input reads for pre-mapping is identical to output from length filter
+  stopifnot(input_premap.reads == passing_length_filter.reads)
+  not_premapped.reads <- parse_number(premap.log[grep("aligned 0 times", premap.log)])
+  premapped.reads <- input_premap.reads - not_premapped.reads
+  
+  total.reads <- input_premap.reads
+  passing_length_filter.reads <- total.reads
+  
+  ## DUPLICATED
+  dedup.log <- readLines(dedup.log)
+  input_dedup.reads <- dedup.log[grep("INFO Reads: Input Reads:", dedup.log)]
+  input_dedup.reads <- parse_number(str_split(input_dedup.reads, "INFO")[[1]][2])
+  # Sanity check input for dedup identical to unique output from map
+  stopifnot(input_dedup.reads == uniquemap.reads)
+  dedup.reads <- dedup.log[grep("INFO Number of reads out:", dedup.log)]
+  dedup.reads <- parse_number(str_split(dedup.reads, "INFO")[[1]][2])
+  dup.reads <- input_dedup.reads - dedup.reads
+  
+} else if (length(cutadapt.log) != 0 & length(premap.log) == 0 & length(dedup.log) == 0) {
+  message("Condition 5: Only cutadapt.log is not empty")
 
-## MAP to pcoding transcripts
-## Map to pcoding transcripts and of expected length range
+  ## LENGTH FILTER, reads that were too short are filtered out
+  cutadapt.log <- readLines(cutadapt.log)
+  total.reads <- cutadapt.log[grep("^Total reads processed:", cutadapt.log)]
+  tooshort.reads <- cutadapt.log[grep("^Reads that were too short:", cutadapt.log)]
+  min.length <- cutadapt.log[grep("^Command line parameters:", cutadapt.log)]
+  min.length <- parse_number(str_split(min.length, "--minimum-length ")[[1]][2])
+  total.reads <- parse_number(total.reads)
+  tooshort.reads <- parse_number(tooshort.reads)
+  passing_length_filter.reads <- total.reads - tooshort.reads
+  
+  premapped.reads <- 0
+  not_premapped.reads <- input_map.reads
+  
+  # When premapping is skipped, the input reads for mapping == reads passing length filter 
+  stopifnot(passing_length_filter.reads == not_premapped.reads)
+  
+  dup.reads <- 0
+  dedup.reads <- uniquemap.reads
+  
+} else if (length(cutadapt.log) != 0 & length(premap.log) == 0 & length(dedup.log) != 0) {
+  message("Condition 6: cutadapt.log and dedup.log are not empty")
+  
+  ## LENGTH FILTER, reads that were too short are filtered out
+  cutadapt.log <- readLines(cutadapt.log)
+  total.reads <- cutadapt.log[grep("^Total reads processed:", cutadapt.log)]
+  tooshort.reads <- cutadapt.log[grep("^Reads that were too short:", cutadapt.log)]
+  min.length <- cutadapt.log[grep("^Command line parameters:", cutadapt.log)]
+  min.length <- parse_number(str_split(min.length, "--minimum-length ")[[1]][2])
+  total.reads <- parse_number(total.reads)
+  tooshort.reads <- parse_number(tooshort.reads)
+  passing_length_filter.reads <- total.reads - tooshort.reads
+  
+  premapped.reads <- 0
+  not_premapped.reads <- input_map.reads
+  
+  # When premapping is skipped, the input reads for mapping == reads passing length filter 
+  stopifnot(passing_length_filter.reads == not_premapped.reads)
+  
+  ## DUPLICATED
+  dedup.log <- readLines(dedup.log)
+  input_dedup.reads <- dedup.log[grep("INFO Reads: Input Reads:", dedup.log)]
+  input_dedup.reads <- parse_number(str_split(input_dedup.reads, "INFO")[[1]][2])
+  # Sanity check input for dedup identical to unique output from map
+  stopifnot(input_dedup.reads == uniquemap.reads)
+  dedup.reads <- dedup.log[grep("INFO Number of reads out:", dedup.log)]
+  dedup.reads <- parse_number(str_split(dedup.reads, "INFO")[[1]][2])
+  dup.reads <- input_dedup.reads - dedup.reads
+  
+} else if (length(cutadapt.log) != 0 & length(premap.log) != 0 & length(dedup.log) == 0) {
+  message("Condition 7: cutadapt.log and premap.log are not empty")
+    
+  ## LENGTH FILTER, reads that were too short are filtered out
+  cutadapt.log <- readLines(cutadapt.log)
+  total.reads <- cutadapt.log[grep("^Total reads processed:", cutadapt.log)]
+  tooshort.reads <- cutadapt.log[grep("^Reads that were too short:", cutadapt.log)]
+  min.length <- cutadapt.log[grep("^Command line parameters:", cutadapt.log)]
+  min.length <- parse_number(str_split(min.length, "--minimum-length ")[[1]][2])
+  total.reads <- parse_number(total.reads)
+  tooshort.reads <- parse_number(tooshort.reads)
+  passing_length_filter.reads <- total.reads - tooshort.reads
+    
+  ## PREMAP, reads that pre-map to rRNA, tRNA, etc are filtered out
+  premap.log <- readLines(premap.log)
+  input_premap.reads <- parse_number(premap.log[grep("reads; of these:", premap.log)])
+  # Sanity check the input reads for pre-mapping is identical to output from length filter
+  stopifnot(input_premap.reads == passing_length_filter.reads)
+  not_premapped.reads <- parse_number(premap.log[grep("aligned 0 times", premap.log)])
+  premapped.reads <- input_premap.reads - not_premapped.reads
+    
+  dup.reads <- 0
+  dedup.reads <- uniquemap.reads
+    
+} else if (length(cutadapt.log) != 0 & length(premap.log) != 0 & length(dedup.log) != 0) {
+  message("Condition 8: All logs are not empty")
+  
+  ## LENGTH FILTER, reads that were too short are filtered out
+  cutadapt.log <- readLines(cutadapt.log)
+  total.reads <- cutadapt.log[grep("^Total reads processed:", cutadapt.log)]
+  too.short <- cutadapt.log[grep("^Reads that were too short:", cutadapt.log)]
+  
+  # Extract min length from cutadapt command
+  min.length <- cutadapt.log[grep("^Command line parameters:", cutadapt.log)]
+  min.length <- parse_number(str_split(min.length, "--minimum-length ")[[1]][2])
+  
+  # Extract the read numbers from logs
+  total.reads <- parse_number(total.reads)
+  too.short <- parse_number(too.short)
+  passing_length_filter.reads <- total.reads - too.short
+  
+  ## PREMAP, reads that pre-map to rRNA, tRNA, etc are filtered out
+  premap.log <- readLines(premap.log)
+  input_premap.reads <- parse_number(premap.log[grep("reads; of these:", premap.log)])
+  
+  # Sanity check the input reads for pre-mapping is identical to output from length filter
+  stopifnot(input_premap.reads == passing_length_filter.reads)
+  
+  not_premapped.reads <- parse_number(premap.log[grep("aligned 0 times", premap.log)])
+  premapped.reads <- input_premap.reads - not_premapped.reads
+
+  ## DUPLICATED
+  dedup.log <- readLines(dedup.log)
+  
+  input_dedup.reads <- dedup.log[grep("INFO Reads: Input Reads:", dedup.log)]
+  input_dedup.reads <- parse_number(str_split(input_dedup.reads, "INFO")[[1]][2])
+  
+  # Sanity check input for dedup identical to unique output from map
+  stopifnot(input_dedup.reads == uniquemap.reads)
+  
+  dedup.reads <- dedup.log[grep("INFO Number of reads out:", dedup.log)]
+  dedup.reads <- parse_number(str_split(dedup.reads, "INFO")[[1]][2])
+  dup.reads <- input_dedup.reads - dedup.reads
+  
+} else {
+  
+  stop("input is not correct")
+}
+
+
+# =========
+# Extract information from pcoding transcripts and expected length range logs
+# =========
+
 pcoding.log <- fread(pcoding.log)
 pcoding.reads <- as.integer(pcoding.log$useful_read_n)
 not_pcoding.reads <- dedup.reads - pcoding.reads
-
 expected.reads <- as.integer(pcoding.log$expected_length_n)
 out_expected.reads <- pcoding.reads - expected.reads
-
 expected.length <- as.character(pcoding.log$expected_length)
-print(expected.length)
 
+
+# =========
 # Build the data for the actual Sankey plot
+# =========
+
 read_list <- list()
 
 # Length filter
@@ -195,10 +367,8 @@ links <- as.data.frame(rbind(
 colnames(links) <- c('source', 'target', 'value')
 links$link_source <- nodes$name[links$source + 1]
 
-
 # Add group hoping for single color for links
 # links$group <- as.factor(c("reads_group"))
-
 message("Plotting Sankey diagram for ", sample_id)
 
 # my_color <- 'd3.scaleOrdinal().domain(["a", "b", "c", "d","e", "reads_group"]).range(["#F3ECD9", "#F0F1E3", "#D7E0D8", "#C6D5D0", "#889C9B", "grey"])'
@@ -228,3 +398,27 @@ p <- sankeyNetwork(
 )
 
 saveNetwork(p, paste0(sample_id, '_sankey.html'), selfcontained = FALSE)
+
+# =========
+# MutiQC friendly files
+# =========
+
+## MAPPING + PREMAPPING + UNMAPPED
+
+# bowtie2 premap
+premapped.reads
+
+# STAR
+uniquemap.reads
+unmapped.reads
+
+# All these must to add up to total processed reads
+stopifnot(premapped.reads + uniquemap.reads + unmapped.reads == passing_length_filter.reads)
+
+# Create dataframe
+mapped_mqc.df <- data.frame(type = c("mapped uniquely to genome", "pre-mapped to contaminants", "unmapped"),
+                            read_count = c(uniquemap.reads, premapped.reads, unmapped.reads)) %>%
+  mutate(sample = sample_id) %>%
+  pivot_wider(names_from = type, values_from = read_count)
+
+fwrite(mapped_mqc.df, paste0(sample_id, "_mapping_counts_mqc.tsv"), sep = "\t", row.names = FALSE)

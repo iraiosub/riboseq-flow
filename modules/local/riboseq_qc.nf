@@ -49,7 +49,7 @@ process SUMMARISE_RIBOSEQ_QC {
     tag "${workflow.runName}"
     label 'process_low'
 
-    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+
     container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/riboseq_qc", mode: 'copy', overwrite: true
@@ -60,6 +60,7 @@ process SUMMARISE_RIBOSEQ_QC {
         path(useful_length_tables)
         path(region_counts_tables)
         path(start_dist_tables)
+        path(mapping_counts_tables)
     
     output:
         path("qc_summary.pdf"), emit: plot
@@ -70,6 +71,7 @@ process SUMMARISE_RIBOSEQ_QC {
         path("useful_length_mqc.tsv"), emit: useful_length_mqc
         path("region_counts_mqc.tsv"), emit: region_counts_mqc
         path("start_dist_mqc.tsv"), emit: start_dist_mqc
+        path("mapping_counts_mqc.tsv"), emit: mapping_counts_mqc
 
 
     script:
@@ -80,9 +82,10 @@ process SUMMARISE_RIBOSEQ_QC {
         INPUT_USEFUL_LEN=`echo $useful_length_tables | sed 's/ /,/g'`
         INPUT_REGION_COUNTS=`echo $region_counts_tables | sed 's/ /,/g'`
         INPUT_START_DIST=`echo $start_dist_tables | sed 's/ /,/g'`
+        INPUT_MAPPING_COUNTS=`echo $mapping_counts_tables | sed 's/ /,/g'`
         
 
-        riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN -r \$INPUT_REGION_COUNTS --start_dist_list \$INPUT_START_DIST
+        riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN -r \$INPUT_REGION_COUNTS --start_dist_list \$INPUT_START_DIST -m \$INPUT_MAPPING_COUNTS
         
         """
 
@@ -94,7 +97,6 @@ process TRACK_READS {
     tag "${workflow.runName}"
     label 'process_low'
 
-    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
     container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/riboseq_qc/sankey", mode: 'copy', overwrite: true
@@ -104,6 +106,7 @@ process TRACK_READS {
     
     output:
         tuple val(sample_id), path("*_sankey.html"), path("*_sankey_files"), emit: sankey
+        tuple val(sample_id), path("*_mapping_counts_mqc.tsv"), emit: mapping_counts
 
     script:
 
