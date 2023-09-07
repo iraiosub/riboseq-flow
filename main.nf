@@ -176,7 +176,7 @@ workflow RIBOSEQ {
             )
 
             TRACK_READS(
-                PREPROCESS_READS.out.logs.join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.qc)
+                PREPROCESS_READS.out.logs.join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.fq_length_distr)
             )
 
 
@@ -195,7 +195,7 @@ workflow RIBOSEQ {
             )
 
             TRACK_READS(
-                PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.qc)
+                PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.fq_length_distr)
             )
 
         } else if (params.skip_premap && !params.with_umi) {
@@ -213,7 +213,7 @@ workflow RIBOSEQ {
             )
 
             TRACK_READS(
-                PREPROCESS_READS.out.logs.join(MAP.out.log).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.qc)
+                PREPROCESS_READS.out.logs.join(MAP.out.log).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.fq_length_distr).join(RIBOSEQ_QC.out.useful_length_distr)
             )
         }
 
