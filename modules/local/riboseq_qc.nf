@@ -30,18 +30,30 @@ process RIBOSEQ_QC {
         
         expected_length_range = params.expected_length
 
-        if (params.with_umi) 
+        if (params.with_umi && !params.skip_premap) 
 
             """
             riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --after_premap $after_premap_length_analysis --before_dedup $before_dedup_length_analysis --after_dedup $after_dedup_length_analysis --expected_length $expected_length_range
             """
         
-        else 
+        else if (!params.with_umi && !params.skip_premap) 
+
             """
             riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --after_premap $after_premap_length_analysis --before_dedup $before_dedup_length_analysis --expected_length $expected_length_range
             """
 
-}
+        else if (params.with_umi && params.skip_premap) 
+            
+            """
+            riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --before_dedup $before_dedup_length_analysis --after_dedup $after_dedup_length_analysis --expected_length $expected_length_range
+            """
+
+        else 
+            """
+            riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --before_dedup $before_dedup_length_analysis --expected_length $expected_length_range
+            """
+
+}       
 
 
 process SUMMARISE_RIBOSEQ_QC {
