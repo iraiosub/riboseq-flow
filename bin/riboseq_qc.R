@@ -217,8 +217,8 @@ fwrite(start_dist_mqc.df, paste0(actual_name, "_start_dist_mqc.tsv"), sep = "\t"
 
 name_colours <- c("after_premap_n" = "#f8766d", "original_n" = "#00BFC4", "before_dedup_bam" = "#7851a9")
 
-# if (!is.null(opt$after_premap)) {
-if (basename(opt$after_premap) != "optional.txt") {
+if (!is.na(opt$after_premap)) {
+# if (basename(opt$after_premap) != "optional.txt") {
 
   after_premap <- read_csv(opt$after_premap) %>%
   dplyr::select(length, after_premap_n = n)
