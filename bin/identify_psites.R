@@ -309,7 +309,6 @@ codon_coverage_rpf.dt <- codon_coverage(filtered_psite.ls, psite = FALSE, annota
 codon_coverage_psite.dt <- codon_coverage(filtered_psite.ls, psite = TRUE, annotation = annotation.dt)
 
 data.table::fwrite(codon_coverage_rpf.dt, paste0(getwd(),"/codon_coverage_rpf.tsv.gz"), sep = "\t")
-
 data.table::fwrite(codon_coverage_psite.dt, paste0(getwd(),"/codon_coverage_psite.tsv.gz"), sep = "\t")
 
 # Compute the number of P-sites mapping on annotated coding sequences or whole transcripts. 
