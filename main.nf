@@ -52,6 +52,16 @@ ch_genome_fai = file(params.fai, checkIfExists: true)
 ch_smallrna_fasta = file(params.smallrna_fasta, checkIfExists: true)
 ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
+
+/* 
+Channel for OPTIONAL INPUT - contains a tuple with sample ids as keys, but no path/file
+*/
+ch_optional = Channel
+            .fromPath( params.input )
+            .splitCsv(header:true)
+            .map { row -> [ row.sample, [] ] }
+
+
 /* 
 SUBWORKFLOWS
 */
@@ -176,7 +186,7 @@ workflow RIBOSEQ {
             )
 
             TRACK_READS(
-                PREPROCESS_READS.out.logs.join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.fq_length_distr)
+                PREPROCESS_READS.out.logs.join(MAP.out.log).join(DEDUPLICATE.out.dedup_genome_log).join(RIBOSEQ_QC.out.qc).join(ch_optional)
             )
 
 
@@ -195,7 +205,7 @@ workflow RIBOSEQ {
             )
 
             TRACK_READS(
-                PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.fq_length_distr)
+                PREPROCESS_READS.out.logs.join(PREMAP.out.log).join(MAP.out.log).join(RIBOSEQ_QC.out.qc).join(ch_optional)
             )
 
         } else if (params.skip_premap && !params.with_umi) {
@@ -213,7 +223,7 @@ workflow RIBOSEQ {
             )
 
             TRACK_READS(
-                PREPROCESS_READS.out.logs.join(MAP.out.log).join(RIBOSEQ_QC.out.qc).join(RIBOSEQ_QC.out.fq_length_distr).join(RIBOSEQ_QC.out.useful_length_distr)
+                PREPROCESS_READS.out.logs.join(MAP.out.log).join(RIBOSEQ_QC.out.qc).join(ch_optional).join(ch_optional)
             )
         }
 
