@@ -14,9 +14,6 @@ ch_optional = Channel
             .splitCsv(header:true)
             .map { row -> [ row.sample, [] ] }
 
-
-// Remove duplicate reads from BAM file based on UMIs
-
 workflow MAPPING_LENGTH_ANALYSES {
 
     take:
@@ -32,7 +29,7 @@ workflow MAPPING_LENGTH_ANALYSES {
 
     if (params.with_umi) {
 
-        MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP(dedup_bam.join(reads)) // reads not needed here, added to kkep cardinality
+        MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP(dedup_bam.join(reads)) // reads not needed here, added to keep cardinality
         after_dedup_length_analysis = MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP.out.length_analysis
         
     } else {

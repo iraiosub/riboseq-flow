@@ -56,6 +56,7 @@ ch_genome_gtf = file(params.gtf, checkIfExists: true)
 /* 
 Channel for OPTIONAL INPUT - contains a tuple with sample ids as keys, but no path/file
 */
+
 ch_optional = Channel
             .fromPath( params.input )
             .splitCsv(header:true)
@@ -162,7 +163,7 @@ workflow RIBOSEQ {
 
             RIBOSEQ_QC(
                 DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
-                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
             // Track read fate through pipeline
@@ -182,7 +183,7 @@ workflow RIBOSEQ {
 
             RIBOSEQ_QC(
                 DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
-                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
             TRACK_READS(
@@ -201,7 +202,7 @@ workflow RIBOSEQ {
 
             RIBOSEQ_QC(
                 MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
-                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
             TRACK_READS(
@@ -219,7 +220,7 @@ workflow RIBOSEQ {
 
             RIBOSEQ_QC(
                 MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
-                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
             TRACK_READS(
@@ -278,6 +279,7 @@ workflow RIBOSEQ {
     if (!params.skip_psite) {
 
          if (params.with_umi) {
+            
             IDENTIFY_PSITES(
                 DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(),
                 PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] },
@@ -304,6 +306,7 @@ workflow RIBOSEQ {
    
     // PCA on gene-level RPF counts and transcript-level P sites
     if (!params.skip_psite) {
+        
         PCA(
             GET_GENE_LEVEL_COUNTS.out.merged_counts_table,
             IDENTIFY_PSITES.out.cds_coverage,
@@ -327,6 +330,7 @@ workflow RIBOSEQ {
     if (params.skip_ribocutter) {
 
         ch_ribocutter = Channel.empty()
+    
     } else {
 
         ch_ribocutter = RUN_RIBOCUTTER.out.ribocutter_mqc
