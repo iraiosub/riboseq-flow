@@ -41,7 +41,7 @@ input_map.reads <- parse_number(map.log[grep("Number of input reads", map.log)])
 uniquemap.reads <- parse_number(map.log[grep("Uniquely mapped reads number", map.log)])
 multimap.reads <- parse_number(map.log[grep("Number of reads mapped to too many loci", map.log)])
 mismatches.reads <- parse_number(map.log[grep("Number of reads unmapped: too many mismatches", map.log)])
-tooshort.reads <- parse_number(map.log[grep("Number of reads unmapped: too short", map.log)])
+unmapped_tooshort.reads <- parse_number(map.log[grep("Number of reads unmapped: too short", map.log)])
 other.reads <- parse_number(map.log[grep("Number of reads unmapped: other", map.log)])
 
 # Sanity check unmapped + mapped add up to total
@@ -291,7 +291,7 @@ read_list['not_premapped'] <- not_premapped.reads
 read_list['uniquely_mapped'] <- uniquemap.reads
 read_list['multi_mapped'] <- multimap.reads
 read_list['unmapped_too_many_mismatches'] <- mismatches.reads
-read_list['unmapped_too_short'] <- tooshort.reads
+read_list['unmapped_too_short'] <- unmapped_tooshort.reads
 read_list['unmapped_other'] <- other.reads
 
 # Dedup
