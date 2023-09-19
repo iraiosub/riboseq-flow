@@ -45,7 +45,7 @@ unmapped_tooshort.reads <- parse_number(map.log[grep("Number of reads unmapped: 
 other.reads <- parse_number(map.log[grep("Number of reads unmapped: other", map.log)])
 
 # Sanity check unmapped + mapped add up to total
-unmapped.reads <- multimap.reads + mismatches.reads + tooshort.reads + other.reads
+unmapped.reads <- multimap.reads + mismatches.reads + unmapped_tooshort.reads + other.reads
 stopifnot(unmapped.reads + uniquemap.reads == input_map.reads)
 
 # =========
@@ -220,7 +220,7 @@ if (length(cutadapt.log) == 0 & length(premap.log) == 0 & length(dedup.log) == 0
   ## LENGTH FILTER, reads that were too short are filtered out
   cutadapt.log <- readLines(cutadapt.log)
   total.reads <- cutadapt.log[grep("^Total reads processed:", cutadapt.log)]
-  too.short <- cutadapt.log[grep("^Reads that were too short:", cutadapt.log)]
+  tooshort.reads <- cutadapt.log[grep("^Reads that were too short:", cutadapt.log)]
   
   # Extract min length from cutadapt command
   min.length <- cutadapt.log[grep("^Command line parameters:", cutadapt.log)]
@@ -228,8 +228,8 @@ if (length(cutadapt.log) == 0 & length(premap.log) == 0 & length(dedup.log) == 0
   
   # Extract the read numbers from logs
   total.reads <- parse_number(total.reads)
-  too.short <- parse_number(too.short)
-  passing_length_filter.reads <- total.reads - too.short
+  tooshort.reads <- parse_number(tooshort.reads)
+  passing_length_filter.reads <- total.reads - tooshort.reads
   
   ## PREMAP, reads that pre-map to rRNA, tRNA, etc are filtered out
   premap.log <- readLines(premap.log)
@@ -256,7 +256,7 @@ if (length(cutadapt.log) == 0 & length(premap.log) == 0 & length(dedup.log) == 0
   
 } else {
   
-  stop("input is not correct")
+  stop("Input is not supported")
 }
 
 
@@ -270,7 +270,6 @@ not_pcoding.reads <- dedup.reads - pcoding.reads
 expected.reads <- as.integer(pcoding.log$expected_length_n)
 out_expected.reads <- pcoding.reads - expected.reads
 expected.length <- as.character(pcoding.log$expected_length)
-
 
 # =========
 # Build the data for the actual Sankey plot
@@ -406,11 +405,11 @@ saveNetwork(p, paste0(sample_id, '_sankey.html'), selfcontained = FALSE)
 ## MAPPING + PREMAPPING + UNMAPPED
 
 # bowtie2 premap
-premapped.reads
+# premapped.reads
 
 # STAR
-uniquemap.reads
-unmapped.reads
+# uniquemap.reads
+# unmapped.reads
 
 # All these must to add up to total processed reads
 stopifnot(premapped.reads + uniquemap.reads + unmapped.reads == passing_length_filter.reads)

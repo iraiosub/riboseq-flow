@@ -31,6 +31,15 @@ custom_data:
       id: "region_counts_barplot"
       title: "Regions"
       cpswitch: True
+  mapping_counts:
+    file_format: "tsv"
+    section_name: "Mapping"
+    description: "Mapping results."
+    plot_type: "bargraph"
+    pconfig:
+      id: "mapping_counts_barplot"
+      title: "Mapping"
+      cpswitch: True
   start_dist:
     file_format: "tsv"
     section_name: "Distance from START codon"
@@ -54,6 +63,16 @@ custom_data:
       xmax: 100
       xmin: 0
       cpswitch: False
+      stacking: null
+  frame_counts:
+    file_format: "tsv"
+    section_name: "Frame"
+    description: "Frame distribution for reads in the expected length range."
+    plot_type: "bargraph"
+    pconfig:
+      id: "frame_counts_barplot"
+      title: "Frame"
+      cpswitch: True
       stacking: null
   pcoding_percentage:
     parent_id: riboseq_qc
@@ -140,6 +159,10 @@ sp:
     fn: "expected_length_mqc.tsv"
   duplication:
     fn: "duplication_mqc.tsv"
+  mapping_counts:
+    fn: "mapping_counts_mqc.tsv"
+  frame_counts:
+    fn: "frame_counts_mqc.tsv"
 
 
 export_plots: false

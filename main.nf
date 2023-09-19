@@ -248,11 +248,15 @@ workflow RIBOSEQ {
             .map { [ it[1] ] }
             .collect()
 
+        ch_merge_frame = RIBOSEQ_QC.out.frame_counts
+            .map { [ it[1] ] }
+            .collect()
+
         ch_merge_mapping_counts = TRACK_READS.out.mapping_counts
             .map { [ it[1] ] }
             .collect() 
 
-        SUMMARISE_RIBOSEQ_QC(ch_merge_qc, ch_merge_read_length, ch_merge_useful_length, ch_merge_region_counts, ch_merge_start_dist, ch_merge_mapping_counts)
+        SUMMARISE_RIBOSEQ_QC(ch_merge_qc, ch_merge_read_length, ch_merge_useful_length, ch_merge_region_counts, ch_merge_start_dist, ch_merge_mapping_counts, ch_merge_frame)
 
     }
 
@@ -341,7 +345,7 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(PREMAP.out.log.map{ it[1] }.collect(), MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.region_counts_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, SUMMARISE_RIBOSEQ_QC.out.start_dist_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
+            .mix(PREMAP.out.log.map{ it[1] }.collect(), MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.mapping_counts_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.region_counts_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, SUMMARISE_RIBOSEQ_QC.out.start_dist_mqc, SUMMARISE_RIBOSEQ_QC.out.frame_counts_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
             .collect()
 
     } else if (!params.skip_premap && params.skip_qc) {
@@ -365,7 +369,7 @@ workflow RIBOSEQ {
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [ it[1], it[2] ] }
             .collect()
-            .mix(MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, SUMMARISE_RIBOSEQ_QC.out.region_counts_mqc, SUMMARISE_RIBOSEQ_QC.out.start_dist_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
+            .mix(MAP.out.log.map{ it[1] }.collect(), PCA.out.pca_mqc, SUMMARISE_RIBOSEQ_QC.out.mapping_counts_mqc, SUMMARISE_RIBOSEQ_QC.out.length_mqc, SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc, SUMMARISE_RIBOSEQ_QC.out.region_counts_mqc, SUMMARISE_RIBOSEQ_QC.out.start_dist_mqc, SUMMARISE_RIBOSEQ_QC.out.frame_counts_mqc, ch_ribocutter, SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc, SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc, SUMMARISE_RIBOSEQ_QC.out.duplication_mqc)
             .collect()
     }
     

@@ -210,6 +210,17 @@ start_dist_mqc.df <- riboseq_info$start_dist %>%
 
 fwrite(start_dist_mqc.df, paste0(actual_name, "_start_dist_mqc.tsv"), sep = "\t", row.names = FALSE)
 
+# Frames for multiqc, summarised for the expected length range
+frame_mqc.df <- riboseq_info$frame %>%
+  mutate(sample = actual_name) %>%
+  dplyr::filter(read_length >= min_length & read_length <= max_length) %>%
+  group_by(sample, frame) %>%
+  summarise(number_of_reads = sum(n)) %>%
+  dplyr::select(sample, frame, number_of_reads) %>%
+  pivot_wider(names_from = frame, values_from = number_of_reads)
+
+fwrite(frame_mqc.df, paste0(actual_name, "_frame_mqc.tsv"), sep = "\t", row.names = FALSE)
+
 
 # =========
 # Premapping

@@ -108,10 +108,11 @@ If `--org` is specified, all annotations will be loaded from the paths in the [g
 If `--org` is not specified, the user must provide paths to all required annotation files, using the following parameters:
 
 - `--fasta` path to FASTA genome file
+- `--fai` path to FASTA genome index file
 - `--gtf` path to GTF annotation file
 - `--smallrna_fasta` path to the small RNA FASTA genome file (Required if pre-mapping is enabled)
 - `--star_index` path to directory of pre-built STAR index (Optional). If not provided, the pipeline will generate the STAR index.
-- `--transcript_info` path to TSV file with a single representative transcript for each gene, with information on CDS start, length, end and transcript length (Optional). If not provided, the pipeline will generate it from the GTF file, selecting the longest CDS transcript as representative for each gene. An example illustrating the format can be found [here](https://github.com/iraiosub/riboseq/tree/main/assets/transcript_info). 
+- `--transcript_info` path to TSV file with a single representative transcript for each gene, with information on CDS start, length, end and transcript length (Optional). If not provided, the pipeline will generate it from the GTF file, selecting the longest CDS transcript as representative for each gene. An example illustrating the format can be found [here](https://github.com/iraiosub/riboseq/tree/dev-nf/assets/transcript_info). 
 
 
 ### Tool specific parameters
