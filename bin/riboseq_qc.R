@@ -217,6 +217,7 @@ frame_mqc.df <- riboseq_info$frame %>%
   group_by(sample, frame) %>%
   summarise(number_of_reads = sum(n)) %>%
   dplyr::select(sample, frame, number_of_reads) %>%
+  mutate(frame = paste0("frame ", frame)) %>%
   pivot_wider(names_from = frame, values_from = number_of_reads)
 
 fwrite(frame_mqc.df, paste0(actual_name, "_frame_mqc.tsv"), sep = "\t", row.names = FALSE)
