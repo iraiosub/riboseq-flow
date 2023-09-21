@@ -162,10 +162,7 @@ workflow RIBOSEQ {
             )
 
             RIBOSEQ_QC(
-                DEDUPLICATE.out.dedup_transcriptome_bam
-                    .join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis)
-                    .join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis)
-                    .join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
