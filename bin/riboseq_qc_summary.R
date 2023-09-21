@@ -130,7 +130,7 @@ fwrite(useful_length.df, "useful_length_mqc.tsv", row.names = TRUE, sep = "\t")
 
 # Distance from start files produced by riboseq_qc.R
 start_dist.ls <- as.list(strsplit(opt$start_dist_list, ",")[[1]])
-start_dist.df <- rbindlist(lapply(start_dist.ls , fread), use.names = TRUE)
+start_dist.df <- rbindlist(lapply(start_dist.ls , fread), use.names = TRUE, fill = TRUE)
 
 # Strip nt from colnames to allow linegraph
 start_dist.df <- start_dist.df %>%
