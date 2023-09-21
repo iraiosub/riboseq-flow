@@ -1,5 +1,17 @@
 # Other MultiQC config stuff here
 custom_data:
+  frame_counts:
+    parent_id: riboseq_qc
+    parent_name: "Ribo-seq QC"
+    parent_description: "This section contains various Ribo-seq quality control metrics."
+    file_format: "tsv"
+    section_name: "Frame distribution"
+    description: "Frame distribution for reads in the expected length range."
+    plot_type: "heatmap"
+    pconfig:
+      id: "frame_counts_heatmap"
+      title: "Frame"
+      xcats_samples: False
   starting_length:
     parent_id: read_length
     parent_name: "Read Length"
@@ -29,6 +41,7 @@ custom_data:
   region_counts:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
+    parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Regions"
     description: "Distribution of protein-coding transcripts mapping reads over UTR and CDS regions."
@@ -37,20 +50,10 @@ custom_data:
       id: "region_counts_barplot"
       title: "Regions"
       cpswitch: True
-  mapping_counts:
-    parent_id: mapping
-    parent_name: "Mapping"
-    file_format: "tsv"
-    section_name: "Mapping"
-    description: "Mapping results."
-    plot_type: "bargraph"
-    pconfig:
-      id: "mapping_counts_barplot"
-      title: "Mapping"
-      cpswitch: True
   start_dist:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
+    parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Distance from START codon"
     description: "Distance of 5'ends of reads of expected length from START codon. Unless specified, the expected read length range is between 26 and 32 nt."
@@ -61,33 +64,6 @@ custom_data:
       xlab: Distance from START codon (nt)
       ylab: Count
       yDecimals: False
-  ribocutter:
-    parent_id: ribocutter
-    parent_name: "Ribocutter"
-    file_format: "tsv"
-    section_name: "Ribocutter"
-    description: "Percentage of reads targeted by guides designed by Ribocutter (50 guides by default) using two different read length thresholds. The higher the proportion targeted, the better."
-    plot_type: "bargraph"
-    pconfig:
-      id: "ribocutter_barplot"
-      title: "Ribocutter: proportion of reads targeted"
-      ylab: "Percentage reads targeted (%)"
-      xmax: 100
-      xmin: 0
-      cpswitch: False
-      stacking: null
-  frame_counts:
-    parent_id: riboseq_qc
-    parent_name: "Ribo-seq QC"
-    file_format: "tsv"
-    section_name: "Frame"
-    description: "Frame distribution for reads in the expected length range."
-    plot_type: "bargraph"
-    pconfig:
-      id: "frame_counts_barplot"
-      title: "Frame"
-      cpswitch: False
-      stacking: null
   pcoding_percentage:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
@@ -142,10 +118,36 @@ custom_data:
       cpswitch: False
       stacking: null
       tt_percentages: False
+  ribocutter:
+    parent_id: ribocutter
+    parent_name: "Ribocutter"
+    file_format: "tsv"
+    section_name: "Ribocutter"
+    description: "Percentage of reads targeted by guides designed by Ribocutter (50 guides by default) using two different read length thresholds. The higher the proportion targeted, the better."
+    plot_type: "bargraph"
+    pconfig:
+      id: "ribocutter_barplot"
+      title: "Ribocutter: proportion of reads targeted"
+      ylab: "Percentage reads targeted (%)"
+      xmax: 100
+      xmin: 0
+      cpswitch: False
+      stacking: null
+  mapping_counts:
+    parent_id: mapping_counts
+    parent_name: "Mapping"
+    file_format: "tsv"
+    section_name: "Mapping"
+    description: "The mapping metrics for each experiment."
+    plot_type: "bargraph"
+    pconfig:
+      id: "mapping_counts_barplot"
+      title: "Mapping"
+      cpswitch: True
   pca:
     parent_id: pca
     parent_name: "PCA"
-    section_name: "PCA Analysis"
+    section_name: "PCA"
     description: "This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS."
 
 sp:
@@ -173,7 +175,7 @@ sp:
     fn: "frame_counts_mqc.tsv"
 
 module_order:
-    - mapping
+    - mapping_counts
     - read_length
     - pca
     - riboseq_qc
