@@ -11,7 +11,7 @@ process RIBOSEQ_QC {
     // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
     container 'iraiosub/nf-riboseq-qc:latest'
 
-    publishDir "${params.outdir}/riboseq_qc", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc", pattern: "*.qc_results.*", mode: 'copy', overwrite: true
 
     input:
         tuple val(sample_id), path(bam), path(bai), path(before_dedup_length_analysis), path(after_premap_length_analysis), path(after_dedup_length_analysis)
@@ -65,7 +65,8 @@ process SUMMARISE_RIBOSEQ_QC {
 
     container 'iraiosub/nf-riboseq-qc:latest'
 
-    publishDir "${params.outdir}/riboseq_qc", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc", pattern: "*.pdf", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc/multiqc_tables", pattern: "*_mqc.tsv", mode: 'copy', overwrite: true
 
     input:
         path(qc_tables)
@@ -78,15 +79,7 @@ process SUMMARISE_RIBOSEQ_QC {
     
     output:
         path("qc_summary.pdf"), emit: plot
-        path("pcoding_percentage_mqc.tsv"), emit: pcoding_percentage_mqc
-        path("expected_length_mqc.tsv"), emit: expected_length_mqc
-        path("duplication_mqc.tsv"), emit: duplication_mqc
-        path("starting_length_mqc.tsv"), emit: length_mqc
-        path("useful_length_mqc.tsv"), emit: useful_length_mqc
-        path("region_counts_mqc.tsv"), emit: region_counts_mqc
-        path("start_dist_mqc.tsv"), emit: start_dist_mqc
-        path("mapping_counts_mqc.tsv"), emit: mapping_counts_mqc
-        path("frame_counts_mqc.tsv"), emit: frame_counts_mqc
+        path("*_mqc.tsv"), emit: mqc
 
 
     script:
@@ -100,8 +93,8 @@ process SUMMARISE_RIBOSEQ_QC {
         INPUT_MAPPING_COUNTS=`echo $mapping_counts_tables | sed 's/ /,/g'`
         INPUT_FRAME=`echo $frame_counts_tables | sed 's/ /,/g'`
         
-
         riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN -r \$INPUT_REGION --start_dist_list \$INPUT_START_DIST -m \$INPUT_MAPPING_COUNTS -f \$INPUT_FRAME
+        rm $fq_length_tables $useful_length_tables $region_counts_tables $start_dist_tables $mapping_counts_tables $frame_counts_tables
         
         """
 
@@ -110,7 +103,7 @@ process SUMMARISE_RIBOSEQ_QC {
 
 process TRACK_READS {
     
-    tag "${workflow.runName}"
+    tag "${sample_id}"
     label 'process_low'
 
     container 'iraiosub/nf-riboseq-qc:latest'

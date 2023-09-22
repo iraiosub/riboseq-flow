@@ -395,15 +395,7 @@ workflow RIBOSEQ {
                 PREMAP.out.log.map { it[1] }.collect(),
                 MAP.out.log.map { it[1] }.collect(),
                 PCA.out.pca_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.mapping_counts_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.length_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.region_counts_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.start_dist_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.frame_counts_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.duplication_mqc,
+                SUMMARISE_RIBOSEQ_QC.out.mqc,
                 ch_ribocutter
             )
             .collect()
@@ -441,15 +433,7 @@ workflow RIBOSEQ {
             .mix(
                 MAP.out.log.map { it[1] }.collect(),
                 PCA.out.pca_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.mapping_counts_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.length_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.useful_length_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.region_counts_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.start_dist_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.frame_counts_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.pcoding_percentage_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.expected_length_mqc,
-                SUMMARISE_RIBOSEQ_QC.out.duplication_mqc,
+                SUMMARISE_RIBOSEQ_QC.out.mqc,
                 ch_ribocutter
             )
             .collect()

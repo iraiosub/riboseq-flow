@@ -92,7 +92,6 @@ pcoding_percentage_mqc.df <- full_summary.df %>%
   dplyr::select(name, y) %>%
   dplyr::rename(sample = name, pcoding_percentage = y) %>%
   dplyr::arrange(sample)
-
 fwrite(pcoding_percentage_mqc.df, "pcoding_percentage_mqc.tsv", row.names = FALSE, sep = "\t")
 
 expected_length_mqc.df <- full_summary.df %>%
@@ -106,7 +105,6 @@ duplication_mqc.df <- full_summary.df %>%
   dplyr::select(name, duplication) %>%
   dplyr::rename(sample = name) %>%
   dplyr::arrange(sample)
-
 fwrite(duplication_mqc.df, "duplication_mqc.tsv", row.names = FALSE, sep = "\t")
 
 # FASTQ Read length files produced by riboseq_qc.R (starting read length distribution)
@@ -116,8 +114,8 @@ read_length.df <- rbindlist(lapply(read_length.ls , fread), use.names = TRUE, fi
 # Strip nt from colnames to allow linegraph
 read_length.df <- read_length.df %>%
   rename_with(~str_remove(., 'nt')) %>%
-  column_to_rownames(var = "sample") %>%
-  dplyr::arrange(sample)
+  dplyr::arrange(sample) %>%
+  column_to_rownames(var = "sample")
 fwrite(read_length.df, "starting_length_mqc.tsv", row.names = TRUE, sep = "\t")
 
 # Useful read length files produced by riboseq_qc.R
@@ -127,8 +125,8 @@ useful_length.df <- rbindlist(lapply(useful_length.ls , fread), use.names = TRUE
 # Strip nt from colnames to allow linegraph
 useful_length.df <- useful_length.df %>%
   rename_with(~str_remove(., 'nt')) %>%
-  column_to_rownames(var = "sample") %>%
-  dplyr::arrange(sample)
+  dplyr::arrange(sample) %>%
+  column_to_rownames(var = "sample")
 fwrite(useful_length.df, "useful_length_mqc.tsv", row.names = TRUE, sep = "\t")
 
 # Distance from start files produced by riboseq_qc.R
@@ -138,8 +136,8 @@ start_dist.df <- rbindlist(lapply(start_dist.ls , fread), use.names = TRUE, fill
 # Strip nt from colnames to allow linegraph
 start_dist.df <- start_dist.df %>%
   rename_with(~str_remove(., 'nt')) %>%
-  column_to_rownames(var = "sample") %>%
-  dplyr::arrange(sample)
+  dplyr::arrange(sample) %>%
+  column_to_rownames(var = "sample")
 fwrite(start_dist.df, "start_dist_mqc.tsv", row.names = TRUE, sep = "\t")
 
 
