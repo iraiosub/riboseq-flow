@@ -8,7 +8,8 @@
 4. [Quick start (run the pipeline on your data)](#quick-start-running)
 5. [Pipeline parameters](#pipeline-parameters)
 6. [Pipeline outputs](#pipeline-outputs)
-7. [Authors and contact](#authors-contact)
+7. [Pre-download container images](#predownload-container)
+8. [Authors and contact](#authors-contact)
 
 ## Introduction
 
@@ -80,9 +81,10 @@ sample3,/path/to/file3.fastq.gz
 ```
 nextflow run iraiosub/riboseq -r main \
 -profile singularity,crick \
+-resume \
 --input samplesheet.csv \
 --org GRCh38 \
--resume
+--strandedness forward
 ```
 
 ## Pipeline parameters
@@ -103,7 +105,7 @@ nextflow run iraiosub/riboseq -r main \
 ### Genome parameters
 
 - `--org` specifies the organism (options are currently: `GRCh38`, `GRCm39`).
-If `--org` is specified, all annotations will be loaded from the paths in the [genomes.config](https://github.com/iraiosub/riboseq/blob/main/conf/genomes.config) file.
+If `--org` is specified, all annotation files will be loaded from the paths in the [genomes.config](https://github.com/iraiosub/riboseq/blob/main/conf/genomes.config) file.
 
 If `--org` is not specified, the user must provide paths to all required annotation files, using the following parameters:
 
@@ -184,7 +186,7 @@ The selection is performed automatically by the pipeline using the information i
 
 #### Coverage tracks options
 
-- `--bin_size` spcifies bin size for calculating coverage (i.e. the number of reads per bin). Bins are short consecutive counting windows of a defined size. (default `1`)
+- `--bin_size` spcifies bin size for calculating coverage (i.e. the number of nt per bin). Bins are short consecutive counting windows of a defined size. (default `1`)
 - `--track_format` specifies output file type. Either “bigwig” or “bedgraph” (default `bigwig`)
 
 ## Pipeline outputs
@@ -199,7 +201,6 @@ The pipeline outputs results in a number of subfolders:
 ├── premapped
 ├── mapped
 ├── deduplicated
-├── mapping_length_analysis
 ├── riboseq_qc
 ├── featurecounts
 ├── psites
@@ -230,11 +231,13 @@ The pipeline outputs results in a number of subfolders:
     - `*.genome.dedup.bed.gz` contains the the UMI deduplicated alignments to the genome in BED format
     - `*.transcriptome.dedup.sorted.bam` contains the UMI deduplicated alignments to the transcriptome in BAM format
     - `*.transcriptome.dedup.bed.gz` contains the the UMI deduplicated alignments to the transcriptomie in BED format
-- `mapping_length_analysis` contains csv files with number of raw and mapped reads by length:
-    - `*.after_premap.csv` 
-    - `*.before_dedup.csv` 
-    - `*.after_dedup.csv`
 - `riboseq_qc` contains quality-control plots informing on mapping lengths, frame, distribution around start and stop codons, rRNA proportion, duplication, fraction of useful reads, PCA plots
+    - `mapping_length_analysis` contains csv files with number of raw and mapped reads by length:
+        - `*.after_premap.csv` 
+        - `*.before_dedup.csv` 
+        - `*.after_dedup.csv`
+    - `multiqc_tables` contains tsv files with sample summary metrics for multiQC
+    - `sankey` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding useful reads yield and troubleshooting.     
 - `featurecounts` contains gene-level quantification of the UMI deduplicated alignments to the genome
 - `psites` contains P-sites information, codon coverage and CDS coverage tables, and ribowaltz diagnostic plots:
     - `psite_offset.tsv.gz` contains P-site offsets for each read-length for all samples
@@ -252,6 +255,34 @@ The pipeline outputs results in a number of subfolders:
     - `execution_timeline.html`
     - `execution_trace.txt`
 
+## Pre-download container images
+
+When a Nextflow pipeline requires multiple Docker images, it can sometimes fail to pull them, leading to pipeline execution failures. In such scenarios, pre-downloading the container images to a designated location on your system can prevent this. 
+
+Follow these steps to pre-download and cache the necessary images:
+1. Identify the desired location on your system where you want to store the container images.
+2. Set the 'NXF_SINGULARITY_CACHEDIR' environment variable to point to this chosen location.
+For example, you can add the following line to your shell profile or run script:
+
+```
+export NXF_SINGULARITY_CACHEDIR=/path/to/image/cache
+```
+
+3. Run the code below to pre-download and cache the required Docker images:
+
+```
+#!/bin/sh
+
+# A script to pre-download singularity images required by iraiosub/riboseq pipeline
+ml Singularity/3.6.4
+
+# change dir to your NFX_SINGULARITY_CACHEDIR path
+cd /path/to/image/cache
+
+singularity pull iraiosub-nf-riboseq-latest.img docker://iraiosub/nf-riboseq
+singularity pull iraiosub-mapping-length-latest.img docker://iraiosub/nf-riboseq-qc
+singularity pull iraiosub-nf-riboseq-dedup-latest.img docker://iraiosub/nf-riboseq-dedup
+```
 
 ### Authors and contact
 
