@@ -10,6 +10,7 @@
 6. [Pipeline outputs](#pipeline-outputs)
 7. [Pre-download container images](#predownload-container)
 8. [Authors and contact](#authors-contact)
+9. [Issues and Contributions](#issues-contributions)
 
 ## Introduction
 
@@ -287,4 +288,9 @@ singularity pull iraiosub-nf-riboseq-dedup-latest.img docker://iraiosub/nf-ribos
 ### Authors and contact
 
 This DSL2 Nextflow pipeline is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a snakemake pipeline in collaboration with its original author, Oscar Wilkins. 
-To raise any issues or comments with the pipeline, please email `ira.iosub@crick.ac.uk` or raise an issue on github.
+Contact email: `ira.iosub@crick.ac.uk`
+
+### Issues and contributions
+
+riboseq is under active development by Ira Iosub. For queries related to the pipeline, raise an issue on github.
+If you are interested in building more functionality or want to get involved please reach out.
