@@ -19,10 +19,7 @@ custom_data:
     - starting_length
     - useful_length
     - pca
-    - pcoding_percentage
-    - expected_length
-    - duplication
-    - start_dist
+    - riboseq_qc
     - frame
     - region
     - ribocutter
@@ -204,7 +201,7 @@ sp:
   duplication:
     fn: "duplication_mqc.tsv"
   mapping_counts:
-    fn: "mapping_counts_mqc.tsv"
+    fn: "mapping_counts_mqc.tsv"  
   frame_counts:
     fn: "frame_counts_mqc.tsv"
 
@@ -221,15 +218,19 @@ module_order:
     - star
 
 report_section_order:
-  riboseq_qc:
-    after: "pca"
-  pca:
-    after: "read_length"
-  read_length:
-    before: "mapping"
-  ribocutter:
-    before: "riboseq_qc"
   mapping:
-    after: "pca"
+    order: 1000
+  star:
+    order: -1000
+  read_length:
+    order: 999
+  pca:
+    order: 998
+  riboseq_qc:
+    order: 997
+  frame:
+    order: 996
+  region:
+    order: 995
 
 export_plots: false
