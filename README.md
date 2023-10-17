@@ -8,9 +8,9 @@
 4. [Quick start (run the pipeline on your data)](#quick-start-running)
 5. [Pipeline parameters](#pipeline-parameters)
 6. [Pipeline outputs](#pipeline-outputs)
-7. [Pre-download container images](#predownload-container)
-8. [Authors and contact](#authors-contact)
-9. [Issues and Contributions](#issues-contributions)
+7. [Pre-download container images](#pre-download-container-images)
+8. [Authors and contact](#authors-and-contact)
+9. [Issues and contributions](#issues-and-contributions)
 
 ## Introduction
 

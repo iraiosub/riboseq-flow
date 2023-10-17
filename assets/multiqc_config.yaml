@@ -64,8 +64,7 @@ custom_data:
       ylab: Frequency
       yDecimals: False
       logswitch: True
-      data:
-        color: '#1b9e77'
+      color: '#1b9e77'
   region_counts:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
