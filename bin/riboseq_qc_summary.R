@@ -115,8 +115,9 @@ read_length.df <- rbindlist(lapply(read_length.ls , fread), use.names = TRUE, fi
 read_length.df <- read_length.df %>%
   rename_with(~str_remove(., 'nt')) %>%
   dplyr::arrange(sample) %>%
-  column_to_rownames(var = "sample")
-fwrite(read_length.df, "starting_length_mqc.tsv", row.names = TRUE, sep = "\t", na = "0")
+  column_to_rownames(var = "sample") %>%
+  replace(is.na(.), 0)
+fwrite(read_length.df, "starting_length_mqc.tsv", row.names = TRUE, sep = "\t")
 
 # Useful read length files produced by riboseq_qc.R
 useful_length.ls <- as.list(strsplit(opt$useful_len_list, ",")[[1]])
@@ -126,8 +127,9 @@ useful_length.df <- rbindlist(lapply(useful_length.ls , fread), use.names = TRUE
 useful_length.df <- useful_length.df %>%
   rename_with(~str_remove(., 'nt')) %>%
   dplyr::arrange(sample) %>%
-  column_to_rownames(var = "sample")
-fwrite(useful_length.df, "useful_length_mqc.tsv", row.names = TRUE, sep = "\t", na = "0")
+  column_to_rownames(var = "sample") %>%
+  replace(is.na(.), 0)
+fwrite(useful_length.df, "useful_length_mqc.tsv", row.names = TRUE, sep = "\t")
 
 # Distance from start files produced by riboseq_qc.R
 start_dist.ls <- as.list(strsplit(opt$start_dist_list, ",")[[1]])
@@ -137,8 +139,9 @@ start_dist.df <- rbindlist(lapply(start_dist.ls , fread), use.names = TRUE, fill
 start_dist.df <- start_dist.df %>%
   rename_with(~str_remove(., 'nt')) %>%
   dplyr::arrange(sample) %>%
-  column_to_rownames(var = "sample")
-fwrite(start_dist.df, "start_dist_mqc.tsv", row.names = TRUE, sep = "\t", na = "0")
+  column_to_rownames(var = "sample") %>%
+  replace(is.na(.), 0)
+fwrite(start_dist.df, "start_dist_mqc.tsv", row.names = TRUE, sep = "\t")
 
 # Region counts
 region_counts.ls <- as.list(strsplit(opt$region_counts_list, ",")[[1]])
