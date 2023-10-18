@@ -108,7 +108,7 @@ process TRACK_READS {
 
     container 'iraiosub/nf-riboseq-qc:latest'
 
-    publishDir "${params.outdir}/riboseq_qc/sankey", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc/read_fate", mode: 'copy', overwrite: true
 
     input:
         tuple val(sample_id), path(preprocess_log), path(premap_log), path(map_log), path(dedup_log), path(qc_log)

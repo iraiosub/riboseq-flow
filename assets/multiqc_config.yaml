@@ -111,6 +111,7 @@ custom_data:
       tt_percentages: False
       use_legend: False
       tt_suffix: '%'
+      tt_decimals': 1
   expected_length:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
