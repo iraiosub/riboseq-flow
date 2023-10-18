@@ -122,12 +122,13 @@ if (length(cutadapt.log) == 0 & length(premap.log) == 0 & length(dedup.log) == 0
   premap.log <- readLines(premap.log)
   input_premap.reads <- parse_number(premap.log[grep("reads; of these:", premap.log)])
   # Sanity check the input reads for pre-mapping is identical to output from length filter
-  stopifnot(input_premap.reads == passing_length_filter.reads)
+  
   not_premapped.reads <- parse_number(premap.log[grep("aligned 0 times", premap.log)])
   premapped.reads <- input_premap.reads - not_premapped.reads
   
   total.reads <- input_premap.reads
   passing_length_filter.reads <- total.reads
+  stopifnot(input_premap.reads == passing_length_filter.reads)
   
   ## DUPLICATED
   dedup.log <- readLines(dedup.log)
