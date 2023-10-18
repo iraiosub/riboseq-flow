@@ -7,7 +7,11 @@ include { CUTADAPT } from '../modules/local/cutadapt.nf'
 include { UMITOOLS_EXTRACT } from '../modules/local/umitools.nf'
 
 // reads.into { reads_raw; reads_trimmed }
-
+// Create channel for optional input
+ch_optional = Channel
+            .fromPath( params.input )
+            .splitCsv(header:true)
+            .map { row -> [ row.sample, [] ] }
 
 workflow PREPROCESS_READS {
 
@@ -33,7 +37,7 @@ workflow PREPROCESS_READS {
 
             fastq = UMITOOLS_EXTRACT.out.fastq
             trimmed_fastq = UMITOOLS_EXTRACT.out.fastq
-            logs = Channel.empty()
+            logs = ch_optional
         }
 
     } else if (!params.with_umi && !params.skip_umi_extract) {
@@ -53,7 +57,7 @@ workflow PREPROCESS_READS {
 
             fastq = reads
             trimmed_fastq = reads
-            logs = Channel.empty()
+            logs = ch_optional
         }
     }
 
