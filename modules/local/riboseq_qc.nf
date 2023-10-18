@@ -125,3 +125,36 @@ process TRACK_READS {
 
 
 }
+
+process PCA {
+ 
+    label 'process_single'
+
+    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    container 'iraiosub/nf-riboseq:latest'
+
+    publishDir "${params.outdir}/riboseq_qc/pca", mode: 'copy', overwrite: true
+    
+    input:
+    path(featurecounts_table)
+    path(cds_table)
+    path(cds_window_table)
+    path(transcript_info)
+
+    output:
+    path("pca.pdf"), emit: pca, optional: true
+    path("pca_mqc.png"), emit: pca_mqc
+    // path("longest_cds_coverage_psite.tsv.gz"), emit: longest_cds_counts, optional: true
+    // path("*nt_coverage_psite.tsv.gz"),  emit: longest_cds_window_counts, optional: true
+    path("*rlog.tsv.gz"), emit: rlog, optional: true
+
+    script:
+
+        """
+        plot_pca.R --featurecounts $featurecounts_table --cds $cds_table --cds_window $cds_window_table --transcript_info $transcript_info
+            
+        """
+
+
+}
+
