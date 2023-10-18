@@ -87,7 +87,7 @@ include { TRACK_READS } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
-include { PCA } from './modules/local/featurecounts.nf'
+include { PCA } from './modules/local/riboseq_qc.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 
 
