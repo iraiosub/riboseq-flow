@@ -26,7 +26,7 @@ workflow PREPROCESS_READS {
         // fastq = UMITOOLS_EXTRACT.out.fastq
         // trimmed_fastq = UMITOOLS_EXTRACT.out.fastq
 
-        if (!params.skip_preprocessing) {
+        if (!params.skip_trimming) {
 
             CUTADAPT(UMITOOLS_EXTRACT.out.fastq)
             fastq = CUTADAPT.out.fastq
@@ -46,7 +46,7 @@ workflow PREPROCESS_READS {
 
     } else {
 
-        if (!params.skip_preprocessing) {
+        if (!params.skip_trimming) {
 
             CUTADAPT(reads)
             fastq = CUTADAPT.out.fastq

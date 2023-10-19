@@ -134,7 +134,7 @@ Where a default value is missing, the user must provide an appropriate value.
 
 #### Read trimming and filtering options
 
-- `--skip_preprocessing` skip the adapter and quality trimming and length filtering step
+- `--skip_trimming` skip the adapter and quality trimming and length filtering step
 - `--adapter_threeprime` sequence of 3' adapter (equivalent to -a in `cutadapt`) (default: `AGATCGGAAGAGC`)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to -g in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
@@ -238,7 +238,8 @@ The pipeline outputs results in a number of subfolders:
         - `*.before_dedup.csv` 
         - `*.after_dedup.csv`
     - `multiqc_tables` contains tsv files with sample summary metrics for multiQC
-    - `sankey` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding useful reads yield and troubleshooting.     
+    - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding useful reads yield and troubleshooting. 
+    - `pca` contains PCA plots and rlog-normalised count tables.
 - `featurecounts` contains gene-level quantification of the UMI deduplicated alignments to the genome
 - `psites` contains P-sites information, codon coverage and CDS coverage tables, and ribowaltz diagnostic plots:
     - `psite_offset.tsv.gz` contains P-site offsets for each read-length for all samples
