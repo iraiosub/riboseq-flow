@@ -90,5 +90,4 @@ process CUTADAPT {
     else 
         error "Read trimming is enabled, but adapter sequence is missing"
 
-
 }

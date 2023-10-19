@@ -104,7 +104,7 @@ plot_metaheatmap <- function(name, df_list, annotation) {
                              utr5l = 25, cdsl = 40, utr3l = 25)
   
   ends_heatmap.gg <- ends_heatmap$plot +
-    ggplot2::ylim(20,35)
+    ggplot2::ylim(20,45)
   
   ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", name, ".ends_heatmap.pdf"), ends_heatmap.gg, dpi = 400, width = 12, height = 8)
   
