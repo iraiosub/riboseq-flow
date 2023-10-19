@@ -112,9 +112,9 @@ p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))
     theme_classic() +
     scale_fill_discrete(name = "Frame") +
     # ggeasy::easy_add_legend_title("Frame") +
-    xlim(NA, 40)
+    xlim(NA, 45)
 
-p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > 18 & rl < 40), 
+p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > 18 & rl < 45), 
          aes(x = distance_from_start, y = rl, fill = n)) +
     geom_raster() +
     xlim(-50, 50) +
@@ -124,7 +124,7 @@ p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > 18 & rl < 40),
     xlab("Distance of start of read from start codon") +
     ggtitle("Reads near start codon")
 
-p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > 18 & rl < 40), 
+p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > 18 & rl < 45), 
          aes(x = distance_from_end, y = rl, fill = n)) +
     geom_raster() +
     xlim(-80, 20) +
