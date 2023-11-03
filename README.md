@@ -135,7 +135,7 @@ Where a default value is missing, the user must provide an appropriate value.
 #### Read trimming and filtering options
 
 - `--skip_trimming` skip the adapter and quality trimming and length filtering step
-- `--adapter_threeprime` sequence of 3' adapter (equivalent to -a in `cutadapt`) (default: `AGATCGGAAGAGC`)
+- `--adapter_threeprime` sequence of 3' adapter (equivalent to -a in `cutadapt`)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to -g in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
 - `--min_readlength` minimum read length after trimming (default `20`)
