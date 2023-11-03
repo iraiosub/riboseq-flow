@@ -24,7 +24,7 @@ process MAP {
     output:
     tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), path("*.Aligned.sortedByCoord.out.bam.bai"), emit: genome_bam
     tuple val(sample_id), path("*.Aligned.toTranscriptome.sorted.out.bam"), path("*.Aligned.toTranscriptome.sorted.out.bam.bai"), emit: transcriptome_bam
-    path("*.Log.final.out"), emit: log
+    tuple val(sample_id), path("*.Log.final.out"), emit: log
 
     script:
     
@@ -49,9 +49,13 @@ process MAP {
     $args
 
     samtools index -@ ${task.cpus} ${sample_id}.Aligned.sortedByCoord.out.bam
-    samtools sort -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.out.bam > ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
+
+    samtools view -@ ${task.cpus} ${sample_id}.Aligned.sortedByCoord.out.bam | cut -f1 | sort | uniq > ${sample_id}.qnames_list.txt
+    samtools view -@ ${task.cpus} -N ${sample_id}.qnames_list.txt -o ${sample_id}.Aligned.toTranscriptome.filtered.out.bam ${sample_id}.Aligned.toTranscriptome.out.bam
+
+    samtools sort -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.filtered.out.bam > ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
     samtools index -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
-    
+
     """
 
 }

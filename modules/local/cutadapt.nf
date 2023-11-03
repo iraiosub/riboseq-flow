@@ -20,7 +20,7 @@ process CUTADAPT {
     output:
         tuple val(sample_id), path("${sample_id}.trimmed.fastq.gz"), emit: trimmed_fastq // necessary for ribocutter
         tuple val(sample_id), path("${sample_id}.trimmed.filtered.fastq.gz"), emit: fastq
-        path("*.log"), emit: log
+        tuple val(sample_id), path("*.log"), emit: log
 
     script:
 
@@ -60,7 +60,7 @@ process CUTADAPT {
         ts_args_filter = args_filter + " -u " + params.trim_polyG
     }
 
-    if (params.ts_trimming)
+    if (params.ts_trimming && !params.adapter_threeprime && !params.adapter_fiveprime)
         """
         cutadapt $ts_args $reads > ${sample_id}.cutadapt_trim.log
         cutadapt $ts_args_filter ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
@@ -81,8 +81,13 @@ process CUTADAPT {
         cutadapt $args2 $reads > ${sample_id}.cutadapt_trim.log
         cutadapt $args_filter ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
         """
+    else if (!params.ts_trimming && !params.adapter_threeprime && !params.adapter_fiveprime)
+        """
+        cutadapt $args $reads > ${sample_id}.cutadapt_trim.log
+        cutadapt $args_filter ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
+        """
+
     else 
         error "Read trimming is enabled, but adapter sequence is missing"
-
 
 }

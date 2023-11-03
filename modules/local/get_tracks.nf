@@ -17,7 +17,6 @@ process GET_COVERAGE_TRACKS {
 
     input:
         tuple val(sample_id), path(bam), path(bai)
-        path(fasta)
     
     output:
         tuple val(sample_id), path("*.forward*"), emit: forward

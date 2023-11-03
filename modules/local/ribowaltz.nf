@@ -33,7 +33,8 @@ process IDENTIFY_PSITES {
 
     script:
 
-    length_range = params.length_range
+    length_range = params.expected_length
+    periodicity_threshold = params.periodicity_threshold
     method = params.psite_method
 
     // identify_p_sites.R -b $bam_folder -g $gtf -f $fasta -l $length_range --qc --method --periodicity
@@ -42,8 +43,39 @@ process IDENTIFY_PSITES {
 
         INPUT=`echo $bam_list | sed 's/ /,/g'`
         
-        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $method ${params.exclude_start} ${params.exclude_end} $transcript_info
+        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info
 
+        """
+
+}
+
+
+
+process GET_PSITE_TRACKS {
+ 
+    label 'process_single'
+
+    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
+    container 'iraiosub/nf-riboseq:latest'
+
+    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.bed", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.bigWig", mode: 'copy', overwrite: true
+    
+    input:
+    path(psite_tables)
+    path(gtf)
+    path(fai)
+
+    output:
+    path("*.psites.bed"), emit: psite_bed
+    path("*.bigwig"), emit: psite_bigwig
+
+    script:
+
+        """
+        INPUT=`echo $psite_tables | sed 's/ /,/g'`
+            
+        get_psite_tracks.R -p \$INPUT -g $gtf -f $fai
         """
 
 }

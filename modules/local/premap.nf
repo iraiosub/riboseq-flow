@@ -20,14 +20,14 @@ process PREMAP {
 
     input:
     tuple val(sample_id), path(reads)
-    path(smallrna_index)
+    tuple val(meta), path(smallrna_index)
     
 
     output:
     tuple val(sample_id), path("*.bam"), emit: premapped_bam
     tuple val(sample_id), path("*.seqs.gz"), emit: seqs
     tuple val(sample_id), path("*unmapped.fastq.gz"), emit: unmapped
-    path("*.premap.log"), emit: log
+    tuple val(sample_id), path("*.premap.log"), emit: log
 
     script:
 
@@ -35,6 +35,7 @@ process PREMAP {
 
     
     """
+
     bowtie2 $args \
         -U $reads \
         -p ${task.cpus} \

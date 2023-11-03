@@ -18,7 +18,7 @@ process UMITOOLS_EXTRACT {
 
     output:
         tuple val(sample_id), path("${sample_id}.umi_extract.fastq.gz"), emit: fastq
-        path("*.umi_extract.log"), emit: log
+        tuple val(sample_id), path("*.umi_extract.log"), emit: log
 
     script:
     args = " --bc-pattern=" + params.umi_pattern
@@ -45,7 +45,7 @@ process UMITOOLS_DEDUPLICATE {
 
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.sorted.bam.bai", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/deduplicated", pattern: "*.dedup.bed.gz", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage_tracks", pattern: "*.dedup.bed.gz", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/deduplicated", pattern: "*.log", mode: 'copy', overwrite: true
 
 

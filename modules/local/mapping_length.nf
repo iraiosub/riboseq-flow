@@ -9,9 +9,9 @@ process MAPPING_LENGTH_ANALYSIS {
     label 'process_medium'
 
     // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
-    container 'iraiosub/mapping-length:latest'
+    container 'iraiosub/nf-riboseq-qc:latest'
 
-    publishDir "${params.outdir}/mapping_length_analysis", pattern: "*.csv", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc/mapping_length_analysis", pattern: "*.csv", mode: 'copy', overwrite: true
     
     input:
     tuple val(sample_id), path(bam), path(bai), path(fastq) // before deduplication; need to use join in the workflow to make sure samples arevmatched by ID! .bai not required, but necessary to keep cardinality

@@ -55,6 +55,9 @@ get_rlog_pca <- function(count_data) {
 # RPF gene-level counts from FeatureCounts
 # =========
 
+# Create empty file if plot cannot be made 
+file.create("pca_mqc.png")
+
 featurecounts.df <- fread(opt$featurecounts)
 
 featurecounts.df <- featurecounts.df %>%
@@ -86,18 +89,20 @@ if (ncol(featurecounts.df) < 3 ) {
   # Reformat df and PCA of top 500 genes
   featurecounts.df <- featurecounts.df %>%
     remove_rownames() %>% 
-    column_to_rownames(var = "Geneid") 
+    column_to_rownames(var = "Gene") 
   
   featurecounts.pca.gg <- get_rlog_pca(featurecounts.df)$plot +
     geom_point(aes(color = sample)) +
-    ggtitle("Gene-level counts (rlog-normalised)", "FeatureCounts") +
-    labs(caption = "*top 500 most variable CDS") +
+    ggtitle("Gene-level counts", "FeatureCounts (rlog-normalised counts)") +
+    labs(caption = "*top 500 most variable genes") +
     theme_cowplot() +
     scale_fill_manual(values = colours) +
     scale_color_manual(values = colours) +
     # ggrepel::geom_text_repel(aes(label = sample))
     geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8) +
-    theme(legend.position = "none")
+    theme(legend.position = "none") +
+    theme(plot.margin = unit(c(1,1,1,1), "cm")) +
+    coord_cartesian(clip = "off")
 
   fwrite(get_rlog_pca(featurecounts.df)$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
   
@@ -118,14 +123,16 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds.pca.gg <- get_rlog_pca(cds_longest.df)$plot +
         geom_point(aes(color = sample)) +
-        ggtitle("Gene-level CDS occupancy (rlog-normalised)", "P-sites") +
+        ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") +
         labs(caption = "*top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
         # ggrepel::geom_text_repel(aes(label = sample))
         geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)+
-        theme(legend.position = "none")
+        theme(legend.position = "none") +
+        theme(plot.margin = unit(c(1,1,1,1), "cm")) +
+        coord_cartesian(clip = "off")
 
       fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
       
@@ -144,14 +151,16 @@ if (ncol(featurecounts.df) < 3 ) {
       
       cds_window.pca.gg <- get_rlog_pca(cds_window_longest.df)$plot +
         geom_point(aes(color = sample)) +
-        ggtitle("Gene-level CDS (+15th codon to -10th codon) occupancy (rlog-normalised)", "P-sites") +
+        ggtitle("CDS (+15th codon to -10th codon) occupancy", "P-sites (rlog-normalised counts)") +
         labs(caption = "*top 500 most variable CDS") +
         theme_cowplot() +
         scale_fill_manual(values = colours) +
         scale_color_manual(values = colours) +
        # ggrepel::geom_text_repel(aes(label = sample))
        geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8) +
-       theme(legend.position = "none")
+       theme(legend.position = "none") +
+       theme(plot.margin = unit(c(1,1,1,1), "cm")) +
+       coord_cartesian(clip = "off")
 
       fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
       
@@ -161,8 +170,10 @@ if (ncol(featurecounts.df) < 3 ) {
       # =========
       
       pca.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, nrow = 3)
-      
       ggsave("pca.pdf", pca.gg, dpi = 600, height = 30, width = 12)
+
+      pca_mqc.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, ncol = 3)
+      ggsave("pca_mqc.png", pca_mqc.gg, dpi = 600, height = 6, width = 21)
       
       # save longest CDS tables
       # fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
@@ -172,6 +183,7 @@ if (ncol(featurecounts.df) < 3 ) {
     } else {
       
       ggsave("pca.pdf", featurecounts.pca.gg, dpi = 600, height = 10, width = 10)
+      gsave("pca_mqc.png", pca.gg, dpi = 600, height = 6, width = 7)
       
     }
 }

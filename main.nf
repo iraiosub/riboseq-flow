@@ -19,7 +19,6 @@ if (!params.input) {
 }
 
 
-
 // Check if genome exists in the config file
 if (params.org  && !params.genomes.containsKey(params.org)) {
     exit 1, "The provided genome '${params.org}' is not available. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
@@ -32,32 +31,37 @@ PREPARE GENOME CHANNELS
 if(params.org) {
 
     params.fasta = params.genomes[ params.org ].fasta
+    params.fai = params.genomes[ params.org ].fai
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
+    params.transcript_info = params.genomes[ params.org ].transcript_info
 
 }  else {
 
     if(!params.fasta ) { exit 1, '--fasta is not specified.' } 
+    if(!params.fai ) { exit 1, '--fai is not specified.' } 
     if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
     if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, '--smallrna_fasta is not specified.' }
 
 }
 
 
-// Create channels for static files
-ch_genome_fasta = Channel.fromPath(params.fasta, checkIfExists: true)
+ch_genome_fasta = file(params.fasta, checkIfExists: true)
+ch_genome_fai = file(params.fai, checkIfExists: true)
+ch_smallrna_fasta = file(params.smallrna_fasta, checkIfExists: true)
+ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
-ch_genome_gtf = Channel.fromPath(params.gtf, checkIfExists: true)
 
-if (!params.skip_premap) {
-    ch_smallrna_fasta = Channel.fromPath(params.smallrna_fasta, checkIfExists: true)
-    // if (ch_smallrna_fasta.isEmpty()) {exit 1, "File provided with --smallrna_fasta is empty: ${ch_smallrna_fasta.getName()}!"}
-} else {
+/* 
+Channel for OPTIONAL INPUT - contains a tuple with sample ids as keys, but no path/file
+*/
 
-    // Create empty channel so GENERATE_REFERENCE_INDEX doesn't break
-    ch_smallrna_fasta = Channel.empty()
-}
+ch_optional = Channel
+            .fromPath( params.input )
+            .splitCsv(header:true)
+            .map { row -> [ row.sample, [] ] }
+
 
 /* 
 SUBWORKFLOWS
@@ -79,9 +83,11 @@ include { PREMAP } from './modules/local/premap.nf'
 include { MAP } from './modules/local/map.nf'
 include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
+include { TRACK_READS } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
-include { PCA } from './modules/local/featurecounts.nf'
+include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
+include { PCA } from './modules/local/riboseq_qc.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 
 
@@ -101,6 +107,13 @@ workflow RIBOSEQ {
     // Extract UMIs and/or trim adapters and filter on min length, and FASTQC
     PREPROCESS_READS(ch_input)
     FASTQC(PREPROCESS_READS.out.fastq)
+
+    // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)
+    if (!params.skip_ribocutter) {
+        RUN_RIBOCUTTER(
+            PREPROCESS_READS.out.trimmed_fastq
+            )
+    }
 
     
     // Align reads
@@ -149,10 +162,21 @@ workflow RIBOSEQ {
             )
 
             RIBOSEQ_QC(
-                DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                DEDUPLICATE.out.dedup_transcriptome_bam
+                    .join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis)
+                    .join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis)
+                    .join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
 
+            // Track read fate through pipeline
+            TRACK_READS(
+                PREPROCESS_READS.out.logs
+                    .join(PREMAP.out.log)
+                    .join(MAP.out.log)
+                    .join(DEDUPLICATE.out.dedup_genome_log)
+                    .join(RIBOSEQ_QC.out.qc)
+            )
 
         } else if (params.skip_premap && params.with_umi) {
 
@@ -163,10 +187,20 @@ workflow RIBOSEQ {
                 Channel.empty()
             )
 
-        
             RIBOSEQ_QC(
-                DEDUPLICATE.out.dedup_transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                DEDUPLICATE.out.dedup_transcriptome_bam
+                    .join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis)
+                    .join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis)
+                    .join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            )
+
+            TRACK_READS(
+                PREPROCESS_READS.out.logs
+                    .join(MAP.out.log)
+                    .join(DEDUPLICATE.out.dedup_genome_log)
+                    .join(RIBOSEQ_QC.out.qc)
+                    .join(ch_optional)
             )
 
 
@@ -180,9 +214,21 @@ workflow RIBOSEQ {
             )
 
             RIBOSEQ_QC(
-                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                MAP.out.transcriptome_bam
+                    .join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis)
+                    .join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis)
+                    .join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
+
+            TRACK_READS(
+                PREPROCESS_READS.out.logs
+                    .join(PREMAP.out.log)
+                    .join(MAP.out.log)
+                    .join(RIBOSEQ_QC.out.qc)
+                    .join(ch_optional)
+            )
+
         } else if (params.skip_premap && !params.with_umi) {
 
             MAPPING_LENGTH_ANALYSES(
@@ -193,16 +239,60 @@ workflow RIBOSEQ {
             )
 
             RIBOSEQ_QC(
-                MAP.out.transcriptome_bam.join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis).join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
+                MAP.out.transcriptome_bam
+                    .join(MAPPING_LENGTH_ANALYSES.out.before_dedup_length_analysis)
+                    .join(MAPPING_LENGTH_ANALYSES.out.after_premap_length_analysis)
+                    .join(MAPPING_LENGTH_ANALYSES.out.after_dedup_length_analysis),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
             )
+
+            TRACK_READS(
+                PREPROCESS_READS.out.logs
+                    .join(MAP.out.log)
+                    .join(RIBOSEQ_QC.out.qc)
+                    .join(ch_optional)
+                    .join(ch_optional)
+            )
+
         }
 
         ch_merge_qc = RIBOSEQ_QC.out.qc
             .map { [ it[1] ] }
             .collect()
 
-        SUMMARISE_RIBOSEQ_QC(ch_merge_qc)
+        ch_merge_read_length = RIBOSEQ_QC.out.fq_length_distr
+            .map { [ it[1] ] }
+            .collect()
+
+        ch_merge_useful_length = RIBOSEQ_QC.out.useful_length_distr
+            .map { [ it[1] ] }
+            .collect()
+
+        ch_merge_region_counts = RIBOSEQ_QC.out.region_counts
+            .map { [ it[1] ] }
+            .collect()
+
+        ch_merge_start_dist = RIBOSEQ_QC.out.start_dist
+            .map { [ it[1] ] }
+            .collect()
+
+        ch_merge_frame = RIBOSEQ_QC.out.frame_counts
+            .map { [ it[1] ] }
+            .collect()
+
+        ch_merge_mapping_counts = TRACK_READS.out.mapping_counts
+            .map { [ it[1] ] }
+            .collect() 
+
+        SUMMARISE_RIBOSEQ_QC(
+            ch_merge_qc,
+            ch_merge_read_length,
+            ch_merge_useful_length,
+            ch_merge_region_counts,
+            ch_merge_start_dist,
+            ch_merge_mapping_counts,
+            ch_merge_frame
+        )
 
     }
 
@@ -210,18 +300,18 @@ workflow RIBOSEQ {
     if (params.with_umi) {
         GET_GENE_LEVEL_COUNTS(
             DEDUPLICATE.out.dedup_genome_bam,
-            ch_genome_gtf.collect()
+            PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }
         )
 
-        GET_COVERAGE_TRACKS(DEDUPLICATE.out.dedup_genome_bam, ch_genome_fasta.collect())
+        GET_COVERAGE_TRACKS(DEDUPLICATE.out.dedup_genome_bam)
     
     } else {
         GET_GENE_LEVEL_COUNTS(
             MAP.out.genome_bam,
-            ch_genome_gtf.collect()
+            PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }
         )
 
-        GET_COVERAGE_TRACKS(MAP.out.genome_bam, ch_genome_fasta.collect())
+        GET_COVERAGE_TRACKS(MAP.out.genome_bam)
 
     }
 
@@ -229,28 +319,44 @@ workflow RIBOSEQ {
     if (!params.skip_psite) {
 
          if (params.with_umi) {
+            
             IDENTIFY_PSITES(
-                DEDUPLICATE.out.dedup_transcriptome_bam.map { [ it[1] ] }.collect(),
-                ch_genome_gtf.collect(),
-                ch_genome_fasta.collect(),
+                DEDUPLICATE.out.dedup_transcriptome_bam
+                    .map { [it[1]] }
+                    .collect(),
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf
+                    .map { it[1] },
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_fasta
+                    .map { it[1] },
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
+
         
         } else {
             
             IDENTIFY_PSITES(
-                MAP.out.transcriptome_bam.map { [ it[1] ] }.collect(),
-                ch_genome_gtf.collect(),
-                ch_genome_fasta.collect(),
+                MAP.out.transcriptome_bam
+                    .map { [it[1]] }
+                    .collect(),
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf
+                    .map { it[1] },
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_fasta
+                    .map { it[1] },
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
+
         }
 
+        // Get P-site tracks
+        // GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
+
     }
+
    
     // PCA on gene-level RPF counts and transcript-level P sites
     if (!params.skip_psite) {
+        
         PCA(
             GET_GENE_LEVEL_COUNTS.out.merged_counts_table,
             IDENTIFY_PSITES.out.cds_coverage,
@@ -269,20 +375,71 @@ workflow RIBOSEQ {
     }
 
     // Run MULTIQC
-    ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
-        .map { [ it[1], it[2] ] }
-        .collect()
-        .mix(PREMAP.out.log.collect(), MAP.out.log.collect())
-        .collect()
+    // if ribocutter skipped, use empty channel in multiqc
+
+    if (params.skip_ribocutter) {
+
+        ch_ribocutter = Channel.empty()
+    
+    } else {
+
+        ch_ribocutter = RUN_RIBOCUTTER.out.ribocutter_mqc
+    }
+
+    if (!params.skip_premap && !params.skip_qc) {
+   
+        ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
+            .map { [it[1], it[2]] }
+            .collect()
+            .mix(
+                PREMAP.out.log.map { it[1] }.collect(),
+                MAP.out.log.map { it[1] }.collect(),
+                PCA.out.pca_mqc,
+                SUMMARISE_RIBOSEQ_QC.out.mqc,
+                ch_ribocutter
+            )
+            .collect()
+
+    } else if (!params.skip_premap && params.skip_qc) {
+
+        ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
+            .map { [it[1], it[2]] }
+            .collect()
+            .mix(
+                PREMAP.out.log.map { it[1] }.collect(),
+                MAP.out.log.map { it[1] }.collect(),
+                PCA.out.pca_mqc,
+                ch_ribocutter
+            )
+            .collect()
+
+    } else if (params.skip_premap && params.skip_qc) {
+
+        ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
+            .map { [it[1], it[2]] }
+            .collect()
+            .mix(
+                MAP.out.log.map { it[1] }.collect(),
+                PCA.out.pca_mqc,
+                ch_ribocutter
+            )
+            .collect()
+
+    } else {
+
+        ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
+            .map { [it[1], it[2]] }
+            .collect()
+            .mix(
+                MAP.out.log.map { it[1] }.collect(),
+                PCA.out.pca_mqc,
+                SUMMARISE_RIBOSEQ_QC.out.mqc,
+                ch_ribocutter
+            )
+            .collect()
+    }
     
     MULTIQC(ch_logs)
-
-    // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)
-    if (!params.skip_ribocutter) {
-        RUN_RIBOCUTTER(
-            PREPROCESS_READS.out.trimmed_fastq
-            )
-    }
     
 }
 
@@ -304,4 +461,3 @@ workflow.onComplete {
     }
 
 }
-

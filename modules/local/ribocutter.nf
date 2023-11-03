@@ -65,6 +65,7 @@ process GET_PROPORTION_TARGETED {
 
     output:
     path("*.pdf"), emit: percentage_targeted
+    path("ribocutter_mqc.tsv"), emit: ribocutter_mqc
 
 
     script:

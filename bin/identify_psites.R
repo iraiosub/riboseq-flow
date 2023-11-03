@@ -24,15 +24,20 @@ options <- commandArgs(trailingOnly = TRUE)
 bam_dir <- options[1]
 gtf <- options[2]
 fasta <- options[3]
+
 # Filter out reads outside this length range for P-site indetification
 length_range <- options[4]
-# P-site identification method
-method <- options[5]
-# Optionally exclude reads near either initiating or terminating ribosome which do not behave like elongating ribosomes. e.g. Ingolia CDS = +15th codon of the CDS to -10th codon of CDS
-exclude_start <- as.numeric(options[6])
-exclude_stop <- as.numeric(options[7])
 
-longest_cds.df <- options[8]
+# Filter out read lengths that below periodicity threshold for P-site indetification (good default = 50)
+periodicity_thresh <- as.integer(options[5])
+
+# P-site identification method
+method <- options[6]
+# Optionally exclude reads near either initiating or terminating ribosome which do not behave like elongating ribosomes. e.g. Ingolia CDS = +15th codon of the CDS to -10th codon of CDS
+exclude_start <- as.numeric(options[7])
+exclude_stop <- as.numeric(options[8])
+
+longest_cds.df <- options[9]
 
 # Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
@@ -99,7 +104,7 @@ plot_metaheatmap <- function(name, df_list, annotation) {
                              utr5l = 25, cdsl = 40, utr3l = 25)
   
   ends_heatmap.gg <- ends_heatmap$plot +
-    ggplot2::ylim(20,35)
+    ggplot2::ylim(20,45)
   
   ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", name, ".ends_heatmap.pdf"), ends_heatmap.gg, dpi = 400, width = 12, height = 8)
   
@@ -210,7 +215,7 @@ reads.ls <- lapply(reads.ls, function(df, tx.df) {
 # Get filtered reads: keep only the ones with periodicity evidence, periodicity_threshold = 50
 filtered.ls <- length_filter(data = reads.ls,
                              length_filter_mode = "periodicity",
-                             periodicity_threshold = 50)
+                             periodicity_threshold = periodicity_thresh)
 
 # Additionally filter them by length
 min_length <- as.integer(strsplit(length_range, ":")[[1]][1])
@@ -304,7 +309,6 @@ codon_coverage_rpf.dt <- codon_coverage(filtered_psite.ls, psite = FALSE, annota
 codon_coverage_psite.dt <- codon_coverage(filtered_psite.ls, psite = TRUE, annotation = annotation.dt)
 
 data.table::fwrite(codon_coverage_rpf.dt, paste0(getwd(),"/codon_coverage_rpf.tsv.gz"), sep = "\t")
-
 data.table::fwrite(codon_coverage_psite.dt, paste0(getwd(),"/codon_coverage_psite.tsv.gz"), sep = "\t")
 
 # Compute the number of P-sites mapping on annotated coding sequences or whole transcripts. 
@@ -367,7 +371,7 @@ ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/psite_region.pdf"), psite_region.
 # Both functions compute the percentage of P-sites falling in the three possible translation reading frames for 5’ UTRs, CDSs and 3’ UTRs with one difference: 
 # frame_psite_length analyses all read lengths separately and generates a heatmap for each transcript region, while frame_psite processes all reads at once, returning three bar plots.
 
-frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", length_range = "all")
+frames_stratified <- frame_psite_length(filtered_psite.ls, region = "all", length_range = min_length:max_length)
 frames_stratified.gg <- frames_stratified$plot +
   ggplot2::scale_y_continuous(limits = c(min_length - 0.5, max_length + 0.5), breaks = seq(min(min_length + ((min_length) %% 2), max_length), max(min_length + ((min_length) %% 2), max_length), 
                     by = max(2, floor((max_length - min_length) / 7))))
@@ -375,7 +379,7 @@ frames_stratified.gg <- frames_stratified$plot +
 ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 600, height = 24 , width = 18)
 
 
-frames <- frame_psite(filtered_psite.ls, region = "all", length_range = "all")
+frames <- frame_psite(filtered_psite.ls, region = "all", length_range = min_length:max_length)
 frames.gg <- frames$plot +
   ggplot2::theme(plot.background = ggplot2::element_blank(), 
                  panel.grid.minor = ggplot2::element_blank(),

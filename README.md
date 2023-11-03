@@ -5,10 +5,12 @@
 1. [Introduction](#introduction)
 2. [Pipeline summary](#pipeline-summary)
 3. [Quick start (test the pipeline)](#quick-start-testing)
-4. [Quick start (run the pipeline)](#quick-start-running)
+4. [Quick start (run the pipeline on your data)](#quick-start-running)
 5. [Pipeline parameters](#pipeline-parameters)
 6. [Pipeline outputs](#pipeline-outputs)
-7. [Authors and contact](#authors-contact)
+7. [Pre-download container images](#pre-download-container-images)
+8. [Authors and contact](#authors-and-contact)
+9. [Issues and contributions](#issues-and-contributions)
 
 ## Introduction
 
@@ -80,9 +82,10 @@ sample3,/path/to/file3.fastq.gz
 ```
 nextflow run iraiosub/riboseq -r main \
 -profile singularity,crick \
+-resume \
 --input samplesheet.csv \
 --org GRCh38 \
--resume
+--strandedness forward
 ```
 
 ## Pipeline parameters
@@ -103,14 +106,16 @@ nextflow run iraiosub/riboseq -r main \
 ### Genome parameters
 
 - `--org` specifies the organism (options are currently: `GRCh38`, `GRCm39`).
-If `--org` is specified, all annotations will be loaded from the paths in the [genomes.config](https://github.com/iraiosub/riboseq/blob/main/conf/genomes.config) file.
+If `--org` is specified, all annotation files will be loaded from the paths in the [genomes.config](https://github.com/iraiosub/riboseq/blob/main/conf/genomes.config) file.
 
 If `--org` is not specified, the user must provide paths to all required annotation files, using the following parameters:
 
 - `--fasta` path to FASTA genome file
+- `--fai` path to FASTA genome index file
 - `--gtf` path to GTF annotation file
 - `--smallrna_fasta` path to the small RNA FASTA genome file (Required if pre-mapping is enabled)
 - `--star_index` path to directory of pre-built STAR index (Optional). If not provided, the pipeline will generate the STAR index.
+- `--transcript_info` path to TSV file with a single representative transcript for each gene, with information on CDS start, length, end and transcript length (Optional). If not provided, the pipeline will generate it from the GTF file, selecting the longest CDS transcript as representative for each gene. An example illustrating the format can be found [here](https://github.com/iraiosub/riboseq/tree/dev-nf/assets/transcript_info). 
 
 
 ### Tool specific parameters
@@ -121,16 +126,16 @@ Where a default value is missing, the user must provide an appropriate value.
 
 #### UMI options
 
-- `--with_umi` enables UMI-based read deduplication (default: `true`). Set to `false` if you didn't use UMIs in your protocol.
-- `--skip_umi_extract` skips UMI extraction from the read in case UMIs have been moved to the headers in advance
+- `--with_umi` enables UMI-based read deduplication. Use if you used UMIs in your protocol. By default, not enabled.
+- `--skip_umi_extract` if using UMIs, skips UMI extraction from the read in case UMIs have been moved to the headers in advance
 - `--umi_extract_method` specify method to extract the UMI barcode (options: `string` (default) or `regex`)
 - `--umi_pattern` specifies the UMI barcode pattern,  e.g. 'NNNNN' indicates that the first 5 nucleotides of the read are from the UMI.
 - `--umi_separator` specifies the UMI barcode separator (default: `_`; `rbc:` if Ultraplex was used)
 
 #### Read trimming and filtering options
 
-- `--skip_preprocessing` skip the adapter and quality trimming and length filtering step
-- `--adapter_threeprime` sequence of 3' adapter (equivalent to -a in `cutadapt`) (default: `AGATCGGAAGAGC`)
+- `--skip_trimming` skip the adapter and quality trimming and length filtering step
+- `--adapter_threeprime` sequence of 3' adapter (equivalent to -a in `cutadapt`)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to -g in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
 - `--min_readlength` minimum read length after trimming (default `20`)
@@ -169,6 +174,7 @@ Additionally, the user can specify the following options:
 
 - `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
 - `--length_range` specifies the range of RPF lengths used for P-site identification (default `26:32`)
+- `--periodicity_threshold` specifies the periodicity threshold for read lengths to be considered for P-site identification (default `50`)
 - `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
      - For `ribowaltz` P-site offsets are defined using [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/).
      - For `global_max_5end` P-site offsets are defined by the distances between the first nucleotide of the translation initiation site and the nucleotide corresponding to the global maximum of the read length-specific 5'end profiles (the first step of the riboWaltz method). Compared to riboWaltz-defined offsets, only the 5' extremities of the reads are considered for calculation and no further offset correction is performed after read-length global maximum identification.
@@ -181,7 +187,7 @@ The selection is performed automatically by the pipeline using the information i
 
 #### Coverage tracks options
 
-- `--bin_size` spcifies bin size for calculating coverage (i.e. the number of reads per bin). Bins are short consecutive counting windows of a defined size. (default `1`)
+- `--bin_size` spcifies bin size for calculating coverage (i.e. the number of nt per bin). Bins are short consecutive counting windows of a defined size. (default `1`)
 - `--track_format` specifies output file type. Either “bigwig” or “bedgraph” (default `bigwig`)
 
 ## Pipeline outputs
@@ -190,23 +196,26 @@ The pipeline outputs results in a number of subfolders:
 
 ```
 .
+├── annotation
 ├── preprocessed
+├── fastqc
 ├── premapped
 ├── mapped
 ├── deduplicated
-├── mapping_length_analysis
 ├── riboseq_qc
 ├── featurecounts
 ├── psites
 ├── coverage_tracks
 ├── ribocutter
-├── annotation
 ├── multiqc
 └── pipeline_info
 ```
 
 ### Files
 
+- `annotation` contains information on the representative transcript per gene used for riboseq QC and P-site analyses, as well as bowtie2 and STAR indexes used by the pipeline
+    - `*.longest_cds.transcript_info.tsv` a TSV file with a single representative transcript for each gene, with information on CDS start, length and end
+    - `bowtie2` and `star` folders with indexes used for aligning reads
 - `preprocessed` contains reads that have been pre-processed according to user settings for UMI extraction and trimming and filtering options
 - `fastqc` contains FastQC reports
 - `premapped` contains files resulting from alignment to the small RNA genome (smallrna_genome):
@@ -223,11 +232,14 @@ The pipeline outputs results in a number of subfolders:
     - `*.genome.dedup.bed.gz` contains the the UMI deduplicated alignments to the genome in BED format
     - `*.transcriptome.dedup.sorted.bam` contains the UMI deduplicated alignments to the transcriptome in BAM format
     - `*.transcriptome.dedup.bed.gz` contains the the UMI deduplicated alignments to the transcriptomie in BED format
-- `mapping_length_analysis` contains csv files with number of raw and mapped reads by length:
-    - `*.after_premap.csv` 
-    - `*.before_dedup.csv` 
-    - `*.after_dedup.csv`
 - `riboseq_qc` contains quality-control plots informing on mapping lengths, frame, distribution around start and stop codons, rRNA proportion, duplication, fraction of useful reads, PCA plots
+    - `mapping_length_analysis` contains csv files with number of raw and mapped reads by length:
+        - `*.after_premap.csv` 
+        - `*.before_dedup.csv` 
+        - `*.after_dedup.csv`
+    - `multiqc_tables` contains tsv files with sample summary metrics for multiQC
+    - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding useful reads yield and troubleshooting. 
+    - `pca` contains PCA plots and rlog-normalised count tables.
 - `featurecounts` contains gene-level quantification of the UMI deduplicated alignments to the genome
 - `psites` contains P-sites information, codon coverage and CDS coverage tables, and ribowaltz diagnostic plots:
     - `psite_offset.tsv.gz` contains P-site offsets for each read-length for all samples
@@ -239,16 +251,47 @@ The pipeline outputs results in a number of subfolders:
     - `offset_plot` contains plots that detail P-site assignment using the ribowaltz method
 - `coverage_tracks` contains coverage track files in bigwig format
 - `ribocutter` contains results of ribocutter run on the pre-processed reads of minimum length defined by user, and minimum length of 23 nt, respectively
-- `annotation` contains information on the representative transcript per gene used for riboseq QC and P-site analyses
-    - `*.longest_cds.transcript_info.tsv` a TSV file with a single representative transcript for each gene, with information on CDS start, length and end
 - `multiqc` contains a MultiQC report summarising the FastQC reports, premapping and mapping logs
 - `pipeline_info` contains the execution reports, traces and timelines generated by Nextflow:
     - `execution_report.html`
     - `execution_timeline.html`
     - `execution_trace.txt`
 
+## Pre-download container images
+
+When a Nextflow pipeline requires multiple Docker images, it can sometimes fail to pull them, leading to pipeline execution failures. In such scenarios, pre-downloading the container images to a designated location on your system can prevent this. 
+
+Follow these steps to pre-download and cache the necessary images:
+1. Identify the desired location on your system where you want to store the container images.
+2. Set the 'NXF_SINGULARITY_CACHEDIR' environment variable to point to this chosen location.
+For example, you can add the following line to your shell profile or run script:
+
+```
+export NXF_SINGULARITY_CACHEDIR=/path/to/image/cache
+```
+
+3. Run the code below to pre-download and cache the required Docker images:
+
+```
+#!/bin/sh
+
+# A script to pre-download singularity images required by iraiosub/riboseq pipeline
+ml Singularity/3.6.4
+
+# change dir to your NFX_SINGULARITY_CACHEDIR path
+cd /path/to/image/cache
+
+singularity pull iraiosub-nf-riboseq-latest.img docker://iraiosub/nf-riboseq
+singularity pull iraiosub-mapping-length-latest.img docker://iraiosub/nf-riboseq-qc
+singularity pull iraiosub-nf-riboseq-dedup-latest.img docker://iraiosub/nf-riboseq-dedup
+```
 
 ### Authors and contact
 
 This DSL2 Nextflow pipeline is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a snakemake pipeline in collaboration with its original author, Oscar Wilkins. 
-To raise any issues or comments with the pipeline, please email `ira.iosub@crick.ac.uk` or raise an issue on github.
+Contact email: `ira.iosub@crick.ac.uk`
+
+### Issues and contributions
+
+riboseq is under active development by Ira Iosub. For queries related to the pipeline, raise an issue on github.
+If you are interested in building more functionality or want to get involved please reach out.

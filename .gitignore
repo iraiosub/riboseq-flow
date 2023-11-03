@@ -8,7 +8,7 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-build/
+# build/
 develop-eggs/
 dist/
 downloads/
@@ -137,6 +137,8 @@ work/
 data/
 results/
 results*
+res_nf/
+res_nf*
 
 # Local test
 local_test.sh

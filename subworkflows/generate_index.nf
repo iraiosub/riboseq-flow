@@ -3,9 +3,9 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-include { GENERATE_BOWTIE_INDEX } from '../modules/local/reference.nf'
-include { GENERATE_GENOME_STAR_INDEX } from '../modules/local/reference.nf'
-
+// include { BOWTIE2_BUILD } from '../modules/local/bowtie2.nf'
+include { BOWTIE2_BUILD } from '../modules/nf-core/bowtie2/build/main'   
+include { STAR_GENOMEGENERATE } from '../modules/nf-core/star/genomegenerate/main'
             
 workflow GENERATE_REFERENCE_INDEX {
 
@@ -18,11 +18,10 @@ workflow GENERATE_REFERENCE_INDEX {
     main:
     
     // Generate small RNA index
-
     if(!params.skip_premap) {
 
-        GENERATE_BOWTIE_INDEX(smallrna_fasta)
-        smallrna_bowtie2_index = GENERATE_BOWTIE_INDEX.out.smallrna_index
+        BOWTIE2_BUILD(smallrna_fasta)
+        smallrna_bowtie2_index = BOWTIE2_BUILD.out.index
         
     } else {
 
@@ -33,15 +32,14 @@ workflow GENERATE_REFERENCE_INDEX {
 
     if (!params.star_index) {
 
-        GENERATE_GENOME_STAR_INDEX(genome_fasta, genome_gtf)
-        genome_star_index = GENERATE_GENOME_STAR_INDEX.out.star_index
+        STAR_GENOMEGENERATE(genome_fasta.map{ it[1] }, genome_gtf.map{ it[1] })
+        genome_star_index = STAR_GENOMEGENERATE.out.index
 
     } else {
 
         genome_star_index = params.star_index
     }
 
-    
 
     emit:
 
