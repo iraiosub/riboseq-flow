@@ -1,2 +1,2 @@
 sample,fastq
-test_data,https://www.dropbox.com/scl/fi/5cfnsk6oy5o9jckhq17nl/ultraplex_demux_cgas_m1_sampled.fastq.gz?rlkey=hw4bkz5tl76yqd347xug5m9sk&dl=0#:~:text=Dropbox-,Download
+test_data,https://raw.githubusercontent.com/amchakra/tosca/main/testdata/test_samplesheet.csv
