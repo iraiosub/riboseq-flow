@@ -141,8 +141,8 @@ Where a default value is missing, the user must provide an appropriate value.
 - `--min_readlength` minimum read length after trimming (default `20`)
 - `--min_quality` cutoff value for trimming low-quality ends from reads (default `20`)
 
-If you prepared your library using a TS (template-switching-based protocol) you may use the option
-- `--ts_trimming` which automatically trims the first 3 nucleotides corresponding to three untemplated bases at the 5′ end of the read (e.g. corresponding to rGrGrG), and the poly-A from the 3'end of reads, without the need for the user to specify adapter sequences. Should the user desire to trim a different sequence from the 3' end of the read, they can additionally set the `--ts_adapter_threeprime` (default: `A{11}`) to a different sequence.
+If you prepared your library using a TS (template-switching-based protocol) and you haven't trimmed the non-templated nucleotides and adaptors before running this pipeline, you may use the option
+- `--ts_trimming` which automatically trims the first 3 nucleotides corresponding to three untemplated bases at the 5′ end of the read (e.g. corresponding to rGrGrG), and the poly-A from the 3'end of reads, without the need for the user to specify adapter sequences. Should the user desire to trim a different sequence from the 3' end of the read, they can additionally set the `--ts_adapter_threeprime` (default: `A{11}`) to a different sequence. 
 
 #### Ribocutter options
 
