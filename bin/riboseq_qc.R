@@ -113,9 +113,10 @@ p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))
     geom_bar(stat="identity", position="dodge") +
     theme_classic() +
     scale_fill_discrete(name = "Frame") +
-    scale_fill_manual(values = c("#7cb5ec","#434348","#90ed7d"))
+    scale_fill_manual(values = c("#7cb5ec","#434348","#90ed7d")) +
     # ggeasy::easy_add_legend_title("Frame") +
-    xlim(NA, 45)
+    xlim(NA, 45) +
+    ylab("Count")
 
 p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > 18 & rl < 45), 
          aes(x = distance_from_start, y = rl, fill = n)) +
@@ -230,7 +231,7 @@ fwrite(frame_mqc.df, paste0(actual_name, "_frame_mqc.tsv"), sep = "\t", row.name
 # Premapping
 # =========
 
-name_colours <- c("original_n" = "#18242f", "after_premap_n" = "#4a6c8d", "before_dedup_bam" = "#7cb5ec")
+name_colours <- c("original_n" = "#8ed5d9", "after_premap_n" = "#d9b88e", "before_dedup_bam" = "#d98eaf")
 
 if (!is.na(opt$after_premap)) {
 # if (basename(opt$after_premap) != "optional.txt") {
