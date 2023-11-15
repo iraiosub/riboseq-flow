@@ -35,7 +35,7 @@ process CUTADAPT {
     args_filter += " -o ${sample_id}.trimmed.filtered.fastq.gz"
 
     // args_cut = " -j ${task.cpus}"
-    args_cut += " -u " + params.cut_end
+    args_cut = " -u " + params.cut_end
     // args_cut += " -o ${sample_id}.trimmed.filtered.fastq.gz"
 
     // Define option-specific args
