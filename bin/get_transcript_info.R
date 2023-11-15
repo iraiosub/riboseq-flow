@@ -55,10 +55,21 @@ gtf.df <- as.data.frame(filtered_gtf)
 gtf.dt <- data.table(gtf.df, key = c("transcript_id", "gene_id"))
 gtf.dt <- gtf.dt[txlengths.dt]
 
-longest.pc.dt <- gtf.dt[gene_type %in% pc & transcript_type %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
-longest.pc.dt <- longest.pc.dt[gene_type %in% pc & transcript_type %in% pc & cds_len == longest] # selects longest
+if (gene_type %in% colnames(gtf.df) & transcript_type %in% colnames(gtf.df)) {
+  # Gencode
+  longest.pc.dt <- gtf.dt[gene_type %in% pc & transcript_type %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
+  longest.pc.dt <- longest.pc.dt[gene_type %in% pc & transcript_type %in% pc & cds_len == longest] # selects longest
 
-# hierarchy
+} else if (gene_biotype %in% colnames(gtf.df) & transcript_biotype %in% colnames(gtf.df)) {
+  # Ensembl
+  longest.pc.dt <- gtf.dt[gene_biotype %in% pc & transcript_biotype %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
+  longest.pc.dt <- longest.pc.dt[gene_biotype %in% pc & transcript_biotype %in% pc & cds_len == longest] # selects longest
+} else {
+
+  stop("Your GTF cannot be used to select longest CDS transcript per gene. Either use your own transcript info file, or use Gencode or Ensembl annotations")
+}
+
+# Hierarchy: CDS > tx_len > n_exon > UTR3 > UTR3
 longest.pc.dt <- longest.pc.dt %>% arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr5_len), desc(utr3_len))
 
 unique.longest.pc.dt <- longest.pc.dt[!duplicated(longest.pc.dt$gene_id), ] 
