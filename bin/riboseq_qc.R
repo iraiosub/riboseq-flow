@@ -107,10 +107,13 @@ max_length <- str_split(opt$expected_length, ":")[[1]][2]
 
 riboseq_info <- get_info_from_bam(opt$bam, opt$transcript_info)
 
+# frame_colours = list(factor(0) = "#7cb5ec", factor(1) = "#434348", factor(2) = "#90ed7d")
+
 p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))) +
     geom_bar(stat="identity", position="dodge") +
     theme_classic() +
     scale_fill_discrete(name = "Frame") +
+    scale_fill_manual(values = "#7cb5ec","#434348","#90ed7d")
     # ggeasy::easy_add_legend_title("Frame") +
     xlim(NA, 45)
 
@@ -210,7 +213,7 @@ start_dist_mqc.df <- riboseq_info$start_dist %>%
 
 fwrite(start_dist_mqc.df, paste0(actual_name, "_start_dist_mqc.tsv"), sep = "\t", row.names = FALSE)
 
-# Frames for multiqc, summarised for the expected length range
+# Frames for MultiQC, summarised for the expected length range
 frame_mqc.df <- riboseq_info$frame %>%
   mutate(sample = actual_name) %>%
   dplyr::filter(read_length >= min_length & read_length <= max_length) %>%
@@ -227,7 +230,7 @@ fwrite(frame_mqc.df, paste0(actual_name, "_frame_mqc.tsv"), sep = "\t", row.name
 # Premapping
 # =========
 
-name_colours <- c("after_premap_n" = "#f8766d", "original_n" = "#00BFC4", "before_dedup_bam" = "#7851a9")
+name_colours <- c("original_n" = "#18242f", "after_premap_n" = "#4a6c8d", "before_dedup_bam" = "#7cb5ec")
 
 if (!is.na(opt$after_premap)) {
 # if (basename(opt$after_premap) != "optional.txt") {
@@ -298,12 +301,9 @@ if (!is.na(opt$after_premap)) {
 }
 
 
-
-
 # =========
 # Duplication
 # =========
-
 
 # If UMIs were used, calculate the proprtion of duplicated reads within the expected RPF length range
 # if (!is.null(opt$after_dedup)) {
