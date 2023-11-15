@@ -113,7 +113,7 @@ p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))
     geom_bar(stat="identity", position="dodge") +
     theme_classic() +
     scale_fill_discrete(name = "Frame") +
-    scale_fill_manual(values = "#7cb5ec","#434348","#90ed7d")
+    scale_fill_manual(values = c("#7cb5ec","#434348","#90ed7d"))
     # ggeasy::easy_add_legend_title("Frame") +
     xlim(NA, 45)
 
