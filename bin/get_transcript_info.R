@@ -23,14 +23,14 @@ make_txdb <- function(gtf, org) {
     
   } else {
     
-    TxDb <- makeTxDbFromGFF(opt$gtf, format="gtf",
+    TxDb <- makeTxDbFromGFF(gtf, format="gtf",
                             organism = org) # chrominfo = seqinfo(TxDb.Hsapiens.UCSC.hg38.knownGene
     
     saveDb(TxDb, file=name)
     # TxDb <- loadDb(name)
   }
   
-  TxDb <- keepStandardChromosomes(TxDb, pruning.mode="coarse")
+  # TxDb <- keepStandardChromosomes(TxDb, pruning.mode="coarse")
   return(TxDb)
 }
 
@@ -66,11 +66,12 @@ if ("gene_type" %in% colnames(gtf.df) & "transcript_type" %in% colnames(gtf.df))
   longest.pc.dt <- longest.pc.dt[gene_biotype %in% pc & transcript_biotype %in% pc & cds_len == longest] # selects longest
 } else {
 
-  stop("Your GTF cannot be used to select longest CDS transcript per gene. Either use your own transcript info file, or use Gencode or Ensembl annotations")
+  stop("Your GTF cannot be used to select a representative transcript per gene. Either use your own transcript info file, or use Gencode or Ensembl annotations")
 }
 
 # Hierarchy: CDS > tx_len > n_exon > UTR3 > UTR3
-longest.pc.dt <- longest.pc.dt %>% arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr5_len), desc(utr3_len))
+longest.pc.dt <- longest.pc.dt %>% 
+  arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr5_len), desc(utr3_len))
 
 unique.longest.pc.dt <- longest.pc.dt[!duplicated(longest.pc.dt$gene_id), ] 
 
