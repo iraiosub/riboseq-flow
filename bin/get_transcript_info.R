@@ -55,12 +55,12 @@ gtf.df <- as.data.frame(filtered_gtf)
 gtf.dt <- data.table(gtf.df, key = c("transcript_id", "gene_id"))
 gtf.dt <- gtf.dt[txlengths.dt]
 
-if (gene_type %in% colnames(gtf.df) & transcript_type %in% colnames(gtf.df)) {
+if ("gene_type" %in% colnames(gtf.df) & "transcript_type" %in% colnames(gtf.df)) {
   # Gencode
   longest.pc.dt <- gtf.dt[gene_type %in% pc & transcript_type %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
   longest.pc.dt <- longest.pc.dt[gene_type %in% pc & transcript_type %in% pc & cds_len == longest] # selects longest
 
-} else if (gene_biotype %in% colnames(gtf.df) & transcript_biotype %in% colnames(gtf.df)) {
+} else if ("gene_biotype" %in% colnames(gtf.df) & "transcript_biotype" %in% colnames(gtf.df)) {
   # Ensembl
   longest.pc.dt <- gtf.dt[gene_biotype %in% pc & transcript_biotype %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
   longest.pc.dt <- longest.pc.dt[gene_biotype %in% pc & transcript_biotype %in% pc & cds_len == longest] # selects longest
