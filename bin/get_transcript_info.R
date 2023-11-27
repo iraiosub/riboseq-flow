@@ -69,11 +69,22 @@ if ("gene_type" %in% colnames(gtf.df) & "transcript_type" %in% colnames(gtf.df))
   stop("Your GTF cannot be used to select a representative transcript per gene. Either use your own transcript info file, or use Gencode or Ensembl annotations")
 }
 
+# # Filter out tx with cds length 0 if any
+# longest.pc.dt <- longest.pc.dt %>%
+#   dplyr::filter(cds_len >= 30)
+
 # Hierarchy: CDS > tx_len > n_exon > UTR3 > UTR3
 longest.pc.dt <- longest.pc.dt %>% 
   arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr5_len), desc(utr3_len))
 
 unique.longest.pc.dt <- longest.pc.dt[!duplicated(longest.pc.dt$gene_id), ] 
+
+# Gene_name is gene in ncbi refseq, so rename gene col so steps below work
+if (!"gene_name" %in% colnames(unique.longest.pc.dt) & "gene" %in% colnames(unique.longest.pc.dt)) {
+    unique.longest.pc.dt <- unique.longest.pc.dt %>%
+      dplyr::rename(gene_name = gene)
+
+} 
 
 tx.info.dt <- unique.longest.pc.dt %>%
   dplyr::filter(cds_len > 0) %>%
