@@ -35,7 +35,6 @@ make_txdb <- function(gtf, org) {
 }
 
 
-
 txdb <- make_txdb(opt$gtf, opt$org)
 
 txlengths <- transcriptLengths(txdb, with.cds_len = TRUE,
