@@ -158,8 +158,9 @@ length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
   xlim(0,70) +
   # ggpubr::theme_pubr() +
   theme_classic() +
-  ylab("N reads in fastq") +
-  ggtitle("Read length distribution")  
+  ylab("Read count") +
+  xlab("Length (nt)") +
+  ggtitle("Input read length distribution")  
 
 # Reformat length dataframe to export for MultiQC, read length distribution of starting reads
 fq_length_mqc.df <- original_fq %>%
@@ -248,8 +249,9 @@ if (!is.na(opt$after_premap)) {
   theme_classic() +
   # ggpubr::theme_pubr() +
   xlim(19,60) +
-  ylab("% rRNA") +
-  ggtitle("rRNA %")
+  ylab("% Contaminants") +
+  xlab("Length (nt)") +
+  ggtitle("Proprtion of contaminants")
 
   mapping_df <- inner_join(original_fq, after_premap) %>%
     inner_join(before_dedup) %>%
@@ -268,7 +270,8 @@ if (!is.na(opt$after_premap)) {
     geom_bar(stat="identity", position="dodge", na.rm = T) +
     scale_fill_manual(values = name_colours) +
     theme_classic() +
-    ylab("Number of reads") +
+    ylab("Read count") +
+    xlab("Length (nt)") +
     ggtitle("Premapping vs mapping") +
     theme(legend.position = "none", legend.title=element_blank()) +
     # ggeasy::easy_remove_legend() +
@@ -281,7 +284,8 @@ if (!is.na(opt$after_premap)) {
     geom_bar(stat="identity", position="dodge") +
     scale_fill_manual(values = name_colours) +
     theme_classic() +
-    ylab("Number of reads") +
+    ylab("Read count") +
+    xlab("Length (nt)") +
     ggtitle("Original vs premapping") +
     # ggeasy::easy_remove_legend() +
     theme(legend.position = "bottom", legend.direction = "horizontal", legend.title=element_blank(), legend.text = element_text(size=6)) +
@@ -328,6 +332,7 @@ if(!is.na(opt$after_dedup)) {
         aes(x = length, y = perc_duplicates)) +
   geom_bar(stat="identity", position="dodge") +
   ylab("% Duplicates") +
+  xlab("Length (nt)") +
   theme_classic() +
   ggtitle("Duplication")
 
