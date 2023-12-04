@@ -175,7 +175,7 @@ By default, the reads must be in length bins that satisfy periodicity to be used
 Additionally, the user can specify the following options:
 
 - `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
-- `--length_range` specifies the range of RPF lengths used for P-site identification (default `26:32`)
+- `--expected_length` specifies the range of RPF lengths used for P-site identification (default `26:32`)
 - `--periodicity_threshold` specifies the periodicity threshold for read lengths to be considered for P-site identification (default `50`)
 - `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
      - For `ribowaltz` P-site offsets are defined using [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/).

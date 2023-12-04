@@ -124,8 +124,8 @@ p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > 18 & rl < 45),
     xlim(-50, 50) +
     scale_fill_gradient(low = "white", high="black") +
     theme_classic() +
-    ylab("Read length") +
-    xlab("Distance of start of read from start codon") +
+    ylab("Read length (nt)") +
+    xlab("Distance of start of read from start codon (nt)") +
     ggtitle("Reads near start codon")
 
 p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > 18 & rl < 45), 
@@ -134,8 +134,8 @@ p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > 18 & rl < 45),
     xlim(-80, 20) +
     scale_fill_gradient(low = "white", high="black") +
     theme_classic() +
-    ylab("Read length") +
-    xlab("Distance of start of read from stop codon") +
+    ylab("Read length (nt)") +
+    xlab("Distance of start of read from stop codon (nt)") +
     ggtitle("Reads near stop codon")
 
 
