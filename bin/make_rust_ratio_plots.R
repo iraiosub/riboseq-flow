@@ -91,6 +91,7 @@ count_codons <- function(transcripts) {
 # Generate codon usage table across all transcripts
 codon_usage_table <- data.frame(count_codons(expected_df$transcript_seq)) %>%
   filter(str_length(all_codons) == 3) %>%
+  filter(!all_codons %in% c('TAA', 'TGA', 'TAG')) %>%
   mutate(q = Freq / sum(Freq)) %>%
   select(this_codon = all_codons, q)
 
@@ -98,8 +99,8 @@ final_df <- full_offset_df %>%
   left_join(codon_usage_table) %>%
   ungroup() %>%
   group_by(length, offset) %>%
-  mutate(p = n_this_codon/sum(n_this_codon)) %>%
   filter(!this_codon %in% c('TAA', 'TGA', 'TAG')) %>%
+  mutate(p = n_this_codon/sum(n_this_codon)) %>%
   filter(q > 0) %>%
   mutate(kld = sum(ifelse(p == 0, 0, p*log(p/q)))) %>%
   distinct(kld)
