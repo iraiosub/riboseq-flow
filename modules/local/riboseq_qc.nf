@@ -157,3 +157,27 @@ process PCA {
 
 }
 
+process RUST_RATIO_QC {
+
+label 'process_single'
+
+    container 'iraiosub/nf-riboseq:latest'
+
+    publishDir "${params.outdir}/riboseq_qc/rust_ratio", mode: 'copy', overwrite: true
+    
+    input:
+    path(transcript_fasta)
+    path(transcript_info)
+    path(psites)
+
+    output:
+    path("*.rust_ratio.pdf"), emit: rust_ratio, optional: true
+
+    script:
+
+        """
+        make_rust_ratio_plots.R -f $transcript_fasta -t $transcript_info -p psites
+            
+        """
+
+}

@@ -297,9 +297,6 @@ if (!is.na(opt$after_premap)) {
 
 }
 
-
-
-
 # =========
 # Duplication
 # =========

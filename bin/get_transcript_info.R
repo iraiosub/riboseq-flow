@@ -79,7 +79,7 @@ tx_info_name <- paste0(output_prefix , ".longest_cds.transcript_info.tsv")
 fwrite(tx.info.dt, tx_info_name, sep = "\t")
 
 # Export subset of GTF of selected transcripts
-filtered_annotations <- subset(filtered_gtf, transcript_id %in% tx.info.dt$transcript_id)
-gtf_name <- paste0(output_prefix , "longest_cds_transcripts.gtf")
-export(filtered_annotations, gtf_name)
+filtered_annotations <- subset(gtf, transcript_id %in% tx.info.dt$transcript_id)
+gtf_name <- paste0(output_prefix , ".longest_cds_transcripts.gtf")
+export.gff2(filtered_annotations, gtf_name)
 
