@@ -40,8 +40,10 @@ process GET_TRANSCRIPT_FASTA {
     publishDir "${params.outdir}/annotation", mode: 'copy', overwrite: true
 
     input:
-        path(gtf)
         path(fasta)
+        path(fai)
+        path(gtf)
+        
 
     output:
         path("*.longest_cds_transcripts.fa"), emit: transcripts_fa

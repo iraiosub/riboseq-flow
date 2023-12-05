@@ -22,6 +22,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     genome_fasta
     genome_gtf
     smallrna_fasta
+    genome_fai
 
     main:
 
@@ -58,7 +59,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
         ch_transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
         ch_transcript_info_gtf = GET_TRANSCRIPT_INFO.out.transcripts_gtf
         
-        GET_TRANSCRIPT_FASTA(ch_genome_fasta.map{ it[1] }, ch_transcript_info_gtf)
+        GET_TRANSCRIPT_FASTA(ch_genome_fasta.map{ it[1] }, genome_fai, ch_transcript_info_gtf)
         ch_transcript_info_fa = GET_TRANSCRIPT_FASTA.out.transcripts_fa
 
     } else {

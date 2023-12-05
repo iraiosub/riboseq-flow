@@ -102,7 +102,8 @@ workflow RIBOSEQ {
     PREPARE_RIBOSEQ_REFERENCE(
         ch_genome_fasta, 
         ch_genome_gtf,
-        ch_smallrna_fasta
+        ch_smallrna_fasta,
+        ch_genome_fai
     )
     
     // Extract UMIs and/or trim adapters and filter on min length, and FASTQC
