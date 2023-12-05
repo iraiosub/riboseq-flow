@@ -36,6 +36,7 @@ if(params.org) {
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
     params.transcript_info = params.genomes[ params.org ].transcript_info
+    params.transcript_fasta = params.genomes[ params.org ].transcript_fasta
 
 }  else {
 
