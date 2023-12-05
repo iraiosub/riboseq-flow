@@ -76,7 +76,7 @@ output_prefix <- str_split(basename(opt$gtf), ".gtf")[[1]][1]
 tx_info_name <- paste0(output_prefix , ".longest_cds.transcript_info.tsv")
 
 # Export transcript info
-fwrite(tx.info.dt, output_name, sep = "\t")
+fwrite(tx.info.dt, tx_info_name, sep = "\t")
 
 # Export subset of GTF of selected transcripts
 filtered_annotations <- subset(filtered_gtf, transcript_id %in% tx.info.dt$transcript_id)
