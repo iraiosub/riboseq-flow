@@ -31,8 +31,6 @@ transcript_fasta <- opt$fasta
 transcript_info <- opt$transcript_info
 p_sites_file <- opt$psites
 
-sample_id <- unique(p_sites_file$sample)
-
 # Getting some useful dataframes
 transcript_df <- data.frame(transcript_seq = readDNAStringSet(transcript_fasta)) %>%
   rownames_to_column('transcript_id')
@@ -46,6 +44,8 @@ p_sites_df <- read_tsv(p_sites_file) %>%
   dplyr::filter(psite > cds_start & psite < cds_stop) %>%
   select(transcript_id = transcript, psite, cds_start, cds_stop, length) %>%
   inner_join(transcript_df, by = 'transcript_id')
+
+sample_id <- unique(p_sites_df$sample)
 
 # Extract codons
 
@@ -123,7 +123,7 @@ rust.plot <- ggplot(final_df, aes(x = offset/3, y = kld, colour = factor(length)
   geom_line() +
   xlab('Codon position relative to P-site') +
   ylab('Sequence bias') +
-  ggeasy::easy_add_legend_title('RPF length (nt)') +
+  # ggeasy::easy_add_legend_title('RPF length (nt)') +
   theme_classic() +
   ggtitle(sample_id)
 
