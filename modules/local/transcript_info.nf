@@ -53,7 +53,10 @@ process GET_TRANSCRIPT_FASTA {
     def prefix = "${gtf.baseName}"
     
     """
-    gffread -w ${prefix}.longest_cds_transcripts.fa -g $fasta $gtf
+    gffread -w ${prefix}_gffread.fa -g $fasta $gtf
+
+    sed -e 's/^>\([^ ]*\) .*/>\1/' ${prefix}_gffread.fa > ${prefix}.fa
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

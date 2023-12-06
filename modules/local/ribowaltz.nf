@@ -55,7 +55,6 @@ process GET_PSITE_TRACKS {
  
     label 'process_single'
 
-    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
     container 'iraiosub/nf-riboseq:latest'
 
     publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.bed", mode: 'copy', overwrite: true
@@ -99,7 +98,7 @@ label 'process_single'
     script:
 
         """
-        make_rust_ratio_plots.R -f $transcript_fasta -t $transcript_info -p psites
+        make_rust_ratio_plots.R -f $transcript_fasta -t $transcript_info -p $psites
             
         """
 
