@@ -55,7 +55,7 @@ process GET_TRANSCRIPT_FASTA {
     """
     gffread -w ${prefix}_gffread.fa -g $fasta $gtf
 
-    sed -e 's/^>\([^ ]*\) .*/>\1/' ${prefix}_gffread.fa > ${prefix}.fa
+    sed -e "s/^>\\([^ ]*\\) .*/>\\1/" ${prefix}_gffread.fa > ${prefix}.fa
 
 
     cat <<-END_VERSIONS > versions.yml
