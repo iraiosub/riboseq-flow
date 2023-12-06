@@ -83,7 +83,7 @@ process RUST_RATIO_QC {
 
 label 'process_single'
 
-    container 'iraiosub/riboseq-qc:latest'
+    container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/riboseq_qc/rust_ratio", mode: 'copy', overwrite: true
     
