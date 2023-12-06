@@ -359,9 +359,8 @@ workflow RIBOSEQ {
     if (!params.skip_psite & !params.skip_qc) {
 
         RUST_RATIO_QC(
-            PREPARE_RIBOSEQ_REFERENCE.out.genome_fasta
-                    .map { it[1] },
-            ch_genome_fai,
+            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa,
+            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info,
             IDENTIFY_PSITES.out.psites
         )
     }
