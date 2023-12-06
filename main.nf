@@ -86,6 +86,7 @@ include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { TRACK_READS } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
+include { RUST_RATIO_QC } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
 include { PCA } from './modules/local/riboseq_qc.nf'
@@ -355,8 +356,18 @@ workflow RIBOSEQ {
 
     }
 
+    if (!params.skip_psite & !params.skip_qc) {
+
+        RUST_RATIO_QC(
+            PREPARE_RIBOSEQ_REFERENCE.out.genome_fasta
+                    .map { it[1] },
+            ch_genome_fai,
+            IDENTIFY_PSITES.out.psites
+        )
+    }
+
    
-    // PCA on gene-level RPF counts and transcript-level P sites
+    // PCA on gene-level RPF counts and transcript-level P-sites
     if (!params.skip_psite) {
         
         PCA(

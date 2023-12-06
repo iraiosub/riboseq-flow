@@ -48,6 +48,9 @@ p_sites_df <- read_tsv(p_sites_file) %>%
   inner_join(transcript_df, by = 'transcript_id')
 
 # Extract codons
+
+set.seed(42)
+
 subsample <- min(c(nrow(p_sites_df), 1E6))
 codon_df <- p_sites_df %>%
   sample_n(subsample) %>% # Ensure not too many reads being processed
