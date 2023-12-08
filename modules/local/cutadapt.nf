@@ -92,7 +92,4 @@ process CUTADAPT {
         cutadapt $args_filter $args_cut ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
         """
 
-    else 
-        error "Read trimming is enabled, but adapter sequence is missing"
-
 }

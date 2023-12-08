@@ -311,8 +311,8 @@ nodes <- data.frame(
     'Total',
     paste0('Too short - less than ', min.length, ' nt'),
     'Passing length filter',
-    'Premapped',
-    'Not premapped',
+    'Pre-mapped',
+    'Not pre-mapped',
     'Unmapped - multimapped',
     'Umapped - too many mismatches',
     'Unmapped - too short',
@@ -385,13 +385,13 @@ p <- sankeyNetwork(
   NodeID='name',
   NodeGroup='group',
   units='reads',
-  fontSize=12,
+  fontSize=16,
   nodeWidth=45,
   fontFamily="sans-serif",
   width = 1800, # outer width, in pixels
   height = 1000, # outer height, in pixels
   margin = c(top = 5, right = 1, bottom = 5, left = 1),
-  nodePadding = 15, # vertical separation between adjacent nodes
+  nodePadding = 20, # vertical separation between adjacent nodes
   iterations = 10,
   colourScale=my_color,
   sinksRight = F # effectively prevent the placement algorithm from running, so your nodes will be ordered as they were in the original data

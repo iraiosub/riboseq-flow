@@ -23,17 +23,16 @@ make_txdb <- function(gtf, org) {
     
   } else {
     
-    TxDb <- makeTxDbFromGFF(opt$gtf, format="gtf",
+    TxDb <- makeTxDbFromGFF(gtf, format="gtf",
                             organism = org) # chrominfo = seqinfo(TxDb.Hsapiens.UCSC.hg38.knownGene
     
     saveDb(TxDb, file=name)
     # TxDb <- loadDb(name)
   }
   
-  TxDb <- keepStandardChromosomes(TxDb, pruning.mode="coarse")
+  # TxDb <- keepStandardChromosomes(TxDb, pruning.mode="coarse")
   return(TxDb)
 }
-
 
 
 txdb <- make_txdb(opt$gtf, opt$org)
@@ -55,13 +54,36 @@ gtf.df <- as.data.frame(filtered_gtf)
 gtf.dt <- data.table(gtf.df, key = c("transcript_id", "gene_id"))
 gtf.dt <- gtf.dt[txlengths.dt]
 
-longest.pc.dt <- gtf.dt[gene_type %in% pc & transcript_type %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
-longest.pc.dt <- longest.pc.dt[gene_type %in% pc & transcript_type %in% pc & cds_len == longest] # selects longest
+if ("gene_type" %in% colnames(gtf.df) & "transcript_type" %in% colnames(gtf.df)) {
+  # Gencode
+  longest.pc.dt <- gtf.dt[gene_type %in% pc & transcript_type %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
+  longest.pc.dt <- longest.pc.dt[gene_type %in% pc & transcript_type %in% pc & cds_len == longest] # selects longest
 
-# Hierarchy
-longest.pc.dt <- longest.pc.dt %>% arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr5_len), desc(utr3_len))
+} else if ("gene_biotype" %in% colnames(gtf.df) & "transcript_biotype" %in% colnames(gtf.df)) {
+  # Ensembl
+  longest.pc.dt <- gtf.dt[gene_biotype %in% pc & transcript_biotype %in% pc, longest := max(cds_len), by = gene_id] # select out where both are protein coding as sometimes a processed transcript is the longest
+  longest.pc.dt <- longest.pc.dt[gene_biotype %in% pc & transcript_biotype %in% pc & cds_len == longest] # selects longest
+} else {
+
+  stop("Your GTF cannot be used to select a representative transcript per gene. Either use your own transcript info file, or use Gencode or Ensembl annotations")
+}
+
+# # Filter out tx with cds length 0 if any
+# longest.pc.dt <- longest.pc.dt %>%
+#   dplyr::filter(cds_len >= 30)
+
+# Hierarchy: CDS > tx_len > n_exon > UTR3 > UTR3
+longest.pc.dt <- longest.pc.dt %>% 
+  arrange(desc(cds_len), desc(longest), desc(nexon), desc(utr5_len), desc(utr3_len))
 
 unique.longest.pc.dt <- longest.pc.dt[!duplicated(longest.pc.dt$gene_id), ] 
+
+# Gene_name is gene in ncbi refseq, so rename gene col so steps below work
+if (!"gene_name" %in% colnames(unique.longest.pc.dt) & "gene" %in% colnames(unique.longest.pc.dt)) {
+    unique.longest.pc.dt <- unique.longest.pc.dt %>%
+      dplyr::rename(gene_name = gene)
+
+} 
 
 tx.info.dt <- unique.longest.pc.dt %>%
   dplyr::filter(cds_len > 0) %>%
