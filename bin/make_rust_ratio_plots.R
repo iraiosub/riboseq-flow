@@ -55,6 +55,7 @@ p_sites_df <- p_sites_df %>%
 set.seed(42)
 
 subsample <- min(c(nrow(p_sites_df), 1E6))
+
 codon_df <- p_sites_df %>%
   sample_n(subsample) %>% # Ensure not too many reads being processed
   # Calculate RUST scores (separated by read length)
@@ -125,7 +126,7 @@ final_df <- full_offset_df %>%
 rust.plot <- ggplot(final_df, aes(x = offset/3, y = kld, color = factor(length))) +
   geom_line() +
   xlab('Codon position relative to P-site') +
-  ylab('Sequence bias (K–L)') +
+  ylab('Sequence bias (KLD)') +
   guides(color = guide_legend(title = "RPF length (nt)")) + 
   # ggeasy::easy_add_legend_title('RPF length (nt)') +
   theme_classic() +

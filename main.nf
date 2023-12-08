@@ -361,7 +361,7 @@ workflow RIBOSEQ {
         RUST_RATIO_QC(
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa,
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info,
-            IDENTIFY_PSITES.out.psites
+            IDENTIFY_PSITES.out.psites.flatten()
         )
     }
 

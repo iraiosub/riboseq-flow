@@ -90,7 +90,8 @@ label 'process_single'
     input:
     path(transcript_fasta)
     path(transcript_info)
-    path(psites)
+    path (psites)
+
 
     output:
     path("*.rust_analysis.pdf"), emit: rust_analysis
@@ -98,7 +99,7 @@ label 'process_single'
     script:
 
         """
-        make_rust_ratio_plots.R -f $transcript_fasta -t $transcript_info -p $psites
+        make_rust_ratio_plots.R -f $transcript_fasta -t $transcript_info -p $psite_file
             
         """
 
