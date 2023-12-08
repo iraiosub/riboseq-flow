@@ -1,4 +1,4 @@
-# riboseq - A Nextflow pipeline to perform Ribo-seq data analysis
+# riboseq-flow - A Nextflow DSL2 pipeline to perform Ribo-seq data analysis
 
 ## Table of contents
 
@@ -11,10 +11,11 @@
 7. [Pre-download container images](#pre-download-container-images)
 8. [Authors and contact](#authors-and-contact)
 9. [Issues and contributions](#issues-and-contributions)
+10.[Contributing guidelines](#contributing-guidelines)
 
 ## Introduction
 
-riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
+riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of Ribo-seq data.
 
 ## Pipeline summary
 
@@ -39,36 +40,36 @@ riboseq is a Nextflow DSL2 pipeline for the analysis of Ribo-seq data.
 
 1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system.
 
-**Note:** The pipeline has been tested on with `Nextflow` versions `21.10.3`, `22.10.3` and `23.04.2`. `Singularity` version `3.6.4` is required for the time being to run the pipeline.
+**Note:** The pipeline has been tested on with `Nextflow` versions `21.10.3`, `22.10.3`, `23.04.2` and `23.10.0`. 
+`Singularity` version `3.6.4` or later is required for the time being to run the pipeline.
 
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq -r main
+nextflow pull iraiosub/riboseq-flow -r 1.0
 ```
 
 3. Run the pipeline on the provided test dataset:
 
 ```
-nextflow run iraiosub/riboseq -r main -profile test,singularity,crick
+nextflow run iraiosub/riboseq-flow -r 1.0 -profile test,singularity
 ```
 
-4. Review the results
-
-**Note:** An example script for running the test is provided [`run.sh`](https://github.com/iraiosub/riboseq/blob/main/run.sh).
+4. Review the results.
 
 
 ## Quick start (run the pipeline on your data)
 
 1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system
-2. Pull the main version of the pipeline from the GitHub repository:
+2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq -r main
+nextflow pull iraiosub/riboseq-flow -r 1.0
 ```
 
-3. You will need to create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below. 
+3. Create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below. 
 
+**Note:** Only single-end read data can be used as input; if you used paired-end sequencing make sure the correct read is used fro the analysis.
 
 ```
 sample,fastq
@@ -80,7 +81,7 @@ sample3,/path/to/file3.fastq.gz
 4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
-nextflow run iraiosub/riboseq -r main \
+nextflow run iraiosub/riboseq-flow -r 1.0 \
 -profile singularity,crick \
 -resume \
 --input samplesheet.csv \
@@ -141,7 +142,7 @@ Where a default value is missing, the user must provide an appropriate value.
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
 - `--cut_end` number of nucleotides to be trimmed from 5' or 3' end of read (equivalent to `-u` in `cutadapt`). Supply positive value for trimming from the 5' end, and negative value for trimming from the 3'end. (default `0`, no nt are trimmed). 
 Important: This step is perfomed after adapter trimming, and after UMIs have been moved to the read header.
-- `--min_quality` cutoff value for trimming low-quality ends from reads (default `20`)
+- `--min_quality` cutoff value for trimming low-quality ends from reads (default `10`)
 - `--min_readlength` minimum read length after trimming (default `20`)
 
 If you prepared your library using a TS (template-switching-based protocol) and you haven't trimmed the non-templated nucleotides and adaptors before running this pipeline, you may use the option
@@ -167,7 +168,9 @@ If you prepared your library using a TS (template-switching-based protocol) and 
 #### Ribo-seq quality control options
 
 - `--skip_qc` skips mapping_length_analysis and generation of riboseq QC plots
-- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of riboseq QC plots, and for specifying the range of RPF lengths used for P-site identification  (default `26:32`). IMPORTANT: this parameter will not filter footprints based on this length range for any alignments, gene-lelvel quantification or track data generation.
+- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of riboseq QC plots, and for specifying the range of RPF lengths used for P-site identification  (default `26:32`). 
+
+**Note:**  The `--expected_length` parameter does not filter footprints based on this length range for any alignments, gene-level quantification or track data generation.
 
 #### P-site identification and quantification options
 
@@ -176,7 +179,7 @@ By default, the reads must be in length bins that satisfy periodicity to be used
 Additionally, the user can specify the following options:
 
 - `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
-- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of riboseq QC plots, and for specifying the range of RPF lengths used for P-site identification  (default `26:32`). IMPORTANT: this parameter will not filter footprints based on this length range for any alignments, gene-lelvel quantification or track data generation.
+- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of riboseq QC plots, and for specifying the range of RPF lengths used for P-site identification  (default `26:32`). 
 - `--periodicity_threshold` specifies the periodicity threshold for read lengths to be considered for P-site identification (default `50`)
 - `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
      - For `ribowaltz` P-site offsets are defined using [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/).
@@ -273,16 +276,15 @@ For example, you can add the following line to your shell profile or run script:
 ```
 export NXF_SINGULARITY_CACHEDIR=/path/to/image/cache
 ```
-
-3. Run the code below to pre-download and cache the required Docker images:
+3. Make sure you have Singularity installed. Please use the same version you intend to use for running the pipeline. 
+4. Run the code below to pre-download and cache the required Docker images:
 
 ```
 #!/bin/sh
 
 # A script to pre-download singularity images required by iraiosub/riboseq pipeline
-ml Singularity/3.6.4
 
-# change dir to your NFX_SINGULARITY_CACHEDIR path
+# change dir to your NXF_SINGULARITY_CACHEDIR path
 cd /path/to/image/cache
 
 singularity pull iraiosub-nf-riboseq-latest.img docker://iraiosub/nf-riboseq
@@ -292,10 +294,25 @@ singularity pull iraiosub-nf-riboseq-dedup-latest.img docker://iraiosub/nf-ribos
 
 ### Authors and contact
 
-This DSL2 Nextflow pipeline is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a snakemake pipeline in collaboration with its original author, Oscar Wilkins. 
+riboseq-flow is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a Snakemake pipeline in collaboration with its original author, Oscar Wilkins. 
 Contact email: `ira.iosub@crick.ac.uk`
 
 ### Issues and contributions
 
-riboseq is under active development by Ira Iosub. For queries related to the pipeline, raise an issue on github.
+riboseq-flow is under active development by Ira Iosub. For queries related to the pipeline, raise an issue on GitHub.
 If you are interested in building more functionality or want to get involved please reach out.
+
+### Contributing guidelines
+
+We welcome contributions to riboseq-flow.
+
+If you wish to make an addition or change to the pipeline, please follow these steps:
+
+1. Open an issue to detail the proposed fix or feature and select the appropriate label.
+2. Create a new branch based on the `dev` branch, with a short, descriptive name e.g. `feat-colours` for making changes to a color palette
+3. Modify the code exclusively on this new branch and mention the relavant issue in the commit message.
+4. When your modifications are complete, submit a pull request to the `dev` branch describing the changes. 
+5. Request a review from iraiosub on your pull request.
+
+
+

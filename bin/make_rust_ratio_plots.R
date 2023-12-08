@@ -1,5 +1,8 @@
 #!/usr/bin/env Rscript
 
+# Script for RUST analyses
+# Author: Oscar Wilkins
+
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(Biostrings))
 suppressPackageStartupMessages(library(optparse))
