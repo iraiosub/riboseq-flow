@@ -11,7 +11,7 @@
 7. [Pre-download container images](#pre-download-container-images)
 8. [Authors and contact](#authors-and-contact)
 9. [Issues and contributions](#issues-and-contributions)
-10.[Contributing guidelines](#contributing-guidelines)
+10. [Contributing guidelines](#contributing-guidelines)
 
 ## Introduction
 
@@ -282,7 +282,7 @@ export NXF_SINGULARITY_CACHEDIR=/path/to/image/cache
 ```
 #!/bin/sh
 
-# A script to pre-download singularity images required by iraiosub/riboseq pipeline
+# A script to pre-download singularity images required by iraiosub/riboseq-flow pipeline
 
 # change dir to your NXF_SINGULARITY_CACHEDIR path
 cd /path/to/image/cache

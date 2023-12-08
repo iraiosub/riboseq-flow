@@ -17,6 +17,6 @@ export NXF_HOME=/nemo/lab/ulej/home/users/luscomben/users/iosubi/.nextflow
 
 nextflow pull iraiosub/riboseq -r dev
 
-nextflow run iraiosub/riboseq -r dev
--profile singularity,test \
+nextflow run iraiosub/riboseq -r dev \
+-profile test,singularity \
 -resume
