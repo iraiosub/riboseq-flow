@@ -55,8 +55,7 @@ process GET_PROPORTION_TARGETED {
     tag "${sample_id}"
     label 'process_single'
 
-    // conda 'bioconda::ribocutter=0.1.1'
-    container 'iraiosub/mapping-length:latest'
+    container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/ribocutter"
 

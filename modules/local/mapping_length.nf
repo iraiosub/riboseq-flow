@@ -8,7 +8,6 @@ process MAPPING_LENGTH_ANALYSIS {
     tag "${sample_id}"
     label 'process_medium'
 
-    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
     container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/riboseq_qc/mapping_length_analysis", pattern: "*.csv", mode: 'copy', overwrite: true

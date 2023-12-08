@@ -13,6 +13,7 @@ include { GUNZIP as GUNZIP_GTF } from '../modules/nf-core/gunzip/main'
 include { GUNZIP as GUNZIP_SMALLRNA_FASTA } from '../modules/nf-core/gunzip/main'
 include { GENERATE_REFERENCE_INDEX } from '../subworkflows/generate_index.nf'
 include { GET_TRANSCRIPT_INFO } from '../modules/local/transcript_info.nf'
+include { GET_TRANSCRIPT_FASTA } from '../modules/local/transcript_info.nf'
 
 
 workflow PREPARE_RIBOSEQ_REFERENCE {
@@ -21,6 +22,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     genome_fasta
     genome_gtf
     smallrna_fasta
+    genome_fai
 
     main:
 
@@ -55,9 +57,15 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     if (!params.transcript_info) {
         GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] })
         ch_transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
+        ch_transcript_info_gtf = GET_TRANSCRIPT_INFO.out.transcripts_gtf
+        
+        GET_TRANSCRIPT_FASTA(ch_genome_fasta.map{ it[1] }, genome_fai, ch_transcript_info_gtf)
+        ch_transcript_info_fa = GET_TRANSCRIPT_FASTA.out.transcripts_fa
+
     } else {
 
         ch_transcript_info = Channel.fromPath(params.transcript_info, checkIfExists: true)
+        ch_transcript_info_fa = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
     }
 
     emit:
@@ -68,5 +76,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     genome_fasta = ch_genome_fasta
     smallrna_fasta = ch_smallrna_fasta
     transcript_info = ch_transcript_info
+    // transcript_info_gtf = ch_transcript_info_gtf
+    transcript_info_fa = ch_transcript_info_fa
 
 }

@@ -94,6 +94,14 @@ tx.info.dt <- unique.longest.pc.dt %>%
   dplyr::rename(cds_length = cds_len, tx_length = tx_len)
 
 
-output_name <- paste0(str_split(basename(opt$gtf), ".gtf")[[1]][1], ".longest_cds.transcript_info.tsv")
+output_prefix <- str_split(basename(opt$gtf), ".gtf")[[1]][1]
+tx_info_name <- paste0(output_prefix , ".longest_cds.transcript_info.tsv")
 
-fwrite(tx.info.dt, output_name, sep = "\t")
+# Export transcript info
+fwrite(tx.info.dt, tx_info_name, sep = "\t")
+
+# Export subset of GTF of selected transcripts
+filtered_annotations <- subset(gtf, transcript_id %in% tx.info.dt$transcript_id)
+gtf_name <- paste0(output_prefix , ".longest_cds_transcripts.gtf")
+export.gff2(filtered_annotations, gtf_name)
+

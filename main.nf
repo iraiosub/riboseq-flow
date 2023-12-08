@@ -36,6 +36,7 @@ if(params.org) {
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
     params.transcript_info = params.genomes[ params.org ].transcript_info
+    params.transcript_fasta = params.genomes[ params.org ].transcript_fasta
 
 }  else {
 
@@ -85,6 +86,7 @@ include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { TRACK_READS } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
+include { RUST_RATIO_QC } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
 include { PCA } from './modules/local/riboseq_qc.nf'
@@ -101,7 +103,8 @@ workflow RIBOSEQ {
     PREPARE_RIBOSEQ_REFERENCE(
         ch_genome_fasta, 
         ch_genome_gtf,
-        ch_smallrna_fasta
+        ch_smallrna_fasta,
+        ch_genome_fai
     )
     
     // Extract UMIs and/or trim adapters and filter on min length, and FASTQC
@@ -353,8 +356,17 @@ workflow RIBOSEQ {
 
     }
 
+    if (!params.skip_psite & !params.skip_qc) {
+
+        RUST_RATIO_QC(
+            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa,
+            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info,
+            IDENTIFY_PSITES.out.psites.flatten()
+        )
+    }
+
    
-    // PCA on gene-level RPF counts and transcript-level P sites
+    // PCA on gene-level RPF counts and transcript-level P-sites
     if (!params.skip_psite) {
         
         PCA(

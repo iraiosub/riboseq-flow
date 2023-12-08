@@ -55,7 +55,6 @@ process GET_PSITE_TRACKS {
  
     label 'process_single'
 
-    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
     container 'iraiosub/nf-riboseq:latest'
 
     publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.bed", mode: 'copy', overwrite: true
@@ -76,6 +75,32 @@ process GET_PSITE_TRACKS {
         INPUT=`echo $psite_tables | sed 's/ /,/g'`
             
         get_psite_tracks.R -p \$INPUT -g $gtf -f $fai
+        """
+
+}
+
+process RUST_RATIO_QC {
+
+label 'process_single'
+
+    container 'iraiosub/nf-riboseq-qc:latest'
+
+    publishDir "${params.outdir}/riboseq_qc/rust_analysis/", pattern: "*.rust_analysis.pdf", mode: 'copy', overwrite: true
+    
+    input:
+    path(transcript_fasta)
+    path(transcript_info)
+    path (psites)
+
+
+    output:
+    path("*.rust_analysis.pdf"), emit: rust_analysis
+
+    script:
+
+        """
+        make_rust_ratio_plots.R -f $transcript_fasta -t $transcript_info -p $psites
+            
         """
 
 }

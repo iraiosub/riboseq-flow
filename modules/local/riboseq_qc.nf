@@ -62,7 +62,6 @@ process SUMMARISE_RIBOSEQ_QC {
     tag "${workflow.runName}"
     label 'process_low'
 
-
     container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/riboseq_qc", pattern: "*.pdf", mode: 'copy', overwrite: true
@@ -130,7 +129,6 @@ process PCA {
  
     label 'process_single'
 
-    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
     container 'iraiosub/nf-riboseq:latest'
 
     publishDir "${params.outdir}/riboseq_qc/pca", mode: 'copy', overwrite: true
