@@ -243,7 +243,7 @@ The pipeline outputs results in a number of subfolders:
     - `multiqc_tables` contains tsv files with sample summary metrics for multiQC
     - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding useful reads yield and troubleshooting. 
     - `pca` contains PCA plots and rlog-normalised count tables
-    - `rust_ratio` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by footprint length, using the inferred P-sites.
+    - `rust_analysis` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by footprint length, using the inferred P-sites.
 - `featurecounts` contains gene-level quantification of the UMI deduplicated alignments to the genome
 - `psites` contains P-sites information, codon coverage and CDS coverage tables, and ribowaltz diagnostic plots:
     - `psite_offset.tsv.gz` contains P-site offsets for each read-length for all samples

@@ -122,10 +122,10 @@ final_df <- full_offset_df %>%
 rust.plot <- ggplot(final_df, aes(x = offset/3, y = kld, colour = factor(length))) +
   geom_line() +
   xlab('Codon position relative to P-site') +
-  ylab('Sequence bias') +
+  ylab('Sequence bias (K–L)') +
   # ggeasy::easy_add_legend_title('RPF length (nt)') +
   theme_classic() +
   ggtitle(sample_id)
 
-ggsave(paste0(sample_id, ".rust_ratio.pdf"), rust.plot, dpi = 300)
+ggsave(paste0(sample_id, ".rust_analysis.pdf"), rust.plot, dpi = 300)
 

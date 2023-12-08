@@ -85,7 +85,7 @@ label 'process_single'
 
     container 'iraiosub/nf-riboseq-qc:latest'
 
-    publishDir "${params.outdir}/riboseq_qc/rust_ratio", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc/rust_analysis/", pattern: "*.rust_analysis.pdf", mode: 'copy', overwrite: true
     
     input:
     path(transcript_fasta)
@@ -93,7 +93,7 @@ label 'process_single'
     path(psites)
 
     output:
-    path("*.rust_ratio.pdf"), emit: rust_ratio, optional: true
+    path("*.rust_analysis.pdf"), emit: rust_analysis
 
     script:
 
