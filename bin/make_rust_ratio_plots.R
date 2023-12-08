@@ -40,12 +40,15 @@ info_df <- read_tsv(transcript_info) %>%
   dplyr::filter(str_length(transcript_seq) >= cds_end + cds_start)
 
 # Read in p site data and combine with transcript sequences
-p_sites_df <- read_tsv(p_sites_file) %>%
+p_sites_df <- read_tsv(p_sites_file) 
+
+sample_id <- unique(p_sites_df$sample)
+
+p_sites_df <- p_sites_df %>%
   dplyr::filter(psite > cds_start & psite < cds_stop) %>%
   select(transcript_id = transcript, psite, cds_start, cds_stop, length) %>%
   inner_join(transcript_df, by = 'transcript_id')
 
-sample_id <- unique(p_sites_df$sample)
 
 # Extract codons
 
@@ -119,10 +122,11 @@ final_df <- full_offset_df %>%
   mutate(kld = sum(ifelse(p == 0, 0, p*log(p/q)))) %>%
   distinct(kld)
 
-rust.plot <- ggplot(final_df, aes(x = offset/3, y = kld, colour = factor(length))) +
+rust.plot <- ggplot(final_df, aes(x = offset/3, y = kld, color = factor(length))) +
   geom_line() +
   xlab('Codon position relative to P-site') +
   ylab('Sequence bias (K–L)') +
+  guides(color = guide_legend(title = "RPF length (nt)")) + 
   # ggeasy::easy_add_legend_title('RPF length (nt)') +
   theme_classic() +
   ggtitle(sample_id)
