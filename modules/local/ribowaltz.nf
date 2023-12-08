@@ -99,7 +99,7 @@ label 'process_single'
     script:
 
         """
-        make_rust_ratio_plots.R -f $transcript_fasta -t $transcript_info -p $psite_file
+        make_rust_ratio_plots.R -f $transcript_fasta -t $transcript_info -p $psites
             
         """
 
