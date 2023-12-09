@@ -38,7 +38,8 @@ riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of
 
 ## Quick start (test the pipeline with a minimal dataset)
 
-1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system.
+1. Ensure `Nextflow`(version `21.10.3` or later) and `Docker`/`Singularity` are installed on your system.
+Nextflow installation instructions can be found [here](https://nf-co.re/docs/usage/installation).
 
 **Note:** The pipeline has been tested on with `Nextflow` versions `21.10.3`, `22.10.3`, `23.04.2` and `23.10.0`. 
 `Singularity` version `3.6.4` or later is required for the time being to run the pipeline.

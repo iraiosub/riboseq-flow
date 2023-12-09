@@ -31,3 +31,4 @@ cd $WORKDIR/fastq/fastq
 
 # Subsample 30k reads
 seqtk sample -s100 SRX19188681_SRR23242345.fastq.gz 30000 > subsampled_SRX19188681_SRR23242345.fastq
+gzip subsampled_SRX19188681_SRR23242345.fastq
