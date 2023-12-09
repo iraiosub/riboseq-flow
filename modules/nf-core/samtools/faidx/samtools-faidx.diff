@@ -1,0 +1,22 @@
+Changes in module 'nf-core/samtools/faidx'
+--- modules/nf-core/samtools/faidx/main.nf
++++ modules/nf-core/samtools/faidx/main.nf
+@@ -2,14 +2,14 @@
+     tag "$fasta"
+     label 'process_single'
+ 
+-    conda "${moduleDir}/environment.yml"
++    // conda "${moduleDir}/environment.yml"
+     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+         'https://depot.galaxyproject.org/singularity/samtools:1.18--h50ea8bc_1' :
+         'biocontainers/samtools:1.18--h50ea8bc_1' }"
+ 
+     input:
+     tuple val(meta), path(fasta)
+-    tuple val(meta2), path(fai)
++    // tuple val(meta2), path(fai)
+ 
+     output:
+     tuple val(meta), path ("*.{fa,fasta}") , emit: fa , optional: true
+
+************************************************************
