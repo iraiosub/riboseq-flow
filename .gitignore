@@ -142,4 +142,5 @@ res_nf*
 
 # Local test
 local_test.sh
+full_test_run.sh
 slurm-*
