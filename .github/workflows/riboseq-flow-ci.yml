@@ -13,4 +13,4 @@ jobs:
       - run: |
           wget -qO- get.nextflow.io | bash
           mv nextflow /usr/local/bin/  
-      - run: nextflow run ${GITHUB_WORKSPACE}/main.nf -profile github,singularity
+      - run: nextflow run ${GITHUB_WORKSPACE}/main.nf -profile github,docker
