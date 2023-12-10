@@ -21,10 +21,10 @@ process GET_TRANSCRIPT_INFO {
 
     script:
 
-    def organism = params.org_name ?: "Homo sapiens"
+    def organism = params.org_name ?: 'Homo sapiens'
     
     """
-    get_transcript_info.R -g $gtf -o $organism
+    get_transcript_info.R -g $gtf -o "$organism"
     
     """
 }
