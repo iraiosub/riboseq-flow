@@ -8,11 +8,10 @@ process PREMAP {
     tag "${sample_id}"
     label 'process_medium'
 
-    // conda 'bioconda::bowtie2=2.4.4 bioconda::samtools=1.16.1 conda-forge::pigz=2.6'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-ac74a7f02cebcfcc07d8e8d1d750af9c83b4d45a:a0ffedb52808e102887f6ce600d092675bf3528a-0' :
-        'quay.io/biocontainers/mulled-v2-ac74a7f02cebcfcc07d8e8d1d750af9c83b4d45a:a0ffedb52808e102887f6ce600d092675bf3528a-0' }"
-
+        'https://depot.galaxyproject.org/singularity/bowtie2:2.5.2--py39h6fed5c7_0' :
+        'biocontainers/bowtie2:2.5.2--py39h6fed5c7_0' }"
+    
     publishDir "${params.outdir}/premapped", pattern: "*.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/premapped", pattern: "*.bam.seqs.gz", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/premapped", pattern: "*.unmapped.fastq.gz", mode: 'copy', overwrite: true
