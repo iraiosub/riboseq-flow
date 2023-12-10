@@ -9,8 +9,8 @@ jobs:
   test-riboseq-flow:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - run: |
           wget -qO- get.nextflow.io | bash
           mv nextflow /usr/local/bin/  
-      - run: nextflow run ${GITHUB_WORKSPACE}/main.nf -profile github,docker
+      - run: nextflow run ${GITHUB_WORKSPACE}/main.nf -profile github,singularity
