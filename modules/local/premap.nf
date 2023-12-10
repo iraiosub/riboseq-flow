@@ -10,7 +10,7 @@ process PREMAP {
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/bowtie2:2.5.2--py39h6fed5c7_0' :
-        'biocontainers/bowtie2:2.5.2--py39h6fed5c7_0' }"
+        'quay.io/biocontainers/bowtie2:2.5.2--py39h6fed5c7_0' }"
     
     publishDir "${params.outdir}/premapped", pattern: "*.bam", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/premapped", pattern: "*.bam.seqs.gz", mode: 'copy', overwrite: true
