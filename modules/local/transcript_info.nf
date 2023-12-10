@@ -8,7 +8,6 @@ process GET_TRANSCRIPT_INFO {
     tag "$gtf"
     label 'process_single'
 
-    // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env2.yml'
     container 'iraiosub/nf-riboseq:latest'
 
     publishDir "${params.outdir}/annotation", mode: 'copy', overwrite: true
@@ -21,8 +20,11 @@ process GET_TRANSCRIPT_INFO {
         path("*.longest_cds_transcripts.gtf"), emit: transcripts_gtf
 
     script:
+
+    def organism = params.org_name ?: "Homo sapiens"
+    
     """
-    get_transcript_info.R -g $gtf -o 'Homo sapiens'
+    get_transcript_info.R -g $gtf -o $organism
     
     """
 }

@@ -11,6 +11,7 @@ nextflow.enable.dsl=2
 include { GUNZIP as GUNZIP_FASTA } from '../modules/nf-core/gunzip/main'
 include { GUNZIP as GUNZIP_GTF } from '../modules/nf-core/gunzip/main'
 include { GUNZIP as GUNZIP_SMALLRNA_FASTA } from '../modules/nf-core/gunzip/main'
+include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx/main'
 include { GENERATE_REFERENCE_INDEX } from '../subworkflows/generate_index.nf'
 include { GET_TRANSCRIPT_INFO } from '../modules/local/transcript_info.nf'
 include { GET_TRANSCRIPT_FASTA } from '../modules/local/transcript_info.nf'
@@ -22,7 +23,6 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     genome_fasta
     genome_gtf
     smallrna_fasta
-    genome_fai
 
     main:
 
@@ -51,6 +51,10 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
         ch_smallrna_fasta = Channel.from( [ [ [:], smallrna_fasta ] ] )
     }
 
+    // Prepare fasta index
+    SAMTOOLS_FAIDX(ch_genome_fasta)
+    ch_genome_fai = SAMTOOLS_FAIDX.out.fai.map{ it[1] }
+
     // Prepare annotation: create index for alignment
     GENERATE_REFERENCE_INDEX(ch_smallrna_fasta, ch_genome_fasta, ch_genome_gtf)
 
@@ -59,7 +63,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
         ch_transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
         ch_transcript_info_gtf = GET_TRANSCRIPT_INFO.out.transcripts_gtf
         
-        GET_TRANSCRIPT_FASTA(ch_genome_fasta.map{ it[1] }, genome_fai, ch_transcript_info_gtf)
+        GET_TRANSCRIPT_FASTA(ch_genome_fasta.map{ it[1] }, ch_genome_fai, ch_transcript_info_gtf)
         ch_transcript_info_fa = GET_TRANSCRIPT_FASTA.out.transcripts_fa
 
     } else {
@@ -74,6 +78,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     genome_star_index = GENERATE_REFERENCE_INDEX.out.genome_star_index
     genome_gtf = ch_genome_gtf
     genome_fasta = ch_genome_fasta
+    genome_fai = ch_genome_fai
     smallrna_fasta = ch_smallrna_fasta
     transcript_info = ch_transcript_info
     // transcript_info_gtf = ch_transcript_info_gtf

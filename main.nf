@@ -31,7 +31,6 @@ PREPARE GENOME CHANNELS
 if(params.org) {
 
     params.fasta = params.genomes[ params.org ].fasta
-    params.fai = params.genomes[ params.org ].fai
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
     params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
@@ -40,8 +39,7 @@ if(params.org) {
 
 }  else {
 
-    if(!params.fasta ) { exit 1, '--fasta is not specified.' } 
-    if(!params.fai ) { exit 1, '--fai is not specified.' } 
+    if(!params.fasta ) { exit 1, '--fasta is not specified.' }
     if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
     if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, '--smallrna_fasta is not specified.' }
 
@@ -49,7 +47,6 @@ if(params.org) {
 
 
 ch_genome_fasta = file(params.fasta, checkIfExists: true)
-ch_genome_fai = file(params.fai, checkIfExists: true)
 ch_smallrna_fasta = file(params.smallrna_fasta, checkIfExists: true)
 ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
@@ -86,7 +83,7 @@ include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { TRACK_READS } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
-include { RUST_RATIO_QC } from './modules/local/ribowaltz.nf'
+include { RUST_QC } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
 include { PCA } from './modules/local/riboseq_qc.nf'
@@ -103,8 +100,7 @@ workflow RIBOSEQ {
     PREPARE_RIBOSEQ_REFERENCE(
         ch_genome_fasta, 
         ch_genome_gtf,
-        ch_smallrna_fasta,
-        ch_genome_fai
+        ch_smallrna_fasta
     )
     
     // Extract UMIs and/or trim adapters and filter on min length, and FASTQC
@@ -352,13 +348,13 @@ workflow RIBOSEQ {
         }
 
         // Get P-site tracks
-        // GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, ch_genome_fai)
+        // GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, genome_fai)
 
     }
 
     if (!params.skip_psite & !params.skip_qc) {
 
-        RUST_RATIO_QC(
+        RUST_QC(
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa,
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info,
             IDENTIFY_PSITES.out.psites.flatten()
