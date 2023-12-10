@@ -1,0 +1,16 @@
+name: riboseq-flow-github-actions
+run-name: ${{ github.actor }} is using GitHub Actions
+on: 
+  pull_request:
+    branches:
+      - main
+      - dev
+jobs:
+  test-riboseq-flow:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          wget -qO- get.nextflow.io | bash
+          mv nextflow /usr/local/bin/  
+      - run: nextflow run ${GITHUB_WORKSPACE}/main.nf -profile github

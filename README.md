@@ -315,9 +315,11 @@ If you wish to make an addition or change to the pipeline, please follow these s
 
 1. Open an issue to detail the proposed fix or feature and select the appropriate label.
 2. Create a new branch based on the `dev` branch, with a short, descriptive name e.g. `feat-colours` for making changes to a color palette
-3. Modify the code exclusively on this new branch and mention the relavant issue in the commit message.
+3. Modify the code exclusively on this new branch and mention the relavant issue in the commit messages.
 4. When your modifications are complete, submit a pull request to the `dev` branch describing the changes. 
 5. Request a review from iraiosub on your pull request.
+6. The pull-request will trigger a workflow execution on GitHub Actions for continuous integration (CI) of the pipeline.
+This is designed to automatically test riboseq-flow whenever a pull request is made to the main or dev branches of the repository. It ensures that the pipeline runs correctly in an Ubuntu environment, helping to catch any issues or errors early in the development process. Workflows will not run on pull_request activity if the pull request has a merge conflict. The merge conflict must be resolved first.
 
 
 
