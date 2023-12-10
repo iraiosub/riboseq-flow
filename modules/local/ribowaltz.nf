@@ -79,7 +79,7 @@ process GET_PSITE_TRACKS {
 
 }
 
-process RUST_RATIO_QC {
+process RUST_QC {
 
 label 'process_single'
 

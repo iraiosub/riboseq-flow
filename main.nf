@@ -83,7 +83,7 @@ include { RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { TRACK_READS } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
-include { RUST_RATIO_QC } from './modules/local/ribowaltz.nf'
+include { RUST_QC } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
 include { PCA } from './modules/local/riboseq_qc.nf'
@@ -354,7 +354,7 @@ workflow RIBOSEQ {
 
     if (!params.skip_psite & !params.skip_qc) {
 
-        RUST_RATIO_QC(
+        RUST_QC(
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa,
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info,
             IDENTIFY_PSITES.out.psites.flatten()

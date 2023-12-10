@@ -17,9 +17,9 @@ ml Singularity/3.6.4
 export NXF_SINGULARITY_CACHEDIR=/nemo/lab/ulej/home/shared/singularity
 export NXF_HOME=/nemo/lab/ulej/home/users/luscomben/users/iosubi/.nextflow
 
-# nextflow pull iraiosub/riboseq -r dev
+nextflow pull iraiosub/riboseq -r dev
 
-nextflow run main.nf \
--profile full_test,crick \
+nextflow run iraiosub/riboseq -r dev \
+-profile full_test,singularity,crick \
 -resume \
 --outdir results_full_test
