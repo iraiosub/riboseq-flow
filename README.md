@@ -1,4 +1,4 @@
-# riboseq-flow - A Nextflow DSL2 pipeline to perform Ribo-seq data analysis
+# riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis
 
 ## Table of contents
 
@@ -15,7 +15,7 @@
 
 ## Introduction
 
-riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of Ribo-seq data.
+riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of ribo-seq data.
 
 ## Pipeline summary
 
@@ -38,12 +38,11 @@ riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of
 
 ## Quick start (test the pipeline with a minimal dataset)
 
-1. Ensure `Nextflow`(version `21.10.3` or later) and `Docker`/`Singularity` are installed on your system.
+1. Ensure `Nextflow`(version `21.10.3` or later) and `Docker` or`Singularity` (version `3.6.4` or later) are installed on your system.
 Nextflow installation instructions can be found [here](https://nf-co.re/docs/usage/installation).
 We recommend using Nextflow with `Java 17.0.9` or later.
 
 **Note:** The pipeline has been tested on with `Nextflow` versions `21.10.3`, `22.10.3`, `23.04.2` and `23.10.0`. 
-`Singularity` version `3.6.4` or later is required for the time being to run the pipeline. 
 
 2. Pull the desired version of the pipeline from the GitHub repository:
 
@@ -53,8 +52,16 @@ nextflow pull iraiosub/riboseq-flow -r 1.0
 
 3. Run the pipeline on the provided test dataset:
 
+Using Singularity:
+
 ```
 nextflow run iraiosub/riboseq-flow -r 1.0 -profile test,singularity
+```
+
+or using Docker:
+
+```
+nextflow run iraiosub/riboseq-flow -r 1.0 -profile test,docker
 ```
 
 4. Review the results.
@@ -62,7 +69,7 @@ nextflow run iraiosub/riboseq-flow -r 1.0 -profile test,singularity
 
 ## Quick start (run the pipeline on your data)
 
-1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system
+1. Ensure `Nextflow` and `Docker`/`Singularity` are installed on your system.
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
@@ -87,7 +94,8 @@ nextflow run iraiosub/riboseq-flow -r 1.0 \
 -profile singularity,crick \
 -resume \
 --input samplesheet.csv \
---org GRCh38 \
+--fasta /path/to/fasta \
+--gtf /path/to/gtf \
 --strandedness forward
 ```
 
@@ -108,21 +116,29 @@ nextflow run iraiosub/riboseq-flow -r 1.0 \
 
 ### Genome parameters
 
-The pipeline supports any well annotated organism, for which a FASTA genone file and GTF annotation (and ideally rRNA and other contaminat sequences) are available. Recommended sources are [GENCODE](https://www.gencodegenes.org/) and [Ensembl](https://www.ensembl.org/index.html).
+The pipeline is compatible with any well-annotated organism for which a FASTA genone file and GTF annotation (and ideally rRNA and other contaminat sequences) are available. Recommended sources for these files are [GENCODE](https://www.gencodegenes.org/) and [Ensembl](https://www.ensembl.org/index.html).
+**Important:** The GTF file must include UTR annotations, and the format should follow the standards set by Ensembl or GENCODE.
 
-For human and mouse, we also provide the `--org` option that downloads the reference files from GENCODE and stages them to the pipeline. 
-- `--org` specifies the organism (options are currently: `GRCh38`, `GRCm39`).
 
-If `--org` is specified, all annotation files will be loaded from the paths in the [genomes.config](https://github.com/iraiosub/riboseq/blob/main/conf/genomes.config) file.
+Simplified Option for Human and Mouse:
 
-If `--org` is not specified, the user must provide paths to all required annotation files, using the following parameters:
+Use the `--org` flag to automatically download and set up reference files for human or mouse genomes, eliminating the need to manually provide them.
+Available options for `--org` are `GRCh38` (human) and `GRCm39` (mouse).
 
-- `--fasta` path to FASTA genome file
-- `--gtf` path to GTF annotation file
-- `--smallrna_fasta` path to the abundant contaminants RNA (minimally rRNA) FASTA genome file (Required if pre-mapping is enabled)
+
+When `--org` is specified, all annotation files are sourced from the paths in the [genomes.config](https://github.com/iraiosub/riboseq/blob/main/conf/genomes.config) file.
+
+Manual Annotation File Specification:
+
+
+If `--org` is not specified, the user needs to provide full paths to all required annotation files:
+
+- `--fasta` path to the FASTA genome file
+- `--gtf` path to the GTF annotation file
+- `--smallrna_fasta` path to the FASTA file of abundant RNA contaminants (like rRNA). (Required if pre-mapping is enabled)
 - `--star_index` path to directory of pre-built STAR index (Optional). If not provided, the pipeline will generate the STAR index.
-- `--transcript_info` path to TSV file with a single representative transcript for each gene, with information on CDS start, length, end and transcript length (Optional). If not provided, the pipeline will generate it from the GTF file (if using GENCODE or Ensembl GTF files), selecting the longest CDS transcript as representative for each gene. An example illustrating the file format can be found [here](https://github.com/iraiosub/riboseq/blob/main/assets/transcript_info/gencode.v44.primary_assembly.annotation.longest_cds.transcript_info.tsv). 
-- `--transcript_fasta` path to transcript FASTA. (Required if supplying the `transcript_info` file, otherwise generated by the pipeline for the transcript ids of selected representative transcripts). 
+- `--transcript_info` path to TSV file with a single representative transcript for each gene, with information on CDS start, length, end and transcript length (Optional).  If not provided, the pipeline will create it using the GTF file, selecting the longest CDS transcript per gene. The transcript IDs in this file must match those in the GTF file. An example file format can be found [here](https://github.com/iraiosub/riboseq/blob/main/assets/transcript_info/gencode.v44.primary_assembly.annotation.longest_cds.transcript_info.tsv). 
+- `--transcript_fasta` path to transcripts FASTA (full sequence, including CDS and UTRs) and matches the `transcript_info` file. (Required if supplying the `transcript_info` file.). If not provided, the pipeline will generate this file for the selected representative transcripts. 
 
 
 ### Tool specific parameters
@@ -175,7 +191,7 @@ If you prepared your library using a TS (template-switching-based protocol) and 
 - `--skip_qc` skips mapping_length_analysis and generation of riboseq QC plots
 - `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of riboseq QC plots, and for specifying the range of RPF lengths used for P-site identification  (default `26:32`). 
 
-**Note:**  The `--expected_length` parameter does not filter footprints based on this length range for any other analyses, including alignment, gene-level quantification or track data generation.
+**Important:**  The `--expected_length` parameter does not filter footprints based on this length range for any other analyses, including alignment, gene-level quantification or track data generation.
 
 #### P-site identification and quantification options
 
