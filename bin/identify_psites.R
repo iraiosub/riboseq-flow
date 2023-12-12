@@ -39,7 +39,7 @@ exclude_stop <- as.numeric(options[8])
 
 longest_cds.df <- options[9]
 
-# Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
+# Usage: Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
 # Create folder for plots
 dir.create("ribowaltz_qc")

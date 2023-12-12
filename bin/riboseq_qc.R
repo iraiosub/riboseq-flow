@@ -115,10 +115,10 @@ p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))
     scale_fill_discrete(name = "Frame") +
     scale_fill_manual(values = c("#7cb5ec","#434348","#90ed7d")) +
     # ggeasy::easy_add_legend_title("Frame") +
-    xlim(NA, 45) +
+    xlim(NA, (max_length + 8)) +
     ylab("Count")
 
-p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > 18 & rl < 45), 
+p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (min_length - 8) & rl < (max_length + 8)), 
          aes(x = distance_from_start, y = rl, fill = n)) +
     geom_raster() +
     xlim(-50, 50) +
@@ -128,7 +128,7 @@ p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > 18 & rl < 45),
     xlab("Distance of start of read from start codon (nt)") +
     ggtitle("Reads near start codon")
 
-p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > 18 & rl < 45), 
+p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > (min_length - 8) & rl < (max_length + 8)), 
          aes(x = distance_from_end, y = rl, fill = n)) +
     geom_raster() +
     xlim(-80, 20) +
@@ -144,7 +144,7 @@ p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > 18 & rl < 45),
 # =========
 
 original_fq <- read_csv(opt$before_dedup) %>%
-  # dplyr::rename(length2 = length) %>%    # these steps were done because rGrGrG hadnt been removed in that run
+  # dplyr::rename(length2 = length) %>%    # these steps were done because rGrGrG hadnt been removed
   # mutate(length = length2 - 3) %>%
   # dplyr::select(-length2) %>%
   dplyr::select(length, original_n = n)
@@ -248,10 +248,10 @@ if (!is.na(opt$after_premap)) {
   geom_bar(stat="identity", position = "dodge") +
   theme_classic() +
   # ggpubr::theme_pubr() +
-  xlim(19,60) +
+  xlim(19,max_length + 30) +
   ylab("% Contaminants") +
   xlab("Length (nt)") +
-  ggtitle("Proprtion of contaminants")
+  ggtitle("Proportion of contaminants")
 
   mapping_df <- inner_join(original_fq, after_premap) %>%
     inner_join(before_dedup) %>%
@@ -366,7 +366,7 @@ summary_df <- useful_df %>%
 # Customise sub-title based on whether UMIs were used or not
 # if(basename(opt$after_dedup) != "optional.txt") {
 if(!is.na(opt$after_dedup)) {
-  useful_plot_subtitle <- "UMI-deduplicated reads mapped\nuniquely to longest CDS transcripts"
+  useful_plot_subtitle <- "UMI-deduplicated reads mapped\nuniquely to coding transcripts"
 } else {
 
   useful_plot_subtitle <- "Reads mapped\nuniquely to longest CDS transcripts"    
