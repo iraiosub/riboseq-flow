@@ -102,7 +102,7 @@ convert_coordinates <- function(tx.gr, annotation, chr_lengths) {
 # psites.df.ls <- lapply(psites.ls, fread)
 # psites.df <- rbindlist(psites.df.ls)
 
-psites.df <- opt$psite
+psites.df <- fread(opt$psite)
 
 # Load annotation and subset transcripts of interest
 txdb <- make_txdb(opt$gtf, org = 'Homo sapiens')
