@@ -57,24 +57,24 @@ process GET_PSITE_TRACKS {
 
     container 'iraiosub/nf-riboseq:latest'
 
-    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.bed", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.bigWig", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.bed.gz", mode: 'copy', overwrite: true
+    // publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.bigWig", mode: 'copy', overwrite: true
     
     input:
-    path(psite_tables)
+    path(psite_table)
     path(gtf)
     path(fai)
 
     output:
     path("*.psites.bed"), emit: psite_bed
-    path("*.bigwig"), emit: psite_bigwig
+    // path("*.bigwig"), emit: psite_bigwig
 
     script:
 
         """
-        INPUT=`echo $psite_tables | sed 's/ /,/g'`
             
-        get_psite_tracks.R -p \$INPUT -g $gtf -f $fai
+        get_psite_tracks.R -p $psite_table -g $gtf -f $fai
+
         """
 
 }

@@ -115,10 +115,10 @@ p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))
     scale_fill_discrete(name = "Frame") +
     scale_fill_manual(values = c("#7cb5ec","#434348","#90ed7d")) +
     # ggeasy::easy_add_legend_title("Frame") +
-    xlim(NA, (max_length + 8)) +
+    xlim(NA, (as.numeric(max_length) + 8)) +
     ylab("Count")
 
-p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (min_length - 8) & rl < (max_length + 8)), 
+p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8)), 
          aes(x = distance_from_start, y = rl, fill = n)) +
     geom_raster() +
     xlim(-50, 50) +
@@ -128,7 +128,7 @@ p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (min_length - 8) & rl < (ma
     xlab("Distance of start of read from start codon (nt)") +
     ggtitle("Reads near start codon")
 
-p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > (min_length - 8) & rl < (max_length + 8)), 
+p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8)), 
          aes(x = distance_from_end, y = rl, fill = n)) +
     geom_raster() +
     xlim(-80, 20) +
@@ -206,7 +206,7 @@ fwrite(region_counts_mqc.df, paste0(actual_name, "_region_counts_mqc.tsv"), sep 
 start_dist_mqc.df <- riboseq_info$start_dist %>%
   mutate(sample = actual_name) %>%
   dplyr::filter(distance_from_start <=50 & distance_from_start >= -50) %>%
-  dplyr::filter(rl >= min_length & rl <= max_length) %>%
+  dplyr::filter(rl >= as.numeric(min_length) & rl <= as.numeric(max_length)) %>%
   group_by(sample, distance_from_start) %>%
   summarise(number_of_reads = sum(n)) %>%
   dplyr::select(sample, distance_from_start, number_of_reads) %>%
@@ -218,7 +218,7 @@ fwrite(start_dist_mqc.df, paste0(actual_name, "_start_dist_mqc.tsv"), sep = "\t"
 # Frames for MultiQC, summarised for the expected length range
 frame_mqc.df <- riboseq_info$frame %>%
   mutate(sample = actual_name) %>%
-  dplyr::filter(read_length >= min_length & read_length <= max_length) %>%
+  dplyr::filter(read_length >= as.numeric(min_length) & read_length <= as.numeric(max_length)) %>%
   group_by(sample, frame) %>%
   summarise(number_of_reads = sum(n)) %>%
   dplyr::select(sample, frame, number_of_reads) %>%
@@ -248,7 +248,7 @@ if (!is.na(opt$after_premap)) {
   geom_bar(stat="identity", position = "dodge") +
   theme_classic() +
   # ggpubr::theme_pubr() +
-  xlim(19,max_length + 30) +
+  xlim(19, as.numeric(max_length) + 30) +
   ylab("% Contaminants") +
   xlab("Length (nt)") +
   ggtitle("Proportion of contaminants")
@@ -322,12 +322,12 @@ if(!is.na(opt$after_dedup)) {
 
   # Filter based on expected RPF length 
   duplication_summary <- duplicate_df %>%
-    dplyr::filter(length >= min_length & length <= max_length)
+    dplyr::filter(length >= as.numeric(min_length) & length <= as.numeric(max_length))
   
   # This is the percentage reported in the ribo-seq summary
   duplication_perc <- 100- 100*sum(duplication_summary$after_dedup_bam) / sum(duplication_summary$before_dedup_bam) 
 
-  duplication_plot <- ggplot(duplicate_df %>% filter(length >= min_length & length <= max_length), 
+  duplication_plot <- ggplot(duplicate_df %>% filter(length >= as.numeric(min_length) & length <= as.numeric(max_length)), 
         aes(x = length, y = perc_duplicates)) +
   geom_bar(stat="identity", position="dodge") +
   ylab("% Duplicates") +
