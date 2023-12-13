@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/552979223.svg)](https://zenodo.org/doi/10.5281/zenodo.10372020)
 
 # riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis
 
