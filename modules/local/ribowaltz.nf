@@ -57,7 +57,7 @@ process GET_PSITE_TRACKS {
 
     container 'iraiosub/nf-riboseq:latest'
 
-    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.bed", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.bed.gz", mode: 'copy', overwrite: true
     // publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.bigWig", mode: 'copy', overwrite: true
     
     input:
@@ -74,6 +74,7 @@ process GET_PSITE_TRACKS {
         """
             
         get_psite_tracks.R -p $psite_table -g $gtf -f $fai
+
         """
 
 }
