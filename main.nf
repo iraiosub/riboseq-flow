@@ -348,7 +348,7 @@ workflow RIBOSEQ {
         }
 
         // Get P-site tracks
-        // GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites, PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, genome_fai)
+        GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites.flatten(), PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, PREPARE_RIBOSEQ_REFERENCE.out.genome_fai)
 
     }
 

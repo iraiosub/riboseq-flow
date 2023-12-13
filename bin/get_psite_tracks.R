@@ -9,14 +9,6 @@ suppressPackageStartupMessages(library(rtracklayer))
 suppressPackageStartupMessages(library(data.table))
 suppressPackageStartupMessages(library(tidyverse))
 
-# setconfig(config(sslverifypeer = 0L))
-# httr::set_config(httr::config(ssl_verifypeer=0L))
-# httr::set_config(httr::config(ssl_verifypeer=0L, ssl_verifyhost=0L, sslversion=3))
-# httr::set_config(config(ssl_verifypeer = FALSE, ssl_verifyhost = FALSE))
-
-
-# new_config <- httr::config(ssl_verifypeer = FALSE)
-# httr::set_config(new_config, override = FALSE)
 
 # =========
 # Options and paths
@@ -105,10 +97,12 @@ convert_coordinates <- function(tx.gr, annotation, chr_lengths) {
 }
 
 
-# Load psite files
-psites.ls <- as.list(strsplit(opt$psite, ",")[[1]])
-psites.df.ls <- lapply(psites.ls, fread)
-psites.df <- rbindlist(psites.df.ls)
+# Load psites
+# psites.ls <- as.list(strsplit(opt$psite, ",")[[1]])
+# psites.df.ls <- lapply(psites.ls, fread)
+# psites.df <- rbindlist(psites.df.ls)
+
+psites.df <- opt$psite
 
 # Load annotation and subset transcripts of interest
 txdb <- make_txdb(opt$gtf, org = 'Homo sapiens')
@@ -124,7 +118,10 @@ exons.grl <- exonsBy(txdb, "tx", use.names = T)
 exons.grl <- exons.grl[names(exons.grl) %in% unique(psites.df$transcript)]
 
 # Get transcriptomic GRanges
-psites.tx.grl <- lapply(psites.df.ls, table_to_granges)
+# psites.tx.grl <- lapply(psites.df.ls, table_to_granges)
+psites.tx.gr <- table_to_granges(psites.df)
 
 # Mapping transcript coordinates to genomic coordinates
-psites.genomic.grl <- lapply(psites.tx.grl, convert_coordinates, annotation = exons.grl, chr_lengths = chr_lengths)
+# psites.genomic.grl <- lapply(psites.tx.grl, convert_coordinates, annotation = exons.grl, chr_lengths = chr_lengths)
+
+psites.genomic.gr <- convert_coordinates(psites.tx.gr, annotation = exons.grl, chr_lengths = chr_lengths)
