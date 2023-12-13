@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/552979223.svg)](https://zenodo.org/doi/10.5281/zenodo.10372020)
+
 # riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis
 
 ## Table of contents
@@ -47,7 +49,7 @@ We recommend using Nextflow with `Java 17.0.9` or later.
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq-flow -r 1.0
+nextflow pull iraiosub/riboseq-flow -r v1.0.0
 ```
 
 3. Run the pipeline on the provided test dataset:
@@ -55,16 +57,16 @@ nextflow pull iraiosub/riboseq-flow -r 1.0
 Using Singularity:
 
 ```
-nextflow run iraiosub/riboseq-flow -r 1.0 -profile test,singularity
+nextflow run iraiosub/riboseq-flow -r v1.0.0 -profile test,singularity
 ```
 
 or using Docker:
 
 ```
-nextflow run iraiosub/riboseq-flow -r 1.0 -profile test,docker
+nextflow run iraiosub/riboseq-flow -r v1.0.0 -profile test,docker
 ```
 
-4. Review the results.
+4. Check succesful execution.
 
 
 ## Quick start (run the pipeline on your data)
@@ -73,7 +75,7 @@ nextflow run iraiosub/riboseq-flow -r 1.0 -profile test,docker
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq-flow -r 1.0
+nextflow pull iraiosub/riboseq-flow -r v1.0.0
 ```
 
 3. Create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below. 
@@ -90,7 +92,7 @@ sample3,/path/to/file3.fastq.gz
 4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
-nextflow run iraiosub/riboseq-flow -r 1.0 \
+nextflow run iraiosub/riboseq-flow -r v1.0.0 \
 -profile singularity,crick \
 -resume \
 --input samplesheet.csv \
