@@ -92,7 +92,7 @@ sample3,/path/to/file3.fastq.gz
 4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.0.0 \
+nextflow run iraiosub/riboseq-flow -r v1.0.1 \
 -profile singularity,crick \
 -resume \
 --input samplesheet.csv \
