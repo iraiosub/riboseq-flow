@@ -120,27 +120,25 @@ p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))
     xlab("Length (nt)") +
     guides(fill = guide_legend(title = "Frame")) 
 
-p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8)), 
-         aes(x = distance_from_start, y = rl, fill = n)) +
+p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8) %>% dplyr::rename(Count = n)), 
+         aes(x = distance_from_start, y = rl, fill = Count)) +
     geom_raster() +
     xlim(-50, 50) +
     scale_fill_gradient(low = "white", high="black") +
     theme_classic() +
     ylab("Read length (nt)") +
     xlab("Distance of start of read from start codon (nt)") +
-    ggtitle("Reads near start codon") +
-    guides(fill = guide_legend(title = "Count")) 
+    ggtitle("Reads near start codon") 
 
-p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8)), 
-         aes(x = distance_from_end, y = rl, fill = n)) +
+p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8) %>% dplyr::rename(Count = n)), 
+         aes(x = distance_from_end, y = rl, fill = Count)) +
     geom_raster() +
     xlim(-80, 20) +
     scale_fill_gradient(low = "white", high="black") +
     theme_classic() +
     ylab("Read length (nt)") +
     xlab("Distance of start of read from stop codon (nt)") +
-    ggtitle("Reads near stop codon") +
-    guides(fill = guide_legend(title = "Count")) 
+    ggtitle("Reads near stop codon") 
 
 
 # =========
@@ -268,7 +266,7 @@ if (!is.na(opt$after_premap)) {
     inner_join(before_dedup) %>%
     pivot_longer(-length)
 
-  mapping_plot <- ggplot(mapping_df2 %>% filter(length < as.numeric(max_length) + 30) %>%
+  mapping_plot <- ggplot(mapping_df2 %>% filter(length < as.numeric(max_length) + 20) %>%
     # drop_na(value) %>%
     dplyr::filter(name != "input_reads"), aes(x = length, y = value, fill = name)) +
     geom_bar(stat="identity", position="dodge", na.rm = T) +
@@ -283,7 +281,7 @@ if (!is.na(opt$after_premap)) {
     expand_limits(y=1)
     # annotate(geom = "rect", xmin = 26, xmax = 31, ymin = -Inf, ymax = Inf, alpha = .1, color = "black", linetype = "dashed", fill = "black")
 
-  premapping_plot <- ggplot(mapping_df2 %>% filter(length < as.numeric(max_length) + 30) %>%
+  premapping_plot <- ggplot(mapping_df2 %>% filter(length < as.numeric(max_length) + 20) %>%
     dplyr::filter(name != "mapped_uniquely_to_genome"), aes(length, y = value, fill = name)) +
     geom_bar(stat="identity", position="dodge") +
     scale_fill_manual(values = name_colours) +
