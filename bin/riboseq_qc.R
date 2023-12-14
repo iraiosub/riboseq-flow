@@ -116,7 +116,9 @@ p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))
     scale_fill_manual(values = c("#7cb5ec","#434348","#90ed7d")) +
     # ggeasy::easy_add_legend_title("Frame") +
     xlim(NA, (as.numeric(max_length) + 8)) +
-    ylab("Count")
+    ylab("Count") +
+    xlab("Length (nt)") +
+    guides(fill = guide_legend(title = "Frame")) 
 
 p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8)), 
          aes(x = distance_from_start, y = rl, fill = n)) +
@@ -126,7 +128,8 @@ p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (as.numeric(min_length) - 8
     theme_classic() +
     ylab("Read length (nt)") +
     xlab("Distance of start of read from start codon (nt)") +
-    ggtitle("Reads near start codon")
+    ggtitle("Reads near start codon") +
+    guides(fill = guide_legend(title = "Count")) 
 
 p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8)), 
          aes(x = distance_from_end, y = rl, fill = n)) +
@@ -136,7 +139,8 @@ p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > (as.numeric(min_length) - 8) 
     theme_classic() +
     ylab("Read length (nt)") +
     xlab("Distance of start of read from stop codon (nt)") +
-    ggtitle("Reads near stop codon")
+    ggtitle("Reads near stop codon") +
+    guides(fill = guide_legend(title = "Count")) 
 
 
 # =========
@@ -147,13 +151,13 @@ original_fq <- read_csv(opt$before_dedup) %>%
   # dplyr::rename(length2 = length) %>%    # these steps were done because rGrGrG hadnt been removed
   # mutate(length = length2 - 3) %>%
   # dplyr::select(-length2) %>%
-  dplyr::select(length, original_n = n)
+  dplyr::select(length, input_reads = n)
 
 before_dedup <- read_csv(opt$before_dedup) %>%
-  dplyr::select(length, before_dedup_bam = n_bam)
+  dplyr::select(length, mapped_uniquely_to_genome = n_bam)
 
 # Plot length distribution in the adaptor trimmed and quality and length filtered fastq
-length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
+length_plot <- ggplot(original_fq, aes(x = length, y = input_reads)) +
   geom_bar(stat="identity") +
   xlim(0,70) +
   # ggpubr::theme_pubr() +
@@ -165,7 +169,7 @@ length_plot <- ggplot(original_fq, aes(x = length, y = original_n)) +
 # Reformat length dataframe to export for MultiQC, read length distribution of starting reads
 fq_length_mqc.df <- original_fq %>%
   mutate(sample = actual_name) %>%
-  dplyr::rename(number_of_reads = original_n) %>%
+  dplyr::rename(number_of_reads = input_reads) %>%
   dplyr::select(sample, length, number_of_reads) %>%
   mutate(length = paste0(length, "nt")) %>%
   pivot_wider(names_from = length, values_from = number_of_reads)
@@ -232,16 +236,16 @@ fwrite(frame_mqc.df, paste0(actual_name, "_frame_mqc.tsv"), sep = "\t", row.name
 # Premapping
 # =========
 
-name_colours <- c("original_n" = "#8ed5d9", "after_premap_n" = "#d9b88e", "before_dedup_bam" = "#d98eaf")
+name_colours <- c("input_reads" = "#8ed5d9", "not_premapped" = "#d9b88e", "mapped_uniquely_to_genome" = "#d98eaf")
 
 if (!is.na(opt$after_premap)) {
 # if (basename(opt$after_premap) != "optional.txt") {
 
   after_premap <- read_csv(opt$after_premap) %>%
-  dplyr::select(length, after_premap_n = n)
+  dplyr::select(length, not_premapped = n)
 
   rRNA_df <- inner_join(original_fq, after_premap) %>%
-  mutate(perc_rRNA = 100-100*after_premap_n/original_n)
+  mutate(perc_rRNA = 100-100*not_premapped/input_reads)
 
   rRNA_plot <- ggplot(rRNA_df,
                     aes(x = length, y = perc_rRNA)) +
@@ -255,8 +259,8 @@ if (!is.na(opt$after_premap)) {
 
   mapping_df <- inner_join(original_fq, after_premap) %>%
     inner_join(before_dedup) %>%
-    mutate(total = 100*before_dedup_bam/original_n,
-            ignoring_rRNA = 100*before_dedup_bam/after_premap_n) %>%
+    mutate(total = 100*mapped_uniquely_to_genome/input_reads,
+            ignoring_rRNA = 100*mapped_uniquely_to_genome/not_premapped) %>%
     dplyr::select(length, total, ignoring_rRNA) %>%
     pivot_longer(-length)
 
@@ -264,9 +268,9 @@ if (!is.na(opt$after_premap)) {
     inner_join(before_dedup) %>%
     pivot_longer(-length)
 
-  mapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
+  mapping_plot <- ggplot(mapping_df2 %>% filter(length < as.numeric(max_length) + 30) %>%
     # drop_na(value) %>%
-    dplyr::filter(name != "original_n"), aes(x = length, y = value, fill = name)) +
+    dplyr::filter(name != "input_reads"), aes(x = length, y = value, fill = name)) +
     geom_bar(stat="identity", position="dodge", na.rm = T) +
     scale_fill_manual(values = name_colours) +
     theme_classic() +
@@ -279,8 +283,8 @@ if (!is.na(opt$after_premap)) {
     expand_limits(y=1)
     # annotate(geom = "rect", xmin = 26, xmax = 31, ymin = -Inf, ymax = Inf, alpha = .1, color = "black", linetype = "dashed", fill = "black")
 
-  premapping_plot <- ggplot(mapping_df2 %>% filter(length < 50) %>%
-    dplyr::filter(name != "before_dedup_bam"), aes(length, y = value, fill = name)) +
+  premapping_plot <- ggplot(mapping_df2 %>% filter(length < as.numeric(max_length) + 30) %>%
+    dplyr::filter(name != "mapped_uniquely_to_genome"), aes(length, y = value, fill = name)) +
     geom_bar(stat="identity", position="dodge") +
     scale_fill_manual(values = name_colours) +
     theme_classic() +
@@ -318,14 +322,14 @@ if(!is.na(opt$after_dedup)) {
     dplyr::select(length, after_dedup_bam = n)
 
   duplicate_df <- inner_join(before_dedup, after_dedup) %>%
-    mutate(perc_duplicates = 100*(before_dedup_bam-after_dedup_bam)/before_dedup_bam)
+    mutate(perc_duplicates = 100*(mapped_uniquely_to_genome-after_dedup_bam)/mapped_uniquely_to_genome)
 
   # Filter based on expected RPF length 
   duplication_summary <- duplicate_df %>%
     dplyr::filter(length >= as.numeric(min_length) & length <= as.numeric(max_length))
   
   # This is the percentage reported in the ribo-seq summary
-  duplication_perc <- 100- 100*sum(duplication_summary$after_dedup_bam) / sum(duplication_summary$before_dedup_bam) 
+  duplication_perc <- 100- 100*sum(duplication_summary$after_dedup_bam) / sum(duplication_summary$mapped_uniquely_to_genome) 
 
   duplication_plot <- ggplot(duplicate_df %>% filter(length >= as.numeric(min_length) & length <= as.numeric(max_length)), 
         aes(x = length, y = perc_duplicates)) +
@@ -347,7 +351,7 @@ if(!is.na(opt$after_dedup)) {
 # =========
 
 # Useful reads are defined as reads mapping to protein coding/number of preprocessed reads
-useful_read_perc <- 100*nrow(riboseq_info$bam) / sum(original_fq$original_n)
+useful_read_perc <- 100*nrow(riboseq_info$bam) / sum(original_fq$input_reads)
 useful_df <- data.frame(x = "", y = useful_read_perc,
                         useful_read_n = nrow(riboseq_info$bam))
 

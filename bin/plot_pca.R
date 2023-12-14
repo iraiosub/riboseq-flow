@@ -66,9 +66,9 @@ featurecounts.df <- featurecounts.df %>%
 
 # If there is only one sample, there is no point in running the analysis
 
-if (ncol(featurecounts.df) < 3 ) {
+if (ncol(featurecounts.df) < 4 ) {
   
-  message("There is only one sample provided. This analysis is only valid for 2 or more samples.") # Not enough samples in counts file for PCA.
+  message("There is only one sample provided. This analysis is only valid for 4 or more samples.") # Not enough samples in counts file for PCA.
   # file.create("pca.pdf")
   
 } else {
@@ -76,7 +76,7 @@ if (ncol(featurecounts.df) < 3 ) {
   tx_info.df <- fread(opt$transcript_info)
 
   # If there are more than 12 samples, do not use more than 1 color for plotting
-  if (ncol(featurecounts.df) > 12 ) {
+  if (ncol(featurecounts.df) > 6 ) {
 
     colours <- colorRampPalette(c("#606060"))(ncol(featurecounts.df))
   } else {
