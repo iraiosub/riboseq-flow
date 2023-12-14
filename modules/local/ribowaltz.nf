@@ -53,7 +53,7 @@ process IDENTIFY_PSITES {
 
 process GET_PSITE_TRACKS {
  
-    label 'process_single'
+    label 'process_high'
 
     container 'iraiosub/nf-riboseq:latest'
 
