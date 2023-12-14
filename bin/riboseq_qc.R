@@ -120,7 +120,7 @@ p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))
     xlab("Length (nt)") +
     guides(fill = guide_legend(title = "Frame")) 
 
-p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8) %>% dplyr::rename(Count = n)), 
+p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8)) %>% dplyr::rename(Count = n), 
          aes(x = distance_from_start, y = rl, fill = Count)) +
     geom_raster() +
     xlim(-50, 50) +
@@ -130,7 +130,7 @@ p2 <- ggplot(riboseq_info$start_dist %>% filter(rl > (as.numeric(min_length) - 8
     xlab("Distance of start of read from start codon (nt)") +
     ggtitle("Reads near start codon") 
 
-p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8) %>% dplyr::rename(Count = n)), 
+p3 <- ggplot(riboseq_info$end_dist %>% filter(rl > (as.numeric(min_length) - 8) & rl < (as.numeric(max_length) + 8)) %>% dplyr::rename(Count = n), 
          aes(x = distance_from_end, y = rl, fill = Count)) +
     geom_raster() +
     xlim(-80, 20) +
