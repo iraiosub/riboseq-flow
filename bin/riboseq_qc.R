@@ -155,14 +155,32 @@ before_dedup <- read_csv(opt$before_dedup) %>%
   dplyr::select(length, mapped_uniquely_to_genome = n_bam)
 
 # Plot length distribution in the adaptor trimmed and quality and length filtered fastq
-length_plot <- ggplot(original_fq, aes(x = length, y = input_reads)) +
+# Compare that to useful length distr
+
+fq_length_plot <- ggplot(original_fq, aes(x = length, y = input_reads)) +
   geom_bar(stat="identity") +
   xlim(0,70) +
-  # ggpubr::theme_pubr() +
   theme_classic() +
   ylab("Read count") +
   xlab("Length (nt)") +
   ggtitle("Input read length distribution")  
+
+# Get number of useful reads for each length
+useful_length.df <- riboseq_info$bam %>%
+  group_by(sample, rl) %>%
+  summarise(number_of_reads = n())
+
+useful_length_plot <- ggplot(useful_length.df, aes(x = rl, y = number_of_reads)) +
+  geom_bar(stat="identity", fill = "#746AB0", color = "#746AB0") +
+  xlim(0,70) +
+  theme_classic() +
+  ylab("Read count") +
+  xlab("Length (nt)") +
+  ggtitle("Useful read length distribution") 
+
+length_plot <- fq_length_plot + useful_length_plot + plot_layout(ncol=1)
+
+
 
 # Reformat length dataframe to export for MultiQC, read length distribution of starting reads
 fq_length_mqc.df <- original_fq %>%
@@ -311,7 +329,7 @@ if (!is.na(opt$after_premap)) {
 # Duplication
 # =========
 
-# If UMIs were used, calculate the proprtion of duplicated reads within the expected RPF length range
+# If UMIs were used, calculate the proportion of duplicated reads within the expected RPF length range
 # if (!is.null(opt$after_dedup)) {
 # if(basename(opt$after_dedup) != "optional.txt") {
 if(!is.na(opt$after_dedup)) {
@@ -375,7 +393,7 @@ if(!is.na(opt$after_dedup)) {
 }
 
 useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity", fill = "#746AB0", color = "#746AB0") +
   theme_classic() +
   ggtitle("% Useful reads", useful_plot_subtitle) +
   xlab("") +
