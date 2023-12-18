@@ -167,7 +167,7 @@ fq_length_plot <- ggplot(original_fq, aes(x = length, y = input_reads)) +
 
 # Get number of useful reads for each length
 useful_length.df <- riboseq_info$bam %>%
-  group_by(sample, rl) %>%
+  group_by(rl) %>%
   summarise(number_of_reads = n())
 
 useful_length_plot <- ggplot(useful_length.df, aes(x = rl, y = number_of_reads)) +
