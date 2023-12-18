@@ -171,7 +171,7 @@ useful_length.df <- riboseq_info$bam %>%
   summarise(number_of_reads = n())
 
 useful_length_plot <- ggplot(useful_length.df, aes(x = rl, y = number_of_reads)) +
-  geom_bar(stat="identity", fill = "#746AB0", color = "#746AB0") +
+  geom_bar(stat="identity", fill = "#746AB0") +
   xlim(0,70) +
   theme_classic() +
   ylab("Read count") +
@@ -393,7 +393,7 @@ if(!is.na(opt$after_dedup)) {
 }
 
 useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
-  geom_bar(stat="identity", fill = "#746AB0", color = "#746AB0") +
+  geom_bar(stat="identity", fill = "#746AB0") +
   theme_classic() +
   ggtitle("% Useful reads", useful_plot_subtitle) +
   xlab("") +
