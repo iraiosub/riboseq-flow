@@ -75,6 +75,7 @@ process SUMMARISE_RIBOSEQ_QC {
         path(start_dist_tables)
         path(mapping_counts_tables)
         path(frame_counts_tables)
+        path(length_filter_tables)
     
     output:
         path("qc_summary.pdf"), emit: plot
@@ -91,9 +92,10 @@ process SUMMARISE_RIBOSEQ_QC {
         INPUT_START_DIST=`echo $start_dist_tables | sed 's/ /,/g'`
         INPUT_MAPPING_COUNTS=`echo $mapping_counts_tables | sed 's/ /,/g'`
         INPUT_FRAME=`echo $frame_counts_tables | sed 's/ /,/g'`
+        INPUT_LENGTH_FILTER=`echo $length_filter_tables | sed 's/ /,/g'`
         
-        riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN -r \$INPUT_REGION --start_dist_list \$INPUT_START_DIST -m \$INPUT_MAPPING_COUNTS -f \$INPUT_FRAME
-        rm $fq_length_tables $useful_length_tables $region_counts_tables $start_dist_tables $mapping_counts_tables $frame_counts_tables
+        riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN -r \$INPUT_REGION --start_dist_list \$INPUT_START_DIST -m \$INPUT_MAPPING_COUNTS -f \$INPUT_FRAME --length_filter_list \$INPUT_LENGTH_FILTER
+        rm $fq_length_tables $useful_length_tables $region_counts_tables $start_dist_tables $mapping_counts_tables $frame_counts_tables $length_filter_tables
         
         """
 
@@ -115,6 +117,8 @@ process TRACK_READS {
     output:
         tuple val(sample_id), path("*_sankey.html"), path("*_sankey_files"), emit: sankey
         tuple val(sample_id), path("*_mapping_counts_mqc.tsv"), emit: mapping_counts
+        tuple val(sample_id), path("*_length_filter_mqc.tsv"), emit: length_filter
+
 
     script:
 

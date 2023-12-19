@@ -283,6 +283,10 @@ workflow RIBOSEQ {
             .map { [ it[1] ] }
             .collect() 
 
+        ch_merge_lemgth_filter = TRACK_READS.out.length_filter
+            .map { [ it[1] ] }
+            .collect() 
+
         SUMMARISE_RIBOSEQ_QC(
             ch_merge_qc,
             ch_merge_read_length,
@@ -290,7 +294,8 @@ workflow RIBOSEQ {
             ch_merge_region_counts,
             ch_merge_start_dist,
             ch_merge_mapping_counts,
-            ch_merge_frame
+            ch_merge_frame,
+            ch_merge_lemgth_filter
         )
 
     }
