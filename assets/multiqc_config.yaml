@@ -15,8 +15,8 @@ exclude_modules:
 # Other MultiQC config stuff here
 custom_data:
   order:
-    - mapping
     - length_filter
+    - mapping
     - starting_length
     - useful_length
     - pca
@@ -41,7 +41,7 @@ custom_data:
     parent_name: "Read Length"
     file_format: "tsv"
     section_name: "Input Read Length Distribution"
-    description: "Length distribution for input reads (reads that are longer than minimum length filter (20 nt by default))."
+    description: "Length distribution for input reads (reads kept and analysed after filtering based on length). Unless the minimum length has been specified, reads shorter than 20 nt have been discarded and not inluded in this plot."
     plot_type: "linegraph"
     pconfig:
       id: "starting_length_linegraph"
@@ -56,7 +56,7 @@ custom_data:
     parent_name: "Read Length"
     file_format: "tsv"
     section_name: "Useful Read Length Distribution"
-    description: "Length distribution for reads that uniquely map to protein-coding transcripts."
+    description: "Length distribution for reads that uniquely map to protein-coding transcripts (useful reads)."
     plot_type: "linegraph"
     pconfig:
       id: "useful_length_linegraph"
@@ -181,7 +181,7 @@ custom_data:
     parent_name: "Read filtering"
     file_format: "tsv"
     section_name: "Read filtering"
-    description: "The relative proportions of reads discarded and used as input for each experiment."
+    description: "The relative proportions of reads discarded and used as input for the analysis, based on the length threshold. If not specified, reads shorter than 20 nt are discarded. "
     plot_type: "bargraph"
     pconfig:
       id: "length_filter_counts_barplot"
@@ -234,6 +234,8 @@ module_order:
 
 report_section_order:
   length_filter:
+    order: 1001
+  mapping:
     order: 1000
   star:
     order: -1000
