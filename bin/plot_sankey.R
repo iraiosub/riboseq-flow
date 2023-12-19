@@ -415,10 +415,19 @@ saveNetwork(p, paste0(sample_id, '_sankey.html'), selfcontained = FALSE)
 # All these must to add up to total processed reads
 stopifnot(premapped.reads + uniquemap.reads + unmapped.reads == passing_length_filter.reads)
 
-# Create dataframe
+# Create dataframe for mapping results
 mapped_mqc.df <- data.frame(type = c("mapped uniquely to genome", "pre-mapped to contaminants", "unmapped"),
                             read_count = c(uniquemap.reads, premapped.reads, unmapped.reads)) %>%
   mutate(sample = sample_id) %>%
   pivot_wider(names_from = type, values_from = read_count)
 
 fwrite(mapped_mqc.df, paste0(sample_id, "_mapping_counts_mqc.tsv"), sep = "\t", row.names = FALSE)
+
+
+# Create dataframe for length-filter results
+min_len_mqc.df <- data.frame(type = c("discarded (too short)", "input for pre-mapping (passing length filter)"),
+                            read_count = c(tooshort.reads, passing_length_filter.reads)) %>%
+  mutate(sample = sample_id) %>%
+  pivot_wider(names_from = type, values_from = read_count)
+
+fwrite(min_len_mqc.df, paste0(sample_id, "_length_filter_mqc.tsv"), sep = "\t", row.names = FALSE)

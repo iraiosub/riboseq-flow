@@ -14,7 +14,8 @@ option_list <- list(make_option(c("-i", "--summary_list"), action = "store", typ
                     make_option(c("-r", "--region_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated region counts"),
                     make_option(c("", "--start_dist_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read count density around start codon"),
                     make_option(c("-m", "--mapping_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated mapping counts"),
-                    make_option(c("-f", "--frame_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated frame counts"))
+                    make_option(c("-f", "--frame_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated frame counts"),
+                    make_option(c("", "--length_filter_list"), action = "store", type = "character", default=NA, help = "list of tab length-filtered counts"))
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
@@ -160,3 +161,9 @@ frame_counts.ls <- as.list(strsplit(opt$frame_counts_list, ",")[[1]])
 frame_counts.df <- rbindlist(lapply(frame_counts.ls , fread), use.names = TRUE) %>%
   dplyr::arrange(sample)
 fwrite(frame_counts.df, "frame_counts_mqc.tsv", row.names = FALSE, sep = "\t")
+
+# Length filter counts
+length_filter.ls <- as.list(strsplit(opt$length_filter_list, ",")[[1]])
+length_filter.df <- rbindlist(lapply(length_filter.ls, fread), use.names = TRUE) %>%
+  dplyr::arrange(sample)
+fwrite(length_filter.df, "length_filter_mqc.tsv", row.names = FALSE, sep = "\t")

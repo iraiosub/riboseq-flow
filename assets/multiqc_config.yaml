@@ -16,6 +16,7 @@ exclude_modules:
 custom_data:
   order:
     - mapping
+    - length_filter
     - starting_length
     - useful_length
     - pca
@@ -39,12 +40,12 @@ custom_data:
     parent_id: read_length
     parent_name: "Read Length"
     file_format: "tsv"
-    section_name: "Starting Read Length Distribution"
+    section_name: "Input Read Length Distribution"
     description: "Length distribution for reads."
     plot_type: "linegraph"
     pconfig:
       id: "starting_length_linegraph"
-      title: "Starting Read Length Distribution"
+      title: "Input Read Length Distribution"
       xlab: Length (nt)
       ylab: Frequency
       yDecimals: False
@@ -175,6 +176,17 @@ custom_data:
       id: "mapping_counts_barplot"
       title: "Mapping"
       cpswitch: True
+  length_filter:
+    parent_id: length_filter
+    parent_name: "Read filtering"
+    file_format: "tsv"
+    section_name: "Read filtering"
+    description: "The proportion of reads discarded and used as input for each experiment."
+    plot_type: "bargraph"
+    pconfig:
+      id: "length_filter_counts_barplot"
+      title: "Read filtering"
+      cpswitch: True
   pca:
     parent_id: pca
     parent_name: "PCA"
@@ -202,10 +214,13 @@ sp:
     fn: "duplication_mqc.tsv"
   mapping_counts:
     fn: "mapping_counts_mqc.tsv"  
+  length_filter:
+    fn: "length_filter_mqc.tsv"  
   frame_counts:
     fn: "frame_counts_mqc.tsv"
 
 module_order:
+    - length_filter
     - mapping
     - read_length
     - pca
@@ -218,7 +233,7 @@ module_order:
     - star
 
 report_section_order:
-  mapping:
+  length_filter:
     order: 1000
   star:
     order: -1000

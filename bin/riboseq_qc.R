@@ -180,8 +180,6 @@ useful_length_plot <- ggplot(useful_length.df, aes(x = rl, y = number_of_reads))
 
 length_plot <- fq_length_plot + useful_length_plot + plot_layout(ncol=1)
 
-
-
 # Reformat length dataframe to export for MultiQC, read length distribution of starting reads
 fq_length_mqc.df <- original_fq %>%
   mutate(sample = actual_name) %>%
