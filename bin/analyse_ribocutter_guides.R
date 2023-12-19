@@ -46,8 +46,7 @@ ribocutter.gg <- ggplot(ribocutter.df, aes(x = name, y = total_library_fraction_
   theme_classic() +
   theme(axis.text.x = element_text(angle = 90)) +
   ylab("% of reads targeted") +
-  ggtitle(paste0("% of reads targeted by ", guide_number," guides with ribocutter"),
-          "Higher is better")
+  ggtitle(paste0("% of reads targeted by ", guide_number," guides with ribocutter"))
 
 ggsave("ribocutter.pdf", ribocutter.gg, dpi = 300)
 

@@ -30,7 +30,7 @@ custom_data:
     parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Frame distribution"
-    description: "Frame distribution for reads in the expected length range."
+    description: "Frame distribution for 5' ends of reads in the expected length range."
     plot_type: "heatmap"
     pconfig:
       id: "frame_counts_heatmap"
@@ -41,7 +41,7 @@ custom_data:
     parent_name: "Read Length"
     file_format: "tsv"
     section_name: "Input Read Length Distribution"
-    description: "Length distribution for reads."
+    description: "Length distribution for input reads (reads that are longer than minimum length filter (20 nt by default))."
     plot_type: "linegraph"
     pconfig:
       id: "starting_length_linegraph"
@@ -72,7 +72,7 @@ custom_data:
     parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Regions"
-    description: "Distribution of protein-coding transcripts mapping reads over UTR and CDS regions."
+    description: "Distribution of 5'ends of the reads mapped uniquely to protein-coding transcripts reads across UTR and CDS regions."
     plot_type: "bargraph"
     pconfig:
       id: "region_counts_barplot"
@@ -84,7 +84,7 @@ custom_data:
     parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Distance from START codon"
-    description: "Distance of 5'ends of reads of expected length from START codon. Unless specified, the expected read length range is between 26 and 32 nt."
+    description: "Metaprofile of 5'ends of useful reads of expected length around start codons. Unless specified, the expected read length range is between 26 and 32 nt."
     plot_type: "linegraph"
     pconfig:
       id: "start_dist_linegraph"
@@ -99,7 +99,7 @@ custom_data:
     parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Protein-coding Genes Mapping Percentage"
-    description: "Percentage of reads mapping uniquely to protein-coding transcripts. This is the proprtion of reads of the entire library that are useful for most downstream analyses. For each gene, a single representative transcript was used (by default, the one with the longest CDS was used). The higher the percentage, the better."
+    description: "Percentage of reads mapping uniquely to protein-coding transcripts (useful reads). This is the proprtion of reads of the entire library that are useful for most downstream analyses. For each gene, a single representative transcript was used (by default, the one with the longest CDS was used). The higher the percentage, the better."
     plot_type: "bargraph"
     pconfig:
       id: "pcoding_percentage_barplot"
@@ -119,7 +119,7 @@ custom_data:
     parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
     file_format: "tsv"
     section_name: "Expected Read Length Percentage"
-    description: "Percentage of uniquely mapping reads to protein-coding transcripts of expected RPF length. The higher the percentage, the better. Unless specified, the expected read length range is between 26 and 32 nt."
+    description: "Percentage of uniquely mapping reads to protein-coding transcripts (useful reads) of expected length. The higher the percentage, the better. Unless specified, the expected read length range is between 26 and 32 nt."
     plot_type: "bargraph"
     pconfig:
       id: "expected_length_barplot"
@@ -138,7 +138,7 @@ custom_data:
     parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Duplication"
-    description: "Percentage of duplicated reads of expected RPF length based on UMIs. Unless specified, the expected read length range is between 26 and 32 nt."
+    description: "Percentage of duplicated reads of expected length based on UMIs. Unless specified, the expected read length range is between 26 and 32 nt."
     plot_type: "bargraph"
     use_legend: False
     pconfig:
@@ -181,7 +181,7 @@ custom_data:
     parent_name: "Read filtering"
     file_format: "tsv"
     section_name: "Read filtering"
-    description: "The proportion of reads discarded and used as input for each experiment."
+    description: "The relative proportions of reads discarded and used as input for each experiment."
     plot_type: "bargraph"
     pconfig:
       id: "length_filter_counts_barplot"
