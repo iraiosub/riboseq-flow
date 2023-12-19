@@ -117,7 +117,7 @@ process TRACK_READS {
     output:
         tuple val(sample_id), path("*_sankey.html"), path("*_sankey_files"), emit: sankey
         tuple val(sample_id), path("*_mapping_counts_mqc.tsv"), emit: mapping_counts
-        tuple val(sample_id), path("*_length_filter_mqc.tsv"), emit: _length_filter_mqc
+        tuple val(sample_id), path("*_length_filter_mqc.tsv"), emit: length_filter
 
 
     script:
