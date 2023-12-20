@@ -165,5 +165,6 @@ fwrite(frame_counts.df, "frame_mqc.tsv", row.names = FALSE, sep = "\t")
 # Length filter counts
 length_filter.ls <- as.list(strsplit(opt$length_filter_list, ",")[[1]])
 length_filter.df <- rbindlist(lapply(length_filter.ls, fread), use.names = TRUE) %>%
-  dplyr::arrange(sample)
+  dplyr::arrange(sample) %>%
+  mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap
 fwrite(length_filter.df, "length_filter_mqc.tsv", row.names = FALSE, sep = "\t")

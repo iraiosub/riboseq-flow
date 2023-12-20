@@ -55,6 +55,7 @@ ribocutter_mqc.df <- ribocutter.df %>%
   distinct(name, min_length, total_library_fraction_targeted) %>%
   mutate(min_length = paste0(min_length, " nt")) %>%
   pivot_wider(names_from = min_length, values_from = total_library_fraction_targeted) %>%
-  dplyr::rename(sample = name)
+  dplyr::rename(sample = name) %>%
+  mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap
 
 fwrite(ribocutter_mqc.df, "ribocutter_mqc.tsv", sep = "\t")

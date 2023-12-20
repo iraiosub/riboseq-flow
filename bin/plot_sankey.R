@@ -425,7 +425,7 @@ fwrite(mapped_mqc.df, paste0(sample_id, "_mapping_counts_mqc.tsv"), sep = "\t", 
 
 
 # Create dataframe for length-filter results
-min_len_mqc.df <- data.frame(type = c("discarded (too short)", "input for pre-mapping (passing length filter)"),
+min_len_mqc.df <- data.frame(type = c("discarded (too short)", "input for analysis (passing length filter)"),
                             read_count = c(tooshort.reads, passing_length_filter.reads)) %>%
   mutate(sample = sample_id) %>%
   pivot_wider(names_from = type, values_from = read_count)

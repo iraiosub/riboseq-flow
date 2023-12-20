@@ -163,6 +163,7 @@ custom_data:
       xmin: 0
       cpswitch: False
       stacking: null
+      hide_zero_cats: True
   mapping:
     parent_id: mapping
     parent_name: "Mapping"
@@ -185,6 +186,7 @@ custom_data:
       id: "length_filter_barplot"
       title: "Read filtering"
       cpswitch: True
+      hide_zero_cats: True
   pca:
     parent_id: pca
     parent_name: "PCA"
