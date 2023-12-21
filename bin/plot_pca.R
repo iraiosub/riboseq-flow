@@ -114,56 +114,72 @@ if (ncol(featurecounts.df) < 5 ) {
       # =========
       
       cds.df <- fread(opt$cds)
-      
-      # Select the longest CDS transcript based on transcript info table
-      cds_longest.df <- semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
-        remove_rownames() %>% 
-        column_to_rownames(var = "transcript")  %>%
-        dplyr::select(-length_cds)
-      
-      cds.pca.gg <- get_rlog_pca(cds_longest.df)$plot +
-        geom_point(aes(color = sample)) +
-        ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") +
-        labs(caption = "*top 500 most variable CDS") +
-        theme_cowplot() +
-        scale_fill_manual(values = colours) +
-        scale_color_manual(values = colours) +
-        # ggrepel::geom_text_repel(aes(label = sample))
-        geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)+
-        theme(legend.position = "none") +
-        theme(plot.margin = unit(c(1,1,1,1), "cm")) +
-        coord_cartesian(clip = "off")
 
-      fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
-      
+      if (ncol(cds.df) < 5) {
+        message("There aren't enough samples provided. This analysis is only valid for 4 or more samples.")
+        # Create empty plot to specify the analysis is not available
+        cds.pca.gg <- ggplot() + theme_void() + ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") + geom_text(aes(0,0,label='N/A'))
+      } else {
+
+        # Select the longest CDS transcript based on transcript info table
+        cds_longest.df <- semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
+          remove_rownames() %>% 
+          column_to_rownames(var = "transcript")  %>%
+          dplyr::select(-length_cds)
+        
+        cds.pca.gg <- get_rlog_pca(cds_longest.df)$plot +
+          geom_point(aes(color = sample)) +
+          ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") +
+          labs(caption = "*top 500 most variable CDS") +
+          theme_cowplot() +
+          scale_fill_manual(values = colours) +
+          scale_color_manual(values = colours) +
+          # ggrepel::geom_text_repel(aes(label = sample))
+          geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)+
+          theme(legend.position = "none") +
+          theme(plot.margin = unit(c(1,1,1,1), "cm")) +
+          coord_cartesian(clip = "off")
+
+        fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
+
+      }
       
       # =========
       # P-site CDS window counts from riboWaltz
       # =========
 
       cds_window.df <- fread(opt$cds_window)
-      
-      # Select the longest CDS transcript based on transcript info table
-      cds_window_longest.df <- semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
-        remove_rownames() %>% 
-        column_to_rownames(var = "transcript")  %>%
-        dplyr::select(-length_selection, -length_cds)
-      
-      cds_window.pca.gg <- get_rlog_pca(cds_window_longest.df)$plot +
-        geom_point(aes(color = sample)) +
-        ggtitle("CDS (+15th codon to -10th codon) occupancy", "P-sites (rlog-normalised counts)") +
-        labs(caption = "*top 500 most variable CDS") +
-        theme_cowplot() +
-        scale_fill_manual(values = colours) +
-        scale_color_manual(values = colours) +
-       # ggrepel::geom_text_repel(aes(label = sample))
-       geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8) +
-       theme(legend.position = "none") +
-       theme(plot.margin = unit(c(1,1,1,1), "cm")) +
-       coord_cartesian(clip = "off")
 
-      fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
+      if (ncol(cds_window.df) < 5) {
+        message("There aren't enough samples provided. This analysis is only valid for 4 or more samples.")
+
+        # Create empty plot to specify the analysis is not available
+        cds_window.pca.gg <- ggplot() + theme_void() + ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") + geom_text(aes(0,0,label='N/A'))
       
+      } else {
+      
+        # Select the longest CDS transcript based on transcript info table
+        cds_window_longest.df <- semi_join(cds_window.df, tx_info.df, by = c("transcript" = "transcript_id")) %>%
+          remove_rownames() %>% 
+          column_to_rownames(var = "transcript")  %>%
+          dplyr::select(-length_selection, -length_cds)
+        
+        cds_window.pca.gg <- get_rlog_pca(cds_window_longest.df)$plot +
+          geom_point(aes(color = sample)) +
+          ggtitle("CDS (+15th codon to -10th codon) occupancy", "P-sites (rlog-normalised counts)") +
+          labs(caption = "*top 500 most variable CDS") +
+          theme_cowplot() +
+          scale_fill_manual(values = colours) +
+          scale_color_manual(values = colours) +
+        # ggrepel::geom_text_repel(aes(label = sample))
+        geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8) +
+        theme(legend.position = "none") +
+        theme(plot.margin = unit(c(1,1,1,1), "cm")) +
+        coord_cartesian(clip = "off")
+
+        fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
+
+      }
       
       # =========
       # Merge PCA plots
