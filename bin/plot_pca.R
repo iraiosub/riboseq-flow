@@ -36,8 +36,8 @@ get_rlog_pca <- function(count_data) {
                                 colData = meta.df, 
                                 design = ~1)
   dds <- estimateSizeFactors(dds)
-  # idx <- rowSums( counts(dds, normalized = TRUE) >= 2 ) >= 1
-  # dds <- dds[idx,]
+  idx <- rowSums( counts(dds, normalized = TRUE) >= 2 ) >= 3
+  dds <- dds[idx,]
   results.dds <- DESeq(dds)
   
   # PCA using rlog
