@@ -59,7 +59,7 @@ ribocutter_mqc.df <- ribocutter.df %>%
   
 
 # If dim of df are n x n, multiqc overrides plot_type and plots a heatmap
-if (ncol(ribocutter_mqc.df) == nrow(ribocutter_mqc.df)) {
+if (ncol(ribocutter_mqc.df) == nrow(ribocutter_mqc.df) + 1) {
 
   ribocutter_mqc.df <- ribocutter_mqc.df %>%
     mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap

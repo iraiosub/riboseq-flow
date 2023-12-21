@@ -152,7 +152,7 @@ region_counts.df <- rbindlist(lapply(region_counts.ls , fread), use.names = TRUE
   dplyr::arrange(sample) 
 
 # If dim of df are n x n, multiqc overrides plot_type and plots a heatmap
-if (ncol(region_counts.df) == nrow(region_counts.df)) {
+if (ncol(region_counts.df) == nrow(region_counts.df) + 1) {
 
   region_counts.df <- region_counts.df %>%
     mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap
@@ -167,7 +167,7 @@ mapping_counts.df <- rbindlist(lapply(mapping_counts.ls , fread), use.names = TR
   dplyr::arrange(sample)
 
 # If dim of df are n x n, multiqc overrides plot_type and plots a heatmap
-if (ncol(mapping_counts.df) == nrow(mapping_counts.df)) {
+if (ncol(mapping_counts.df) == nrow(mapping_counts.df) + 1) {
 
   mapping_counts.df <- mapping_counts.df %>%
     mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap
@@ -181,7 +181,7 @@ frame_counts.df <- rbindlist(lapply(frame_counts.ls , fread), use.names = TRUE) 
   dplyr::arrange(sample)
 
 # If dim of df are n x n, multiqc overrides plot_type and plots a heatmap
-if (ncol(frame_counts.df) == nrow(frame_counts.df)) {
+if (ncol(frame_counts.df) == nrow(frame_counts.df) + 1) {
 
   frame_counts.df <- frame_counts.df %>%
     mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap
@@ -195,7 +195,7 @@ length_filter.df <- rbindlist(lapply(length_filter.ls, fread), use.names = TRUE)
   dplyr::arrange(sample) 
 
 # If dim of df are n x n, multiqc overrides plot_type and plots a heatmap
-if (ncol(length_filter.df) == nrow(length_filter.df)) {
+if (ncol(length_filter.df) == nrow(length_filter.df) + 1) {
 
   length_filter.df <- length_filter.df %>%
     mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap

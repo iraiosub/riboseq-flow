@@ -34,6 +34,7 @@ custom_data:
       id: "frame_heatmap"
       title: "Frame"
       xcats_samples: False
+      hide_zero_cats: True
   starting_length:
     parent_id: read_length
     parent_name: "Read Length"
@@ -76,6 +77,7 @@ custom_data:
       id: "region_barplot"
       title: "Region"
       cpswitch: True
+      hide_zero_cats: True
   start_dist:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
@@ -175,6 +177,7 @@ custom_data:
       id: "mapping_barplot"
       title: "Mapping"
       cpswitch: True
+      hide_zero_cats: True
   length_filter:
     parent_id: length_filter
     parent_name: "Read filtering"
