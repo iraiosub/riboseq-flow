@@ -115,7 +115,7 @@ if (ncol(featurecounts.df) < 5 ) {
       
       cds.df <- fread(opt$cds)
 
-      if (ncol(cds.df) < 5) {
+      if (ncol(cds.df) < 6) {
         message("There aren't enough samples provided. This analysis is only valid for 4 or more samples.")
         # Create empty plot to specify the analysis is not available
         cds.pca.gg <- ggplot() + theme_void() + ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") + geom_text(aes(0,0,label='N/A'))
@@ -150,7 +150,7 @@ if (ncol(featurecounts.df) < 5 ) {
 
       cds_window.df <- fread(opt$cds_window)
 
-      if (ncol(cds_window.df) < 5) {
+      if (ncol(cds_window.df) < 6) {
         message("There aren't enough samples provided. This analysis is only valid for 4 or more samples.")
 
         # Create empty plot to specify the analysis is not available
