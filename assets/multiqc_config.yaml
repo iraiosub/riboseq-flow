@@ -28,7 +28,7 @@ custom_data:
     parent_description: "This section contains various Ribo-seq quality control metrics."
     file_format: "tsv"
     section_name: "Frame"
-    description: "Frame distribution for 5' ends of reads in the expected length range."
+    description: "Frame distribution for the 5' ends of reads in the expected length range."
     plot_type: "heatmap"
     pconfig:
       id: "frame_heatmap"

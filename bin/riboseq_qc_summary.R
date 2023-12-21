@@ -147,19 +147,22 @@ fwrite(start_dist.df, "start_dist_mqc.tsv", row.names = TRUE, sep = "\t")
 # Region counts
 region_counts.ls <- as.list(strsplit(opt$region_counts_list, ",")[[1]])
 region_counts.df <- rbindlist(lapply(region_counts.ls , fread), use.names = TRUE) %>%
-  dplyr::arrange(sample)
+  dplyr::arrange(sample) %>%
+  mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap
 fwrite(region_counts.df, "region_mqc.tsv", row.names = FALSE, sep = "\t")
 
 # Mapping counts
 mapping_counts.ls <- as.list(strsplit(opt$mapping_counts_list, ",")[[1]])
 mapping_counts.df <- rbindlist(lapply(mapping_counts.ls , fread), use.names = TRUE) %>%
-  dplyr::arrange(sample)
+  dplyr::arrange(sample) %>%
+  mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap
 fwrite(mapping_counts.df, "mapping_mqc.tsv", row.names = FALSE, sep = "\t")
 
 # Frame counts
 frame_counts.ls <- as.list(strsplit(opt$frame_counts_list, ",")[[1]])
 frame_counts.df <- rbindlist(lapply(frame_counts.ls , fread), use.names = TRUE) %>%
-  dplyr::arrange(sample)
+  dplyr::arrange(sample) %>%
+  mutate(x = 0) # workaround to add dummy col so multiqc plots as barplot and not heatmap
 fwrite(frame_counts.df, "frame_mqc.tsv", row.names = FALSE, sep = "\t")
 
 # Length filter counts

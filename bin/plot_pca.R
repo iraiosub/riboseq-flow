@@ -66,9 +66,9 @@ featurecounts.df <- featurecounts.df %>%
 
 # If there is only one sample, there is no point in running the analysis
 
-if (ncol(featurecounts.df) < 4 ) {
+if (ncol(featurecounts.df) < 5 ) {
   
-  message("There is only one sample provided. This analysis is only valid for 4 or more samples.") # Not enough samples in counts file for PCA.
+  message("There aren't enough samples provided. This analysis is only valid for 4 or more samples.") # Not enough samples in counts file for PCA.
   # file.create("pca.pdf")
   
 } else {
