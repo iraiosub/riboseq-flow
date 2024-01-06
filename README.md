@@ -188,6 +188,7 @@ If you prepared your library using a TS (template-switching-based protocol) and 
 #### Gene-level quantification options
 
 - `--strandedness` specifies the library strandedness (options: `forward`, `reverse` or `unstranded`) (Required)
+- `--feature` specifies the feature to be summarised at gene-level (options: `exon` or `CDS`) (default `exon`)
 
 #### Ribo-seq quality control options
 
