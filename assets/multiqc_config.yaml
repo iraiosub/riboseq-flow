@@ -203,6 +203,9 @@ custom_data:
       title: ""
       xlab: "PC1"
       ylab: "PC2"
+    data:
+      - {name: 'PC1', anchor: 'PC1'}
+      - {name: 'PC2', anchor: 'PC2'}
   psite_pca:
     parent_id: pca
     parent_name: "PCA"
@@ -216,6 +219,9 @@ custom_data:
       title: "PCA: P-sites"
       xlab: "PC1"
       ylab: "PC2"
+    data:
+      - {name: 'PC1', anchor: 'PC1'}
+      - {name: 'PC2', anchor: 'PC2'}
   psite_cds_window_pca:
     parent_id: pca
     parent_name: "PCA"
@@ -229,6 +235,9 @@ custom_data:
       title: "PCA: P-sites within defined CDS windows"
       xlab: "PC1"
       ylab: "PC2"
+    data:
+      - {name: 'PC1', anchor: 'PC1'}
+      - {name: 'PC2', anchor: 'PC2'}
 
 sp:
   starting_length:
