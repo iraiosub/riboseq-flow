@@ -135,8 +135,9 @@ process PCA {
 
     container 'iraiosub/nf-riboseq:latest'
 
-    publishDir "${params.outdir}/riboseq_qc/pca", mode: 'copy', overwrite: true
-    
+    publishDir "${params.outdir}/riboseq_qc/pca", pattern: '*.{gz,pdf}', mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc/multiqc_tables", pattern: "*_mqc.tsv", mode: 'copy', overwrite: true
+
     input:
     path(featurecounts_table)
     path(cds_table)
@@ -145,11 +146,11 @@ process PCA {
 
     output:
     path("pca.pdf"), emit: pca_plot, optional: true
-    path("pca_mqc.png"), emit: pca_mqc
+    path("pca_mqc.png"), emit: pca
     // path("longest_cds_coverage_psite.tsv.gz"), emit: longest_cds_counts, optional: true
     // path("*nt_coverage_psite.tsv.gz"),  emit: longest_cds_window_counts, optional: true
     path("*rlog.tsv.gz"), emit: rlog, optional: true
-    path("*pca.tsv.gz"), emit: pca, optional: true
+    path("*pca_mqc.tsv"), emit: pca_mqc, optional: true
 
     script:
 

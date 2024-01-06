@@ -153,10 +153,10 @@ Where a default value is missing, the user must provide an appropriate value.
 #### UMI options
 
 - `--with_umi` enables UMI-based read deduplication. Use if you used UMIs in your protocol. By default, not enabled.
-- `--skip_umi_extract` if using UMIs, skips UMI extraction from the read in case UMIs have been moved to the headers in advance
+- `--skip_umi_extract` skips UMI extraction from the read in case UMIs have been moved to the headers in advance or if UMIs were not used
 - `--umi_extract_method` specify method to extract the UMI barcode (options: `string` (default) or `regex`)
 - `--umi_pattern` specifies the UMI barcode pattern,  e.g. 'NNNNN' indicates that the first 5 nucleotides of the read are from the UMI.
-- `--umi_separator` specifies the UMI barcode separator (default: `_`; `rbc:` if Ultraplex was used)
+- `--umi_separator` specifies the UMI barcode separator (default: `_`; `rbc:` if Ultraplex was used for demultiplexing)
 
 #### Read trimming and filtering options
 

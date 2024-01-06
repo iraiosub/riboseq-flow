@@ -190,11 +190,45 @@ custom_data:
       title: "Read filtering"
       cpswitch: True
       hide_zero_cats: True
-  pca:
+  featurecounts_pca:
     parent_id: pca
     parent_name: "PCA"
-    section_name: "PCA"
-    description: "This plot shows the first two components from a principal component analysis on RPF counts from FeatureCounts and P-site counts on CDS."
+    parent_description: "This section contains plots showing the first two components from a principal component analysis on gene-level counts from FeatureCounts and P-site counts on CDS."
+    section_name: "PCA: Gene-level"
+    description: "PCA using rlog-normalised gene-level counts for top 500 most variable genes. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/master/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
+    file_format: "tsv"
+    plot_type: "scatter"
+    pconfig:
+      id: "featurecounts_pca_scatter"
+      title: ""
+      xlab: "PC1"
+      ylab: "PC2"
+  psite_pca:
+    parent_id: pca
+    parent_name: "PCA"
+    parent_description: "This section contains plots showing the first two components from a principal component analysis on gene-level counts from FeatureCounts and P-site counts on CDS."
+    section_name: "P-site counts"
+    description: "PCA using rlog-normalised P-site CDS counts for top 500 most variable CDS. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/master/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
+    file_format: "tsv"
+    plot_type: "scatter"
+    pconfig:
+      id: "psite_pca_scatter"
+      title: "PCA: P-sites"
+      xlab: "PC1"
+      ylab: "PC2"
+  psite_cds_window_pca:
+    parent_id: pca
+    parent_name: "PCA"
+    parent_description: "This section contains plots showing the first two components from a principal component analysis on gene-level counts from FeatureCounts and P-site counts on CDS."
+    section_name: "P-site counts within CDS windows"
+    description: "PCA using rlog-normalised P-site CDS counts over the defined CDS window (+15th codon to -10th codon by default) for top 500 most variable CDS widnows. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/master/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
+    file_format: "tsv"
+    plot_type: "scatter"
+    pconfig:
+      id: "psite_pca_scatter"
+      title: "PCA: P-sites within defined CDS windows"
+      xlab: "PC1"
+      ylab: "PC2"
 
 sp:
   starting_length:
@@ -207,8 +241,12 @@ sp:
     fn: "start_dist_mqc.tsv"
   ribocutter:
     fn: "ribocutter_mqc.tsv"
-  pca:
-    fn: "pca_mqc.png"
+  featurecounts_pca:
+    fn: "featurecounts_pca_mqc.tsv"
+  psite_pca:
+    fn: "psite_pca_mqc.tsv"
+  psite_cds_window_pca:
+    fn: "psite_cds_window_pca_mqc.tsv"
   pcoding_percentage:
     fn: "pcoding_percentage_mqc.tsv"
   expected_length:
@@ -228,8 +266,6 @@ module_order:
     - read_length
     - pca
     - riboseq_qc
-    - frame
-    - region
     - ribocutter
     - fastqc
     - bowtie2
@@ -248,9 +284,5 @@ report_section_order:
     order: 998
   riboseq_qc:
     order: 997
-  frame:
-    order: 996
-  region:
-    order: 995
 
 export_plots: false
