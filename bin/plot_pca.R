@@ -44,9 +44,13 @@ get_rlog_pca <- function(count_data) {
   rlog <- rlogTransformation(results.dds)
   rlog.df <- data.frame(assay(rlog))
   
+  # Plot
   count_data.pca <- plotPCA(rlog, intgroup = c("sample"), returnData = FALSE)
+
+  # Data for the plot
+  count_data.pca_data <- plotPCA(rlog, intgroup = c("sample"), returnData = TRUE)
   
-  return(list(plot = count_data.pca, rlog = rlog.df))
+  return(list(plot = count_data.pca, data = count_data.pca_data, rlog = rlog.df))
   
 }
 
@@ -105,6 +109,7 @@ if (ncol(featurecounts.df) < 5 ) {
     coord_cartesian(clip = "off")
 
   fwrite(get_rlog_pca(featurecounts.df)$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
+  fwrite(get_rlog_pca(featurecounts.df)$data, "featurecounts.pca.tsv.gz", sep = "\t")
   
   
   if (!is.na(opt$cds)) {
@@ -141,6 +146,7 @@ if (ncol(featurecounts.df) < 5 ) {
           coord_cartesian(clip = "off")
 
         fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
+        fwrite(get_rlog_pca(cds_longest.df)$data, "psite_cds_coverage.pca.tsv.gz", sep = "\t")
 
       }
       
@@ -178,6 +184,7 @@ if (ncol(featurecounts.df) < 5 ) {
         coord_cartesian(clip = "off")
 
         fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
+        fwrite(get_rlog_pca(cds_window_longest.df)$data, "psite_cds_window_coverage.pca.tsv.gz", sep = "\t")
 
       }
       
