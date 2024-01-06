@@ -49,7 +49,8 @@ get_rlog_pca <- function(count_data) {
 
   # Data for the plot
   count_data.pca_data <- plotPCA(rlog, intgroup = c("sample"), returnData = TRUE) %>%
-    dplyr::select(sample, PC1, PC2)
+    dplyr::select(sample, PC1, PC2) %>%
+    column_to_rownames(var = "sample")
   
   return(list(plot = count_data.pca, data = count_data.pca_data, rlog = rlog.df))
   
@@ -87,7 +88,7 @@ if (ncol(featurecounts.df) < 4 ) {
   
   featurecounts.pca.gg <- get_rlog_pca(featurecounts.df)$plot +
     geom_point(color = "606060") +
-    ggtitle("Gene-level counts", "FeatureCounts (rlog-normalised counts)") +
+    ggtitle("Gene-level counts", "featureCounts (rlog-normalised counts)") +
     labs(caption = "*top 500 most variable genes") +
     theme_cowplot() +
     # ggrepel::geom_text_repel(aes(label = sample))
@@ -97,7 +98,7 @@ if (ncol(featurecounts.df) < 4 ) {
     coord_cartesian(clip = "off")
 
   fwrite(get_rlog_pca(featurecounts.df)$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
-  fwrite(get_rlog_pca(featurecounts.df)$data, "featurecounts_pca_mqc.tsv", sep = "\t")
+  fwrite(get_rlog_pca(featurecounts.df)$data, "featurecounts_pca_mqc.tsv", row.names = TRUE, sep = "\t")
   
   
   if (!is.na(opt$cds)) {
@@ -132,7 +133,7 @@ if (ncol(featurecounts.df) < 4 ) {
           coord_cartesian(clip = "off")
 
         fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
-        fwrite(get_rlog_pca(cds_longest.df)$data, "psite_pca_mqc.tsv", sep = "\t")
+        fwrite(get_rlog_pca(cds_longest.df)$data, "psite_pca_mqc.tsv", row.names = TRUE, sep = "\t")
 
       }
       
@@ -168,7 +169,7 @@ if (ncol(featurecounts.df) < 4 ) {
           coord_cartesian(clip = "off")
 
         fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
-        fwrite(get_rlog_pca(cds_window_longest.df)$data, "psite_cds_window_pca_mqc.tsv", sep = "\t")
+        fwrite(get_rlog_pca(cds_window_longest.df)$data, "psite_cds_window_pca_mqc.tsv", row.names = TRUE, sep = "\t")
 
       }
       

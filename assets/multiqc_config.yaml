@@ -25,13 +25,13 @@ custom_data:
   frame:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
     file_format: "tsv"
     section_name: "Frame"
-    description: "Frame distribution for the 5' ends of reads in the expected length range."
-    plot_type: "heatmap"
+    description: "Frame distribution for the 5' ends of reads in the expected length range. Unless specified with <code>expected_length</code>, the expected read length range is between 26 and 32 nt."
+    plot_type: "bargraph"
     pconfig:
-      id: "frame_heatmap"
+      id: "frame_barplot"
       title: "Frame"
       xcats_samples: False
       hide_zero_cats: True
@@ -40,7 +40,7 @@ custom_data:
     parent_name: "Read Length"
     file_format: "tsv"
     section_name: "Input Read Length Distribution"
-    description: "Length distribution for input reads (reads kept and analysed after filtering based on length). Unless the minimum length has been specified, reads shorter than 20 nt have been discarded and not inluded in this plot."
+    description: "Length distribution for input reads (reads kept and analysed after filtering based on length). Unless specified otherwise with <code>min_readlength</code>, reads under 20 nt are discarded and are not included in this plot."
     plot_type: "linegraph"
     pconfig:
       id: "starting_length_linegraph"
@@ -68,7 +68,7 @@ custom_data:
   region:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
     file_format: "tsv"
     section_name: "Region"
     description: "Distribution of 5'ends of the reads mapped uniquely to protein-coding transcripts reads across UTR and CDS regions."
@@ -81,10 +81,10 @@ custom_data:
   start_dist:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
     file_format: "tsv"
     section_name: "Distance from start codon"
-    description: "Metaprofile of 5'ends of useful reads of expected length around start codons. Unless specified, the expected read length range is between 26 and 32 nt."
+    description: "Metaprofile of 5'ends of useful reads of expected length around start codons. Unless specified with <code>expected_length</code>, the expected read length range is between 26 and 32 nt."
     plot_type: "linegraph"
     pconfig:
       id: "start_dist_linegraph"
@@ -96,10 +96,10 @@ custom_data:
   pcoding_percentage:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
     file_format: "tsv"
     section_name: "Protein-coding Genes Mapping Percentage"
-    description: "Percentage of input reads mapping uniquely to protein-coding transcripts (useful reads). This is the proportion of reads that are useful for most downstream analyses. Each gene is represented by its longest CDS transcript by default. A higher fraction indicates better quality."
+    description: "Percentage of input reads mapping uniquely to protein-coding transcripts (useful reads). This is the proportion of reads that are useful for most downstream analyses. If <code>transcript_info</code> was not provided, each gene is represented by its longest CDS transcript by default, selected using <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/get_transcript_info.R'><code>get_transcript_info.R</code></a>. A higher fraction indicates better quality."
     plot_type: "bargraph"
     pconfig:
       id: "pcoding_percentage_barplot"
@@ -116,10 +116,10 @@ custom_data:
   expected_length:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
     file_format: "tsv"
     section_name: "Expected Read Length Percentage"
-    description: "Percentage of uniquely mapping reads to protein-coding transcripts (useful reads) of expected length. The higher the percentage, the better. Unless specified, the expected read length range is between 26 and 32 nt."
+    description: "Percentage of uniquely mapping reads to protein-coding transcripts (useful reads) of expected length. The higher the percentage, the better. Unless specified with <code>expected_length</code>, the expected read length range is between 26 and 32 nt."
     plot_type: "bargraph"
     pconfig:
       id: "expected_length_barplot"
@@ -135,10 +135,10 @@ custom_data:
   duplication:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
     file_format: "tsv"
     section_name: "Duplication"
-    description: "Percentage of duplicated reads of expected length based on UMIs. Unless specified, the expected read length range is between 26 and 32 nt."
+    description: "Percentage of duplicated reads of expected length based on UMIs. Unless specified with <code>expected_length</code>, the expected read length range is between 26 and 32 nt."
     plot_type: "bargraph"
     use_legend: False
     pconfig:
@@ -155,7 +155,7 @@ custom_data:
     parent_name: "Ribocutter"
     file_format: "tsv"
     section_name: "Ribocutter"
-    description: "Percentage of reads targeted by guides designed by Ribocutter (50 guides by default) using two different read length thresholds. The higher the proportion targeted, the better."
+    description: "Percentage of reads targeted by guides designed with <a href='https://github.com/Delayed-Gitification/ribocutter'>Ribocutter</a> (50 guides by default) using two different read length thresholds. The higher the proportion targeted, the better."
     plot_type: "bargraph"
     pconfig:
       id: "ribocutter_barplot"
@@ -183,7 +183,7 @@ custom_data:
     parent_name: "Read filtering"
     file_format: "tsv"
     section_name: "Read filtering"
-    description: "The relative proportions of reads discarded and used as input for the analysis, based on the length threshold. If not specified, reads shorter than 20 nt are discarded. "
+    description: "Proportion of trimmed reads used for analysis or discarded, based on length threshold. Reads under 20 nt are discarded unless specified otherwise with <code>min_readlength</code>."
     plot_type: "bargraph"
     pconfig:
       id: "length_filter_barplot"
@@ -193,9 +193,9 @@ custom_data:
   featurecounts_pca:
     parent_id: pca
     parent_name: "PCA"
-    parent_description: "This section contains plots showing the first two components from a principal component analysis on gene-level counts from FeatureCounts and P-site counts on CDS."
+    parent_description: "This section contains plots showing the first two components from a principal component analysis on gene-level counts from <a href='https://subread.sourceforge.net/featureCounts.html'>featureCounts</a> and P-site counts on CDS."
     section_name: "PCA: Gene-level"
-    description: "PCA using rlog-normalised gene-level counts for top 500 most variable genes. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/master/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
+    description: "PCA using rlog-normalised gene-level counts for top 500 most variable genes. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
     file_format: "tsv"
     plot_type: "scatter"
     pconfig:
@@ -203,15 +203,12 @@ custom_data:
       title: ""
       xlab: "PC1"
       ylab: "PC2"
-    data:
-      - {name: 'PC1', anchor: 'PC1'}
-      - {name: 'PC2', anchor: 'PC2'}
   psite_pca:
     parent_id: pca
     parent_name: "PCA"
     parent_description: "This section contains plots showing the first two components from a principal component analysis on gene-level counts from FeatureCounts and P-site counts on CDS."
     section_name: "P-site counts"
-    description: "PCA using rlog-normalised P-site CDS counts for top 500 most variable CDS. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/master/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
+    description: "PCA using rlog-normalised P-site CDS counts for top 500 most variable CDS. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
     file_format: "tsv"
     plot_type: "scatter"
     pconfig:
@@ -219,15 +216,12 @@ custom_data:
       title: "PCA: P-sites"
       xlab: "PC1"
       ylab: "PC2"
-    data:
-      - {name: 'PC1', anchor: 'PC1'}
-      - {name: 'PC2', anchor: 'PC2'}
   psite_cds_window_pca:
     parent_id: pca
     parent_name: "PCA"
     parent_description: "This section contains plots showing the first two components from a principal component analysis on gene-level counts from FeatureCounts and P-site counts on CDS."
     section_name: "P-site counts within CDS windows"
-    description: "PCA using rlog-normalised P-site CDS counts over the defined CDS window (+15th codon to -10th codon by default) for top 500 most variable CDS widnows. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/master/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
+    description: "PCA using rlog-normalised P-site CDS counts over the defined CDS window (+15th codon to -10th codon by default) for top 500 most variable CDS widnows. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
     file_format: "tsv"
     plot_type: "scatter"
     pconfig:
@@ -235,9 +229,6 @@ custom_data:
       title: "PCA: P-sites within defined CDS windows"
       xlab: "PC1"
       ylab: "PC2"
-    data:
-      - {name: 'PC1', anchor: 'PC1'}
-      - {name: 'PC2', anchor: 'PC2'}
 
 sp:
   starting_length:
