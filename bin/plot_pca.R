@@ -50,6 +50,7 @@ get_rlog_pca <- function(count_data) {
   # Data for the plot
   count_data.pca_data <- plotPCA(rlog, intgroup = c("sample"), returnData = TRUE) %>%
     dplyr::select(sample, PC1, PC2) %>%
+    tibble::remove_rownames() %>%
     column_to_rownames(var = "sample")
   
   return(list(plot = count_data.pca, data = count_data.pca_data, rlog = rlog.df))
