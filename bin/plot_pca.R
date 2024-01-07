@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
-# DESeq2 QC on various count tables produced by iraiosub/riboseq pipeline
+# DESeq2 QC on various count tables produced by iraiosub/riboseq-flow pipeline
+# Produces PCA plots and tables for MultiQC
 # Author: Ira Iosub
 # Usage:plot_pca.R --featurecounts x --cds y --cds_window z --transcript_info w
 
@@ -49,22 +50,32 @@ get_rlog_pca <- function(count_data) {
 
   # Data for the plot
   count_data.pca_data <- plotPCA(rlog, intgroup = c("sample"), returnData = TRUE) %>%
-    dplyr::select(sample, PC1, PC2) %>%
-    tibble::remove_rownames() %>%
-    column_to_rownames(var = "sample")
+    dplyr::select(sample, PC1, PC2)
   
   return(list(plot = count_data.pca, data = count_data.pca_data, rlog = rlog.df))
   
 }
 
+# MultiQC scatter plot requires the plot_type to be specified in the header
+# This fnction creates a file with header to which table will be appended
+# The id must match that in the confif file
+create_multiqc_headers <- function(id) {
+
+  # Define comments
+  header <- c(paste0("#id: ", id), 
+              "##plot_type: 'scatter'")
+
+  # Write comments to the file
+  writeLines(header, paste0(id,"_mqc.tsv"))
+
+}
+
 
 # =========
-# RPF gene-level counts from FeatureCounts
+# RPF gene-level counts from featureCounts
 # =========
 
-# Create empty file if plot cannot be made 
-file.create("pca_mqc.png")
-
+# Load data and rename columns
 featurecounts.df <- fread(opt$featurecounts)
 
 featurecounts.df <- featurecounts.df %>%
@@ -85,9 +96,11 @@ if (ncol(featurecounts.df) < 4 ) {
   # Reformat df and PCA of top 500 genes
   featurecounts.df <- featurecounts.df %>%
     remove_rownames() %>% 
-    column_to_rownames(var = "Gene") 
+    column_to_rownames(var = "Gene")
+
+  featurecounts_pca <- get_rlog_pca(featurecounts.df)
   
-  featurecounts.pca.gg <- get_rlog_pca(featurecounts.df)$plot +
+  featurecounts.pca.gg <- featurecounts_pca$plot +
     geom_point(color = "606060") +
     ggtitle("Gene-level counts", "featureCounts (rlog-normalised counts)") +
     labs(caption = "*top 500 most variable genes") +
@@ -98,8 +111,11 @@ if (ncol(featurecounts.df) < 4 ) {
     theme(plot.margin = unit(c(1,1,1,1), "cm")) +
     coord_cartesian(clip = "off")
 
-  fwrite(get_rlog_pca(featurecounts.df)$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
-  fwrite(get_rlog_pca(featurecounts.df)$data, "featurecounts_pca_mqc.tsv", row.names = TRUE, sep = "\t")
+  fwrite(eaturecounts_pca$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
+
+  # MultiQC: create header and append PCA data
+  create_multiqc_headers("featurecounts_pca")
+  fwrite(eaturecounts_pca$data, "featurecounts_pca_mqc.tsv", sep = "\t", append = TRUE)
   
   
   if (!is.na(opt$cds)) {
@@ -121,8 +137,10 @@ if (ncol(featurecounts.df) < 4 ) {
           remove_rownames() %>% 
           column_to_rownames(var = "transcript")  %>%
           dplyr::select(-length_cds)
+
+        psite_pca <- get_rlog_pca(cds_longest.df)
         
-        cds.pca.gg <- get_rlog_pca(cds_longest.df)$plot +
+        cds.pca.gg <- psite_pca$plot +
           geom_point(color = "606060") +
           ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") +
           labs(caption = "*top 500 most variable CDS") +
@@ -133,9 +151,12 @@ if (ncol(featurecounts.df) < 4 ) {
           theme(plot.margin = unit(c(1,1,1,1), "cm")) +
           coord_cartesian(clip = "off")
 
-        fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
-        fwrite(get_rlog_pca(cds_longest.df)$data, "psite_pca_mqc.tsv", row.names = TRUE, sep = "\t")
+        fwrite(psite_pca$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
 
+        # MultiQC: create header and append PCA data
+        create_multiqc_headers("psite_pca")
+        fwrite(psite_pca$data, "psite_pca_mqc.tsv", sep = "\t", append = TRUE)
+        
       }
       
       # =========
@@ -157,8 +178,10 @@ if (ncol(featurecounts.df) < 4 ) {
           remove_rownames() %>% 
           column_to_rownames(var = "transcript")  %>%
           dplyr::select(-length_selection, -length_cds)
+
+        psite_cds_window_pca <- get_rlog_pca(cds_window_longest.df)
         
-        cds_window.pca.gg <- get_rlog_pca(cds_window_longest.df)$plot +
+        cds_window.pca.gg <- psite_cds_window_pca$plot +
           geom_point(color = "606060") +
           ggtitle("CDS (+15th codon to -10th codon) occupancy", "P-sites (rlog-normalised counts)") +
           labs(caption = "*top 500 most variable CDS") +
@@ -169,8 +192,11 @@ if (ncol(featurecounts.df) < 4 ) {
           theme(plot.margin = unit(c(1,1,1,1), "cm")) +
           coord_cartesian(clip = "off")
 
-        fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
-        fwrite(get_rlog_pca(cds_window_longest.df)$data, "psite_cds_window_pca_mqc.tsv", row.names = TRUE, sep = "\t")
+        fwrite(psite_cds_window_pca$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
+
+        # MultiQC: create header and append PCA data
+        create_multiqc_headers("psite_cds_window_pca")
+        fwrite(psite_cds_window_pca$data, "psite_cds_window_pca_mqc.tsv", sep = "\t", append = TRUE)
 
       }
       
@@ -180,9 +206,6 @@ if (ncol(featurecounts.df) < 4 ) {
       
       pca.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, nrow = 3)
       ggsave("pca.pdf", pca.gg, dpi = 600, height = 30, width = 12)
-
-      pca_mqc.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, ncol = 3)
-      ggsave("pca_mqc.png", pca_mqc.gg, dpi = 600, height = 6, width = 21)
       
       # save longest CDS tables
       # fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
@@ -192,7 +215,6 @@ if (ncol(featurecounts.df) < 4 ) {
     } else {
       
       ggsave("pca.pdf", featurecounts.pca.gg, dpi = 600, height = 10, width = 10)
-      gsave("pca_mqc.png", pca.gg, dpi = 600, height = 6, width = 7)
       
     }
 }

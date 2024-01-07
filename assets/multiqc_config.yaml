@@ -55,7 +55,7 @@ custom_data:
     parent_name: "Read Length"
     file_format: "tsv"
     section_name: "Useful Read Length Distribution"
-    description: "Length distribution for reads that uniquely map to protein-coding transcripts (useful reads)."
+    description: "Length distribution for reads that uniquely map to protein-coding transcripts (useful reads).Unless specified otherwise with <code>min_readlength</code>, reads under 20 nt are discarded and are not included in this plot."
     plot_type: "linegraph"
     pconfig:
       id: "useful_length_linegraph"
@@ -200,7 +200,7 @@ custom_data:
     plot_type: "scatter"
     pconfig:
       id: "featurecounts_pca_scatter"
-      title: ""
+      title: "PCA: Gene-level"
       xlab: "PC1"
       ylab: "PC2"
   psite_pca:
