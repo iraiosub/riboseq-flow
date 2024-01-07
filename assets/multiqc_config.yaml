@@ -25,7 +25,7 @@ custom_data:
   frame:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific PDF reports in the <code>riboseq_qc</code folder."
     file_format: "tsv"
     section_name: "Frame"
     description: "Frame distribution for the 5' ends of reads in the expected length range. Unless specified with <code>expected_length</code>, the expected read length range is between 26 and 32 nt."
@@ -68,7 +68,7 @@ custom_data:
   region:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific PDF reports in the <code>riboseq_qc</code folder."
     file_format: "tsv"
     section_name: "Region"
     description: "Distribution of 5'ends of the reads mapped uniquely to protein-coding transcripts reads across UTR and CDS regions."
@@ -81,7 +81,7 @@ custom_data:
   start_dist:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific PDF reports in the <code>riboseq_qc</code folder."
     file_format: "tsv"
     section_name: "Distance from start codon"
     description: "Metaprofile of 5'ends of useful reads of expected length around start codons. Unless specified with <code>expected_length</code>, the expected read length range is between 26 and 32 nt."
@@ -96,7 +96,7 @@ custom_data:
   pcoding_percentage:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific PDF reports in the <code>riboseq_qc</code folder."
     file_format: "tsv"
     section_name: "Protein-coding Genes Mapping Percentage"
     description: "Percentage of input reads mapping uniquely to protein-coding transcripts (useful reads). This is the proportion of reads that are useful for most downstream analyses. If <code>transcript_info</code> was not provided, each gene is represented by its longest CDS transcript by default, selected using <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/get_transcript_info.R'><code>get_transcript_info.R</code></a>. A higher fraction indicates better quality."
@@ -116,7 +116,7 @@ custom_data:
   expected_length:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific PDF reports in the <code>riboseq_qc</code folder."
     file_format: "tsv"
     section_name: "Expected Read Length Percentage"
     description: "Percentage of uniquely mapping reads to protein-coding transcripts (useful reads) of expected length. The higher the percentage, the better. Unless specified with <code>expected_length</code>, the expected read length range is between 26 and 32 nt."
@@ -135,7 +135,7 @@ custom_data:
   duplication:
     parent_id: riboseq_qc
     parent_name: "Ribo-seq QC"
-    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific reports."
+    parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific PDF reports in the <code>riboseq_qc</code folder."
     file_format: "tsv"
     section_name: "Duplication"
     description: "Percentage of duplicated reads of expected length based on UMIs. Unless specified with <code>expected_length</code>, the expected read length range is between 26 and 32 nt."
@@ -193,7 +193,7 @@ custom_data:
   featurecounts_pca:
     parent_id: pca
     parent_name: "PCA"
-    parent_description: "This section contains plots showing the first two components from a principal component analysis on gene-level counts from <a href='https://subread.sourceforge.net/featureCounts.html'>featureCounts</a> and P-site counts on CDS. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
+    parent_description: "This section contains plots showing the first two components from a principal component analysis on rlog-normalised gene-level counts from featureCounts and in-frame P-site counts on CDS regions. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/plot_pca.R'><code>plot_pca.R</code></a> script. The underlying data is in the <code>riboseq_qc/pca</code folder."
     section_name: "PCA: Gene-level"
     description: "PCA using rlog-normalised gene-level counts for top 500 most variable genes."
     file_format: "tsv"
@@ -206,7 +206,7 @@ custom_data:
   psite_pca:
     parent_id: pca
     parent_name: "PCA"
-    parent_description: "This section contains plots showing the first two components from a principal component analysis on rlog-normalised gene-level counts from featureCounts and in-frame P-site counts on CDS regions. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
+    parent_description: "This section contains plots showing the first two components from a principal component analysis on rlog-normalised gene-level counts from featureCounts and in-frame P-site counts on CDS regions. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/plot_pca.R'><code>plot_pca.R</code></a> script. The underlying data is in the <code>riboseq_qc/pca</code folder."
     section_name: "P-site counts"
     description: "PCA using rlog-normalised in-frame P-site CDS counts for top 500 most variable CDSs."
     file_format: "tsv"
@@ -219,7 +219,7 @@ custom_data:
   psite_cds_window_pca:
     parent_id: pca
     parent_name: "PCA"
-    parent_description: "This section contains plots showing the first two components from a principal component analysis on gene-level counts from <a href='https://subread.sourceforge.net/featureCounts.html'>featureCounts</a> and P-site counts on CDS. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/plot_pca.R'><code>plot_pca.R</code></a> script."
+    parent_description: "This section contains plots showing the first two components from a principal component analysis on rlog-normalised gene-level counts from featureCounts and in-frame P-site counts on CDS regions. These values are calculated using <a href='https://bioconductor.org/packages/release/bioc/html/DESeq2.html'>DESeq2</a> in the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/plot_pca.R'><code>plot_pca.R</code></a> script. The underlying data is in the <code>riboseq_qc/pca</code folder."
     section_name: "P-site counts within CDS windows"
     description: "PCA using rlog-normalised in-frame P-site CDS counts for top 500 most variable defined CDS windows. CDS windows are defined by excluding nucleotides from the beginning and end of the CDSs (unless specified with <code>exclude_start</code> and <code>exclude_end</code>, the CDS window is +15th codon to -10th codon)."
     file_format: "tsv"
