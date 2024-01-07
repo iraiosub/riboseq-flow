@@ -111,11 +111,11 @@ if (ncol(featurecounts.df) < 4 ) {
     theme(plot.margin = unit(c(1,1,1,1), "cm")) +
     coord_cartesian(clip = "off")
 
-  fwrite(eaturecounts_pca$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
+  fwrite(featurecounts_pca$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
 
   # MultiQC: create header and append PCA data
   create_multiqc_headers("featurecounts_pca")
-  fwrite(eaturecounts_pca$data, "featurecounts_pca_mqc.tsv", sep = "\t", append = TRUE)
+  fwrite(featurecounts_pca$data, "featurecounts_pca_mqc.tsv", sep = "\t", append = TRUE)
   
   
   if (!is.na(opt$cds)) {
