@@ -83,11 +83,9 @@ featurecounts.df <- featurecounts.df %>%
       rename_with(~str_remove(., '.Aligned.sortedByCoord.out.bam')) 
 
 # If there is only one sample, there is no point in running the analysis
-
 if (ncol(featurecounts.df) < 4 ) {
   
   message("There aren't enough samples provided. This analysis is only valid for 3 or more samples.") # Not enough samples in counts file for PCA.
-  # file.create("pca.pdf")
   
 } else {
   
@@ -111,7 +109,7 @@ if (ncol(featurecounts.df) < 4 ) {
     theme(plot.margin = unit(c(1,1,1,1), "cm")) +
     coord_cartesian(clip = "off")
 
-  fwrite(featurecounts_pca$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
+  fwrite(featurecounts_pca$rlog, "featurecounts.rlog.tsv.gz", sep = "\t", row.names = TRUE)
   fwrite(featurecounts_pca$data, "featurecounts_pca.tsv.gz", sep = "\t")
 
   # MultiQC: create header and append PCA data
@@ -152,7 +150,7 @@ if (ncol(featurecounts.df) < 4 ) {
           theme(plot.margin = unit(c(1,1,1,1), "cm")) +
           coord_cartesian(clip = "off")
 
-        fwrite(psite_pca$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
+        fwrite(psite_pca$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t", row.names = TRUE)
         fwrite(psite_pca$data, "psite_pca.tsv.gz", sep = "\t")
 
         # MultiQC: create header and append PCA data
@@ -194,7 +192,7 @@ if (ncol(featurecounts.df) < 4 ) {
           theme(plot.margin = unit(c(1,1,1,1), "cm")) +
           coord_cartesian(clip = "off")
 
-        fwrite(psite_cds_window_pca$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
+        fwrite(psite_cds_window_pca$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t", row.names = TRUE)
         fwrite(psite_cds_window_pca$data, "psite_cds_window_pca.tsv.gz", sep = "\t")
 
         # MultiQC: create header and append PCA data
