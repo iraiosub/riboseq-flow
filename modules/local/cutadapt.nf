@@ -27,11 +27,11 @@ process CUTADAPT {
 
     // Define core args
     args = " -j ${task.cpus}"
-    args += " -q " + params.min_quality
+    args += " -q " + params.minimum_quality
     args += " -o ${sample_id}.trimmed.fastq.gz"
 
     args_filter = " -j ${task.cpus}"
-    args_filter += " --minimum-length " + params.min_readlength
+    args_filter += " --minimum-length " + params.minimum_length
     args_filter += " -o ${sample_id}.trimmed.filtered.fastq.gz"
 
     // args_cut = " -j ${task.cpus}"
@@ -58,35 +58,23 @@ process CUTADAPT {
         }
     }
     
-    if (params.ts_trimming) {
-        ts_args = args + " -a " + params.ts_adapter_threeprime
-        ts_args += " -n " + params.times_trimmed
 
-        ts_args_filter = args_filter + " -u " + params.trim_polyG
-    }
-
-    if (params.ts_trimming && !params.adapter_threeprime && !params.adapter_fiveprime)
-        """
-        cutadapt $ts_args $reads > ${sample_id}.cutadapt_trim.log
-        cutadapt $ts_args_filter ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
-
-        """
-    else if (params.adapter_threeprime && params.adapter_fiveprime && !params.ts_trimming)
+    if (params.adapter_threeprime && params.adapter_fiveprime)
         """
         cutadapt $args3 $reads > ${sample_id}.cutadapt_trim.log
         cutadapt $args_filter $args_cut ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
         """
-    else if (params.adapter_threeprime && !params.adapter_fiveprime && !params.ts_trimming)
+    else if (params.adapter_threeprime && !params.adapter_fiveprime)
         """
         cutadapt $args1 $reads > ${sample_id}.cutadapt_trim.log
         cutadapt $args_filter $args_cut ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
         """
-    else if (params.adapter_threeprime && !params.adapter_fiveprime && !params.ts_trimming)
+    else if (params.adapter_threeprime && !params.adapter_fiveprime)
         """
         cutadapt $args2 $reads > ${sample_id}.cutadapt_trim.log
         cutadapt $args_filter $args_cut ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log
         """
-    else if (!params.ts_trimming && !params.adapter_threeprime && !params.adapter_fiveprime)
+    else if (!params.adapter_threeprime && !params.adapter_fiveprime)
         """
         cutadapt $args $reads > ${sample_id}.cutadapt_trim.log
         cutadapt $args_filter $args_cut ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_filter.log

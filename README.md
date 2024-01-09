@@ -165,12 +165,9 @@ Where a default value is missing, the user must provide an appropriate value.
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to `-g` in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
 - `--cut_end` number of nucleotides to be trimmed from 5' or 3' end of read (equivalent to `-u` in `cutadapt`). Supply positive value for trimming from the 5' end, and negative value for trimming from the 3'end. (default `0`, no nt are trimmed). 
-Important: This step is perfomed after adapter trimming, and after UMIs have been moved to the read header.
-- `--min_quality` cutoff value for trimming low-quality ends from reads (default `10`)
-- `--min_readlength` minimum read length after trimming (default `20`)
-
-If you prepared your library using a TS (template-switching-based protocol) and you haven't trimmed the non-templated nucleotides and adaptors before running this pipeline, you may use the option
-- `--ts_trimming` which automatically trims the first 3 nucleotides corresponding to three untemplated bases at the 5′ end of the read (e.g. corresponding to rGrGrG), and the poly-A from the 3'end of reads, without the need for the user to specify adapter sequences. Should the user desire to trim a different sequence from the 3' end of the read, they can additionally set the `--ts_adapter_threeprime` (default: `A{11}`) to a different sequence. 
+Important: This step is perfomed after adapter trimming, and after UMIs have been moved to the read header. Useful for libraries where non-templated nucleotides are part of the read and need trimming (e.g. template-switching, OTTR libraries).
+- `--minimum_quality` cutoff value for trimming low-quality ends from reads (default `10`)
+- `--minimum_length` minimum read length after trimming (default `20`)
 
 #### Ribocutter options
 
