@@ -27,14 +27,17 @@ workflow PREPROCESS_READS {
         if (!params.skip_trimming) {
 
             CUTADAPT(UMITOOLS_EXTRACT.out.fastq)
-            fastq = CUTADAPT.out.fastq
+
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
+            cut_fastq = CUTADAPT.out.cut_fastq
+            fastq = CUTADAPT.out.filtered_fastq
             logs = CUTADAPT.out.log
             
         }  else {
-
-            fastq = UMITOOLS_EXTRACT.out.fastq
+            // Trimming disabled, so all channels are the original reads with UMIs moved to the header
             trimmed_fastq = UMITOOLS_EXTRACT.out.fastq
+            cut_fastq = UMITOOLS_EXTRACT.out.fastq
+            fastq = UMITOOLS_EXTRACT.out.fastq
             logs = ch_optional
         }
 
@@ -44,25 +47,29 @@ workflow PREPROCESS_READS {
 
     } else {
 
+        // Skip UMI-extract 
         if (!params.skip_trimming) {
 
             CUTADAPT(reads)
-            fastq = CUTADAPT.out.fastq
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
+            cut_fastq = CUTADAPT.out.cut_fastq
+            fastq = CUTADAPT.out.fastq
             logs = CUTADAPT.out.log
             
         }  else {
-
-            fastq = reads
+            // Trimming and UMI extract disabled, so all channels are the original reads 
             trimmed_fastq = reads
+            cut_fastq = reads
+            fastq = reads
             logs = ch_optional
         }
     }
 
     emit:
 
-    fastq
     trimmed_fastq
+    cut_fastq
+    fastq
     logs
 
 }

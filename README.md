@@ -122,8 +122,7 @@ nextflow run iraiosub/riboseq-flow -r v1.0.2 \
 The pipeline is compatible with any well-annotated organism for which a FASTA genone file and GTF annotation (and ideally rRNA and other contaminat sequences) are available. Recommended sources for these files are [GENCODE](https://www.gencodegenes.org/) and [Ensembl](https://www.ensembl.org/index.html).
 **Important:** The GTF file must include UTR annotations, and the format should follow the standards set by Ensembl or GENCODE.
 
-
-Simplified Option for Human and Mouse:
+_Simplified Option for Human and Mouse:_
 
 Use the `--org` flag to automatically download and set up reference files for human or mouse genomes, eliminating the need to manually provide them.
 Available options for `--org` are `GRCh38` (human) and `GRCm39` (mouse).
@@ -131,8 +130,7 @@ Available options for `--org` are `GRCh38` (human) and `GRCm39` (mouse).
 
 When `--org` is specified, all annotation files are sourced from the paths in the [genomes.config](https://github.com/iraiosub/riboseq/blob/main/conf/genomes.config) file.
 
-Manual Annotation File Specification:
-
+_Manual Annotation File Specification:_
 
 If `--org` is not specified, the user needs to provide full paths to all required annotation files:
 
@@ -152,6 +150,8 @@ Where a default value is missing, the user must provide an appropriate value.
 
 #### UMI options
 
+The pipeline supports UMI-based deduplication. If UMIs were used, you must explicitly specify so by providing the appropriate arguments.
+
 - `--with_umi` enables UMI-based read deduplication. Use if you used UMIs in your protocol. By default, not enabled.
 - `--skip_umi_extract` skips UMI extraction from the read in case UMIs have been moved to the headers in advance or if UMIs were not used
 - `--umi_extract_method` specify method to extract the UMI barcode (options: `string` (default) or `regex`)
@@ -160,7 +160,10 @@ Where a default value is missing, the user must provide an appropriate value.
 
 #### Read trimming and filtering options
 
+Read trimming steps are executed in the following order: (i) adaptors and low quality bases are trimmed, (ii) bases that need to be removed from read extremities are removed (e.g. non-templated bases, if applicable) and (iii) filtering out reads that are shorter than a minimum length. 
+
 - `--skip_trimming` skip the adapter and quality trimming and length filtering step
+- `--save_fastq` save the FASTQ files produced during the trimming steps. By default, not enabled.
 - `--adapter_threeprime` sequence of 3' adapter (equivalent to `-a` in `cutadapt`) (Required if trimming enabled)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to `-g` in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
@@ -244,7 +247,7 @@ The pipeline outputs results in a number of subfolders:
 - `annotation` contains information on the representative transcript per gene used for riboseq QC and P-site analyses, as well as bowtie2 and STAR indexes used by the pipeline
     - `*.longest_cds.transcript_info.tsv` a TSV file with a single representative transcript for each gene, with information on CDS start, length and end
     - `bowtie2` and `star` folders with indexes used for aligning reads
-- `preprocessed` contains reads that have been pre-processed according to user settings for UMI extraction and trimming and filtering options
+- `preprocessed` contains reads pre-processed according to user settings for UMI extraction and trimming and filtering, and the corresponding logs. The `*.filtered.fastq.gz` files are the ones used for downstream alignment steps.
 - `fastqc` contains FastQC reports
 - `premapped` contains files resulting from alignment to the small RNA genome (smallrna_genome):
     - `*.bam` contains read alignments to the small RNA genome in BAM format

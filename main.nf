@@ -103,7 +103,7 @@ workflow RIBOSEQ {
         ch_smallrna_fasta
     )
     
-    // Extract UMIs and/or trim adapters and filter on min length, and FASTQC
+    // Extract UMIs and/or trim adapters and filter on min length, then run FASTQC
     PREPROCESS_READS(ch_input)
     FASTQC(PREPROCESS_READS.out.fastq)
 
@@ -113,8 +113,7 @@ workflow RIBOSEQ {
             PREPROCESS_READS.out.trimmed_fastq
             )
     }
-
-    
+ 
     // Align reads
     if (!params.skip_premap) {
 
@@ -149,13 +148,13 @@ workflow RIBOSEQ {
 
     // riboseq QC
     if (!params.skip_qc) {
-        // Mapping length analysis
+        // Mapping length analysis, visualisation and read fate tracking
 
         if (!params.skip_premap && params.with_umi) {
 
             MAPPING_LENGTH_ANALYSES(
                 MAP.out.genome_bam,
-                PREPROCESS_READS.out.fastq,
+                PREPROCESS_READS.out.cut_fastq,
                 DEDUPLICATE.out.dedup_genome_bam,
                 PREMAP.out.unmapped
             )
@@ -181,7 +180,7 @@ workflow RIBOSEQ {
 
             MAPPING_LENGTH_ANALYSES(
                 MAP.out.genome_bam,
-                PREPROCESS_READS.out.fastq,
+                PREPROCESS_READS.out.cut_fastq,
                 DEDUPLICATE.out.dedup_genome_bam,
                 Channel.empty()
             )
@@ -207,7 +206,7 @@ workflow RIBOSEQ {
 
             MAPPING_LENGTH_ANALYSES(
                 MAP.out.genome_bam,
-                PREPROCESS_READS.out.fastq,
+                PREPROCESS_READS.out.cut_fastq,
                 Channel.empty(),
                 PREMAP.out.unmapped
             )
@@ -232,7 +231,7 @@ workflow RIBOSEQ {
 
             MAPPING_LENGTH_ANALYSES(
                 MAP.out.genome_bam,
-                PREPROCESS_READS.out.fastq,
+                PREPROCESS_READS.out.cut_fastq,
                 Channel.empty(),
                 Channel.empty()
             )
@@ -353,7 +352,11 @@ workflow RIBOSEQ {
         }
 
         // Get P-site tracks
-        GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites.flatten(), PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, PREPARE_RIBOSEQ_REFERENCE.out.genome_fai)
+        GET_PSITE_TRACKS(
+            IDENTIFY_PSITES.out.psites.flatten(),
+            PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] },
+            PREPARE_RIBOSEQ_REFERENCE.out.genome_fai
+            )
 
     }
 
