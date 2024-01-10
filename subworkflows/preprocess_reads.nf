@@ -53,7 +53,7 @@ workflow PREPROCESS_READS {
             CUTADAPT(reads)
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
             cut_fastq = CUTADAPT.out.cut_fastq
-            fastq = CUTADAPT.out.fastq
+            fastq = CUTADAPT.out.filtered_fastq
             logs = CUTADAPT.out.log
             
         }  else {
