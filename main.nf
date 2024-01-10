@@ -33,7 +33,7 @@ if(params.org) {
     params.fasta = params.genomes[ params.org ].fasta
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
-    params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
+    params.contaminants_fasta = params.genomes[ params.org ].contaminants_fasta
     params.transcript_info = params.genomes[ params.org ].transcript_info
     params.transcript_fasta = params.genomes[ params.org ].transcript_fasta
 
@@ -41,13 +41,13 @@ if(params.org) {
 
     if(!params.fasta ) { exit 1, '--fasta is not specified.' }
     if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
-    if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, '--smallrna_fasta is not specified.' }
+    if(!params.contaminants_fasta && !params.skip_premap ) {exit 1, '--contaminants_fasta is not specified.' }
 
 }
 
 
 ch_genome_fasta = file(params.fasta, checkIfExists: true)
-ch_smallrna_fasta = file(params.smallrna_fasta, checkIfExists: true)
+ch_contaminants_fasta = file(params.contaminants_fasta, checkIfExists: true)
 ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
 
@@ -100,7 +100,7 @@ workflow RIBOSEQ {
     PREPARE_RIBOSEQ_REFERENCE(
         ch_genome_fasta, 
         ch_genome_gtf,
-        ch_smallrna_fasta
+        ch_contaminants_fasta
     )
     
     // Extract UMIs and/or trim adapters and filter on min length, then run FASTQC
@@ -117,10 +117,10 @@ workflow RIBOSEQ {
     // Align reads
     if (!params.skip_premap) {
 
-        // Premap to the small RNA genome
+        // Premap to the contaminant RNA genome
         PREMAP(
             PREPROCESS_READS.out.fastq,
-            PREPARE_RIBOSEQ_REFERENCE.out.smallrna_bowtie2_index.collect()
+            PREPARE_RIBOSEQ_REFERENCE.out.contaminants_bowtie2_index.collect()
         )
         
         MAP(

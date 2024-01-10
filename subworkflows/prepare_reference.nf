@@ -10,7 +10,7 @@ nextflow.enable.dsl=2
 
 include { GUNZIP as GUNZIP_FASTA } from '../modules/nf-core/gunzip/main'
 include { GUNZIP as GUNZIP_GTF } from '../modules/nf-core/gunzip/main'
-include { GUNZIP as GUNZIP_SMALLRNA_FASTA } from '../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_CONTAMINANTS_FASTA } from '../modules/nf-core/gunzip/main'
 include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx/main'
 include { GENERATE_REFERENCE_INDEX } from '../subworkflows/generate_index.nf'
 include { GET_TRANSCRIPT_INFO } from '../modules/local/transcript_info.nf'
@@ -22,7 +22,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     take:
     genome_fasta
     genome_gtf
-    smallrna_fasta
+    contaminants_fasta
 
     main:
 
@@ -43,12 +43,12 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
         ch_genome_gtf = Channel.from( [ [ [:], genome_gtf ] ] )
     }
 
-    ch_smallrna_fasta = Channel.empty()
-    if (!params.skip_premap && smallrna_fasta.toString().endsWith('.gz')) {
-        ch_smallrna_fasta = GUNZIP_SMALLRNA_FASTA ( [ [:], smallrna_fasta ] ).gunzip
+    ch_contaminants_fasta = Channel.empty()
+    if (!params.skip_premap && contaminants_fasta.toString().endsWith('.gz')) {
+        ch_contaminants_fasta = GUNZIP_CONTAMINANTS_FASTA ( [ [:], contaminants_fasta ] ).gunzip
     } else {
-        // ch_smallrna_fasta = file(params.smallrna_fasta)
-        ch_smallrna_fasta = Channel.from( [ [ [:], smallrna_fasta ] ] )
+        // ch_contaminants_fasta = file(params.contaminants_fasta)
+        ch_contaminants_fasta = Channel.from( [ [ [:], contaminants_fasta ] ] )
     }
 
     // Prepare fasta index
@@ -56,7 +56,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     ch_genome_fai = SAMTOOLS_FAIDX.out.fai.map{ it[1] }
 
     // Prepare annotation: create index for alignment
-    GENERATE_REFERENCE_INDEX(ch_smallrna_fasta, ch_genome_fasta, ch_genome_gtf)
+    GENERATE_REFERENCE_INDEX(ch_scontaminants_fasta, ch_genome_fasta, ch_genome_gtf)
 
     if (!params.transcript_info) {
         GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] })
@@ -74,12 +74,12 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
 
     emit:
 
-    smallrna_bowtie2_index = GENERATE_REFERENCE_INDEX.out.smallrna_bowtie2_index
+    contaminants_bowtie2_index = GENERATE_REFERENCE_INDEX.out.contaminants_bowtie2_index
     genome_star_index = GENERATE_REFERENCE_INDEX.out.genome_star_index
     genome_gtf = ch_genome_gtf
     genome_fasta = ch_genome_fasta
     genome_fai = ch_genome_fai
-    smallrna_fasta = ch_smallrna_fasta
+    contaminants_fasta = ch_contaminants_fasta
     transcript_info = ch_transcript_info
     // transcript_info_gtf = ch_transcript_info_gtf
     transcript_info_fa = ch_transcript_info_fa
