@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/552979223.svg)](https://zenodo.org/doi/10.5281/zenodo.10372020)
 
-# riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis
+# riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis and comprehensive quality control
 
 ## Table of contents
 
@@ -24,16 +24,17 @@ riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of
 1. UMI extraction ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/)) (Optional)
 2. Adapter and quality trimming, read length filtering ([`Cutadapt`](https://cutadapt.readthedocs.io)) (Optional)
 3. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-4. Premapping to remove small RNA mapping reads ([`bowtie2`](), [`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/)) (Optional)
+4. Pre-mapping to remove reads mapping to contaminants ([`bowtie2`](), [`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/)) (Optional)
 5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR))
 6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/), [`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
-7. Extensive quality control ([`mapping_length_analysis`](https://pypi.org/project/mapping-length-analysis/),[`R`](https://www.r-project.org/)) (Optional)
-8. Gene-level RPF quantification ([`FeatureCounts`](https://subread.sourceforge.net/))
+7. Extensive QC specialised for ribo-seq ([`mapping_length_analysis`](https://pypi.org/project/mapping-length-analysis/),[`R`](https://www.r-project.org/)) (Optional)
+8. Gene-level read quantification ([`FeatureCounts`](https://subread.sourceforge.net/))
 9. P-site identification, CDS occupancy and P-site diagnostics ([`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/)) (Optional)
-10. Principal Component Analysis (PCA) using gene-level read counts and P-site counts over CDS regions
+10. Principal Component Analysis (PCA) using gene-level read counts and P-site counts over CDS regions ([`DESeq2`](https://bioconductor.org/packages/release/bioc/html/DESeq2.html))
 11. Generation of coverage tracks ([`deepTools`](https://deeptools.readthedocs.io/en/develop/))
 12. Design of sgRNA templates to deplete unwanted abundant contaminants ([`Ribocutter`](https://www.biorxiv.org/content/10.1101/2021.07.14.451473v1.full)) (Optional)
-13. MultiQC report of reads QC and mapping statistics ([`MultiQC`](https://multiqc.info/))
+13. MultiQC report of reads QC, mapping statistics, PCA and summarised ribo-seq QC metrics ([`MultiQC`](https://multiqc.info/))
+14. Tracking reads and visualisation of read fate through the key pipeline steps ([`networkD3`](https://www.rdocumentation.org/packages/networkD3/))
 
 ![Pipeline summary](img/dataflow.png "Pipeline summary")
 
@@ -80,7 +81,7 @@ nextflow pull iraiosub/riboseq-flow -r v1.0.2
 
 3. Create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below. 
 
-**Note:** Only single-end read data can be used as input; if you used paired-end sequencing make sure the correct read is used fro the analysis.
+**Note:** Only single-end read data can be used as input; if you used paired-end sequencing make sure the correct read is used for the analysis.
 
 ```
 sample,fastq
@@ -98,7 +99,7 @@ nextflow run iraiosub/riboseq-flow -r v1.0.2 \
 --input samplesheet.csv \
 --fasta /path/to/fasta \
 --gtf /path/to/gtf \
---smallrna_fasta /path/to/smallrna_fasta \
+--contaminants_fasta /path/to/contaminants_fasta \
 --strandedness forward
 ```
 
@@ -122,25 +123,23 @@ nextflow run iraiosub/riboseq-flow -r v1.0.2 \
 The pipeline is compatible with any well-annotated organism for which a FASTA genone file and GTF annotation (and ideally rRNA and other contaminat sequences) are available. Recommended sources for these files are [GENCODE](https://www.gencodegenes.org/) and [Ensembl](https://www.ensembl.org/index.html).
 **Important:** The GTF file must include UTR annotations, and the format should follow the standards set by Ensembl or GENCODE.
 
-
-Simplified Option for Human and Mouse:
+_Simplified Option for Human and Mouse:_
 
 Use the `--org` flag to automatically download and set up reference files for human or mouse genomes, eliminating the need to manually provide them.
 Available options for `--org` are `GRCh38` (human) and `GRCm39` (mouse).
 
 
-When `--org` is specified, all annotation files are sourced from the paths in the [genomes.config](https://github.com/iraiosub/riboseq/blob/main/conf/genomes.config) file.
+When `--org` is specified, all annotation files are sourced from the paths in the [genomes.config](https://github.com/iraiosub/riboseq-flow/blob/main/conf/genomes.config) file.
 
-Manual Annotation File Specification:
-
+_Manual Annotation File Specification:_
 
 If `--org` is not specified, the user needs to provide full paths to all required annotation files:
 
 - `--fasta` path to the FASTA genome file
 - `--gtf` path to the GTF annotation file
-- `--smallrna_fasta` path to the FASTA file of abundant RNA contaminants (like rRNA). (Required if pre-mapping is enabled)
+- `--contaminants_fasta` path to the FASTA file of abundant RNA contaminants (like rRNA). (Required if pre-mapping is enabled)
 - `--star_index` path to directory of pre-built STAR index (Optional). If not provided, the pipeline will generate the STAR index.
-- `--transcript_info` path to TSV file with a single representative transcript for each gene, with information on CDS start, length, end and transcript length (Optional).  If not provided, the pipeline will create it using the GTF file, selecting the longest CDS transcript per gene. The transcript IDs in this file must match those in the GTF file. An example file format can be found [here](https://github.com/iraiosub/riboseq/blob/main/assets/transcript_info/gencode.v44.primary_assembly.annotation.longest_cds.transcript_info.tsv). 
+- `--transcript_info` path to TSV file with a single representative transcript for each gene, with information on CDS start, length, end and transcript length (Optional).  If not provided, the pipeline will create it using the GTF file, selecting the longest CDS transcript per gene. The transcript IDs in this file must match those in the GTF file. An example file format can be found [here](https://github.com/iraiosub/riboseq-flow/blob/main/assets/transcript_info/gencode.v44.primary_assembly.annotation.longest_cds.transcript_info.tsv). 
 - `--transcript_fasta` path to transcripts FASTA (full sequence, including CDS and UTRs) and matches the `transcript_info` file. (Required if supplying the `transcript_info` file.). If not provided, the pipeline will generate this file for the selected representative transcripts. 
 
 
@@ -152,25 +151,27 @@ Where a default value is missing, the user must provide an appropriate value.
 
 #### UMI options
 
+The pipeline supports UMI-based deduplication. If UMIs were used, you must explicitly specify so by providing the appropriate arguments.
+
 - `--with_umi` enables UMI-based read deduplication. Use if you used UMIs in your protocol. By default, not enabled.
-- `--skip_umi_extract` if using UMIs, skips UMI extraction from the read in case UMIs have been moved to the headers in advance
+- `--skip_umi_extract` skips UMI extraction from the read in case UMIs have been moved to the headers in advance or if UMIs were not used
 - `--umi_extract_method` specify method to extract the UMI barcode (options: `string` (default) or `regex`)
 - `--umi_pattern` specifies the UMI barcode pattern,  e.g. 'NNNNN' indicates that the first 5 nucleotides of the read are from the UMI.
-- `--umi_separator` specifies the UMI barcode separator (default: `_`; `rbc:` if Ultraplex was used)
+- `--umi_separator` specifies the UMI barcode separator (default: `_`; `rbc:` if Ultraplex was used for demultiplexing)
 
 #### Read trimming and filtering options
 
+Read trimming steps are executed in the following order: (i) adaptors and low quality bases are trimmed, (ii) bases that need to be removed from read extremities are removed (e.g. non-templated bases, if applicable) and (iii) reads shorter than a minimum length are filtered out. 
+
 - `--skip_trimming` skip the adapter and quality trimming and length filtering step
+- `--save_fastq` save the FASTQ files produced during the trimming steps. By default, not enabled.
 - `--adapter_threeprime` sequence of 3' adapter (equivalent to `-a` in `cutadapt`) (Required if trimming enabled)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to `-g` in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
-- `--cut_end` number of nucleotides to be trimmed from 5' or 3' end of read (equivalent to `-u` in `cutadapt`). Supply positive value for trimming from the 5' end, and negative value for trimming from the 3'end. (default `0`, no nt are trimmed). 
-Important: This step is perfomed after adapter trimming, and after UMIs have been moved to the read header.
-- `--min_quality` cutoff value for trimming low-quality ends from reads (default `10`)
-- `--min_readlength` minimum read length after trimming (default `20`)
-
-If you prepared your library using a TS (template-switching-based protocol) and you haven't trimmed the non-templated nucleotides and adaptors before running this pipeline, you may use the option
-- `--ts_trimming` which automatically trims the first 3 nucleotides corresponding to three untemplated bases at the 5′ end of the read (e.g. corresponding to rGrGrG), and the poly-A from the 3'end of reads, without the need for the user to specify adapter sequences. Should the user desire to trim a different sequence from the 3' end of the read, they can additionally set the `--ts_adapter_threeprime` (default: `A{11}`) to a different sequence. 
+- `--cut_end` number of nucleotides to be trimmed from 5' or 3' end of read (equivalent to `-u` in `cutadapt`). Supply positive values for trimming from the 5' end, and negative values for trimming from the 3'end. (default `0`, no residues are trimmed). 
+Important: This step is perfomed after adapter trimming, and after UMIs have been moved to the read header. Useful for libraries where non-templated nucleotides are part of the read and need trimming (e.g. template-switching, OTTR libraries).
+- `--minimum_quality` cutoff value for trimming low-quality ends from reads (default `10`)
+- `--minimum_length` minimum read length after trimming (default `20`)
 
 #### Ribocutter options
 
@@ -182,17 +183,18 @@ If you prepared your library using a TS (template-switching-based protocol) and 
 
 #### Read alignment options
 
-- `--skip_premap` skips premapping to the small RNA genome
+- `--skip_premap` skips pre-mapping to abundant contaminant sequences
 - `--star_args` string specifying additional STAR arguments
 
 #### Gene-level quantification options
 
 - `--strandedness` specifies the library strandedness (options: `forward`, `reverse` or `unstranded`) (Required)
+- `--feature` specifies the feature to be summarised at gene-level (options: `exon` or `CDS`) (default `exon`)
 
 #### Ribo-seq quality control options
 
-- `--skip_qc` skips mapping_length_analysis and generation of riboseq QC plots
-- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of riboseq QC plots, and for specifying the range of RPF lengths used for P-site identification  (default `26:32`). 
+- `--skip_qc` skips mapping length analysis and generation of ribo-seq QC plots
+- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of ribo-seq QC plots, and for specifying the range of read lengths used for P-site identification  (default `26:32`). 
 
 **Important:**  The `--expected_length` parameter does not filter footprints based on this length range for any other analyses, including alignment, gene-level quantification or track data generation.
 
@@ -203,7 +205,7 @@ By default, the reads must be in length bins that satisfy periodicity to be used
 Additionally, the user can specify the following options:
 
 - `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
-- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of riboseq QC plots, and for specifying the range of RPF lengths used for P-site identification  (default `26:32`). 
+- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of ribo-seq QC plots, and for specifying the range of RPF lengths used for P-site identification (default `26:32`). 
 - `--periodicity_threshold` specifies the periodicity threshold for read lengths to be considered for P-site identification (default `50`)
 - `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
      - For `ribowaltz` P-site offsets are defined using [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/).
@@ -243,49 +245,52 @@ The pipeline outputs results in a number of subfolders:
 
 ### Files
 
-- `annotation` contains information on the representative transcript per gene used for riboseq QC and P-site analyses, as well as bowtie2 and STAR indexes used by the pipeline
-    - `*.longest_cds.transcript_info.tsv` a TSV file with a single representative transcript for each gene, with information on CDS start, length and end
+- `annotation` contains information on the representative transcript per gene used for ribo-eq QC and P-site analyses, as well as bowtie2, STAR indexes and annotation files used by the pipeline
+    - `*.longest_cds.transcript_info.tsv` TSV file with a single representative transcript for each gene, with information on CDS start, length and end
     - `bowtie2` and `star` folders with indexes used for aligning reads
-- `preprocessed` contains reads that have been pre-processed according to user settings for UMI extraction and trimming and filtering options
+- `preprocessed` contains reads pre-processed according to user settings for UMI extraction and trimming and filtering, and the corresponding logs. The `*.filtered.fastq.gz` files are used for downstream alignment steps.
 - `fastqc` contains FastQC reports
-- `premapped` contains files resulting from alignment to the small RNA genome (smallrna_genome):
-    - `*.bam` contains read alignments to the small RNA genome in BAM format
-    - `*.bam.seqs.gz` contains the mapping locations and sequences of reads mapped to the small RNA genome
-    - `*.unmapped.fastq.gz` contains the sequencing reads that did not map to the small RNA genome, in FASTQ format
+- `premapped` contains  files from aligning reads to contaminants:
+    - `*.bam` BAM format alignments to contaminants
+    - `*.bam.seqs.gz` mapping locations and sequences of contaminant-mapped reads
+    - `*.unmapped.fastq.gz` sequencing reads that did not map to the contaminants in FASTQ format
     - `*.premap.log` is the bowtie2 log file
 - `mapped` contains files resulting from alignment to the genome and transcriptome:
-    - `*.Aligned.sortedByCoord.out.bam` contains read alignments to the genome in BAM format
-    - `*.Aligned.toTranscriptome.out.bam` contains read alignments to the transcriptome in BAM format
+    - `*.Aligned.sortedByCoord.out.bam` read alignments to the genome in BAM format
+    - `*.Aligned.toTranscriptome.out.bam` read alignments to the transcriptome in BAM format
     - `*.Log.final.out` is the STAR log output file
 - `deduplicated` contains files resulting after deduplication based on genomic or transcriptomic location and UMIs:
-    - `*.genome.dedup.sorted.bam` contains the UMI deduplicated alignments to the genome in BAM format
-    - `*.transcriptome.dedup.sorted.bam` contains the UMI deduplicated alignments to the transcriptome in BAM format
-- `riboseq_qc` contains quality-control plots informing on mapping lengths, frame, distribution around start and stop codons, rRNA proportion, duplication, fraction of useful reads, PCA plots
+    - `*.genome.dedup.sorted.bam` UMI deduplicated alignments to the genome, in BAM format
+    - `*.transcriptome.dedup.sorted.bam` UMI deduplicated alignments to the transcriptome in BAM format
+- `riboseq_qc` contains QC plots informing on read and mapping lengths, frame, periodicity, signal around start and stop codons, contaminants content, duplication, fraction of useful (mapped to protein-coding transcripts) reads, proprtion of reads remaining after alignment steps etc and folders containing other QC results.
+    - `*.qc_results.pdf` per-sample QC reports with specialised ribo-seq quality metrics stratified by read length
     - `mapping_length_analysis` contains csv files with number of raw and mapped reads by length:
         - `*.after_premap.csv` 
         - `*.before_dedup.csv` 
         - `*.after_dedup.csv`
     - `multiqc_tables` contains tsv files with sample summary metrics for multiQC
     - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding useful reads yield and troubleshooting. 
-    - `pca` contains PCA plots and rlog-normalised count tables. Only produced if 4 samples or more are analysed.
-    - `rust_analysis` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by footprint length, using the inferred P-sites.
+    - `pca` contains PCA plots and rlog-normalised count tables. Only produced if 3 samples or more are analysed.
+    - `rust_analysis` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by read length, using the inferred P-sites.
 - `featurecounts` contains gene-level quantification of the UMI deduplicated alignments to the genome
-- `psites` contains P-sites information, codon coverage and CDS coverage tables, and ribowaltz diagnostic plots:
-    - `psite_offset.tsv.gz` contains P-site offsets for each read-length for all samples
-    - `*psite.tsv.gz` contains sample-specific P-site information for each read
-    - `ribowaltz_qc` folder containing P-site diagnostic plots generated by RiboWaltz
-    - `*.coverage_psite.tsv.gz` contains P-site counts over the CDS of representative transcripts, or over a CDS window excluding a spcified region downstream start codons and upstream stop codons
-    - `codon_coverage_psite.tsv.gz` contains codon-level P-site counts for each transcript
-    - `codon_coverage_rpf.tsv.gz` contains codon-level RPF counts for each transcript
-    - `offset_plot` contains plots that detail P-site assignment using the ribowaltz method
+- `psites` contains P-sites information, codon coverage and CDS coverage tables, and riboWaltz diagnostic plots:
+    - `psite_offset.tsv.gz` P-site offsets for each read-length for all samples
+    - `*psite.tsv.gz` ample-specific P-site information for each read
+    - `ribowaltz_qc` folder containing P-site diagnostic plots generated by riboWaltz
+    - `*.coverage_psite.tsv.gz` P-site counts over the CDS of representative transcripts, or over a CDS window excluding a spcified region downstream start codons and upstream stop codons
+    - `codon_coverage_psite.tsv.gz` codon-level P-site counts for each transcript
+    - `codon_coverage_rpf.tsv.gz` codon-level RPF counts for each transcript
+    - `offset_plot` contains plots that detail P-site assignment using the  method
 - `coverage_tracks` contains track files in BED and bigWig or bedGraph format
-    - `*.bigwig` contains the the UMI deduplicated genome coverage tracks in bigWig format
-    - `*.bedgraph` contains the the UMI deduplicated genome coverage tracks in bedGraph format
-    - `*.genome.dedup.bed.gz` contains the the UMI deduplicated alignments to the genome in BED format
-    - `*.transcriptome.dedup.bed.gz` contains the the UMI deduplicated alignments to the transcriptomie in BED format
+    - `*.bigwig` UMI deduplicated genome coverage tracks in bigWig format
+    - `*.bedgraph` UMI deduplicated genome coverage tracks in bedGraph format
+    - `*.genome.dedup.bed.gz` UMI deduplicated alignments to the genome in BED format
+    - `*.transcriptome.dedup.bed.gz` UMI deduplicated alignments to the transcriptomie in BED format
     - `psite` folder containing BED files with the genomic coordinates and counts of inferred P-sites
-- `ribocutter` contains results of ribocutter run on the pre-processed reads of minimum length defined by user, and minimum length of 23 nt, respectively
-- `multiqc` contains a MultiQC report summarising the FastQC reports, premapping and mapping logs
+- `ribocutter` contains results of Ribocutter run on the pre-processed reads of minimum length defined by user, and minimum length of 23 nt, respectively
+    - `*.csv` CSV files with the designed oligo sequences, their target sequence, the fraction of the library that each oligo targets and the total fraction of the library targeted by all oligos
+    - `ribocutter.pdf` plot showing the estimated fraction of the library that is estimated to be targeted by the guides designed using Ribocutter
+- `multiqc` contains a MultiQC report summarising the FastQC reports, pre-mapping and mapping logs, and summarised ribo-seq QC metrics
 - `pipeline_info` contains the execution reports, traces and timelines generated by Nextflow:
     - `execution_report.html`
     - `execution_timeline.html`

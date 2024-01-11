@@ -20,7 +20,7 @@ process MAPPING_LENGTH_ANALYSIS {
 
     script:
     
-    analysis_type = params.length_analysis_type
+    def analysis_type = params.length_analysis_type
 
     if (analysis_type == 'after_dedup') 
         """

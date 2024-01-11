@@ -33,7 +33,7 @@ if(params.org) {
     params.fasta = params.genomes[ params.org ].fasta
     params.gtf = params.genomes[ params.org ].gtf
     params.star_index = params.genomes[ params.org ].star_index
-    params.smallrna_fasta = params.genomes[ params.org ].smallrna_fasta
+    params.contaminants_fasta = params.genomes[ params.org ].contaminants_fasta
     params.transcript_info = params.genomes[ params.org ].transcript_info
     params.transcript_fasta = params.genomes[ params.org ].transcript_fasta
 
@@ -41,13 +41,13 @@ if(params.org) {
 
     if(!params.fasta ) { exit 1, '--fasta is not specified.' }
     if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
-    if(!params.smallrna_fasta && !params.skip_premap ) {exit 1, '--smallrna_fasta is not specified.' }
+    if(!params.contaminants_fasta && !params.skip_premap ) {exit 1, '--contaminants_fasta is not specified.' }
 
 }
 
 
 ch_genome_fasta = file(params.fasta, checkIfExists: true)
-ch_smallrna_fasta = file(params.smallrna_fasta, checkIfExists: true)
+ch_contaminants_fasta = file(params.contaminants_fasta, checkIfExists: true)
 ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
 
@@ -100,10 +100,10 @@ workflow RIBOSEQ {
     PREPARE_RIBOSEQ_REFERENCE(
         ch_genome_fasta, 
         ch_genome_gtf,
-        ch_smallrna_fasta
+        ch_contaminants_fasta
     )
     
-    // Extract UMIs and/or trim adapters and filter on min length, and FASTQC
+    // Extract UMIs and/or trim adapters and filter on min length, then run FASTQC
     PREPROCESS_READS(ch_input)
     FASTQC(PREPROCESS_READS.out.fastq)
 
@@ -113,15 +113,14 @@ workflow RIBOSEQ {
             PREPROCESS_READS.out.trimmed_fastq
             )
     }
-
-    
+ 
     // Align reads
     if (!params.skip_premap) {
 
-        // Premap to the small RNA genome
+        // Premap to the contaminant RNA genome
         PREMAP(
             PREPROCESS_READS.out.fastq,
-            PREPARE_RIBOSEQ_REFERENCE.out.smallrna_bowtie2_index.collect()
+            PREPARE_RIBOSEQ_REFERENCE.out.contaminants_bowtie2_index.collect()
         )
         
         MAP(
@@ -149,13 +148,13 @@ workflow RIBOSEQ {
 
     // riboseq QC
     if (!params.skip_qc) {
-        // Mapping length analysis
+        // Mapping length analysis, visualisation and read fate tracking
 
         if (!params.skip_premap && params.with_umi) {
 
             MAPPING_LENGTH_ANALYSES(
                 MAP.out.genome_bam,
-                PREPROCESS_READS.out.fastq,
+                PREPROCESS_READS.out.cut_fastq,
                 DEDUPLICATE.out.dedup_genome_bam,
                 PREMAP.out.unmapped
             )
@@ -181,7 +180,7 @@ workflow RIBOSEQ {
 
             MAPPING_LENGTH_ANALYSES(
                 MAP.out.genome_bam,
-                PREPROCESS_READS.out.fastq,
+                PREPROCESS_READS.out.cut_fastq,
                 DEDUPLICATE.out.dedup_genome_bam,
                 Channel.empty()
             )
@@ -207,7 +206,7 @@ workflow RIBOSEQ {
 
             MAPPING_LENGTH_ANALYSES(
                 MAP.out.genome_bam,
-                PREPROCESS_READS.out.fastq,
+                PREPROCESS_READS.out.cut_fastq,
                 Channel.empty(),
                 PREMAP.out.unmapped
             )
@@ -232,7 +231,7 @@ workflow RIBOSEQ {
 
             MAPPING_LENGTH_ANALYSES(
                 MAP.out.genome_bam,
-                PREPROCESS_READS.out.fastq,
+                PREPROCESS_READS.out.cut_fastq,
                 Channel.empty(),
                 Channel.empty()
             )
@@ -353,7 +352,11 @@ workflow RIBOSEQ {
         }
 
         // Get P-site tracks
-        GET_PSITE_TRACKS(IDENTIFY_PSITES.out.psites.flatten(), PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }, PREPARE_RIBOSEQ_REFERENCE.out.genome_fai)
+        GET_PSITE_TRACKS(
+            IDENTIFY_PSITES.out.psites.flatten(),
+            PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] },
+            PREPARE_RIBOSEQ_REFERENCE.out.genome_fai
+            )
 
     }
 

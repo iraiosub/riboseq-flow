@@ -25,6 +25,7 @@ process GENE_COUNTS_FEATURECOUNTS {
 
     script:
 
+    def feature = params.feature ?: 'exon'
 
     if (params.strandedness == "forward") {
         
@@ -42,7 +43,7 @@ process GENE_COUNTS_FEATURECOUNTS {
     
     
         """
-        featureCounts -a $gtf -s $strandedness -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
+        featureCounts -a $gtf -s $strandedness -t $feature -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
         
         """
 

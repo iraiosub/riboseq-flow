@@ -1,6 +1,7 @@
 #!/usr/bin/env Rscript
 
-# DESeq2 QC on various count tables produced by iraiosub/riboseq pipeline
+# DESeq2 QC on various count tables produced by iraiosub/riboseq-flow pipeline
+# Produces PCA plots and tables for MultiQC
 # Author: Ira Iosub
 # Usage:plot_pca.R --featurecounts x --cds y --cds_window z --transcript_info w
 
@@ -44,20 +45,37 @@ get_rlog_pca <- function(count_data) {
   rlog <- rlogTransformation(results.dds)
   rlog.df <- data.frame(assay(rlog))
   
+  # Plot
   count_data.pca <- plotPCA(rlog, intgroup = c("sample"), returnData = FALSE)
+
+  # Data for the plot
+  count_data.pca_data <- plotPCA(rlog, intgroup = c("sample"), returnData = TRUE) %>%
+    dplyr::select(sample, PC1, PC2)
   
-  return(list(plot = count_data.pca, rlog = rlog.df))
+  return(list(plot = count_data.pca, data = count_data.pca_data, rlog = rlog.df))
   
+}
+
+# MultiQC scatter plot requires the plot_type to be specified in the header
+# This fnction creates a file with header to which table will be appended
+# The id must match that in the confif file
+create_multiqc_headers <- function(id) {
+
+  # Define comments
+  header <- c(paste0("#id: ", id), 
+              "##plot_type: 'scatter'")
+
+  # Write comments to the file
+  writeLines(header, paste0(id,"_mqc.tsv"))
+
 }
 
 
 # =========
-# RPF gene-level counts from FeatureCounts
+# RPF gene-level counts from featureCounts
 # =========
 
-# Create empty file if plot cannot be made 
-file.create("pca_mqc.png")
-
+# Load data and rename columns
 featurecounts.df <- fread(opt$featurecounts)
 
 featurecounts.df <- featurecounts.df %>%
@@ -65,46 +83,38 @@ featurecounts.df <- featurecounts.df %>%
       rename_with(~str_remove(., '.Aligned.sortedByCoord.out.bam')) 
 
 # If there is only one sample, there is no point in running the analysis
-
-if (ncol(featurecounts.df) < 5 ) {
+if (ncol(featurecounts.df) < 4 ) {
   
-  message("There aren't enough samples provided. This analysis is only valid for 4 or more samples.") # Not enough samples in counts file for PCA.
-  # file.create("pca.pdf")
+  message("There aren't enough samples provided. This analysis is only valid for 3 or more samples.") # Not enough samples in counts file for PCA.
   
 } else {
   
   tx_info.df <- fread(opt$transcript_info)
-
-  # If there are more than 12 samples, do not use more than 1 color for plotting
-  if (ncol(featurecounts.df) > 6 ) {
-
-    colours <- colorRampPalette(c("#606060"))(ncol(featurecounts.df))
-  } else {
-
-    colours <- colorRampPalette(c("#E64B35B2", "#4DBBD5B2", "#00A087B2", "#3C5488B2", "#F39B7FB2", "#8491B4B2","#91D1C2B2", "#DC0000B2", "#7E6148B2", "#f47942","#C39BD3","#fbb04e","#AAB7B8"))(ncol(featurecounts.df))
-
-  }
-  
   
   # Reformat df and PCA of top 500 genes
   featurecounts.df <- featurecounts.df %>%
     remove_rownames() %>% 
-    column_to_rownames(var = "Gene") 
+    column_to_rownames(var = "Gene")
+
+  featurecounts_pca <- get_rlog_pca(featurecounts.df)
   
-  featurecounts.pca.gg <- get_rlog_pca(featurecounts.df)$plot +
-    geom_point(aes(color = sample)) +
-    ggtitle("Gene-level counts", "FeatureCounts (rlog-normalised counts)") +
+  featurecounts.pca.gg <- featurecounts_pca$plot +
+    geom_point(color = "606060") +
+    ggtitle("Gene-level counts", "featureCounts (rlog-normalised counts)") +
     labs(caption = "*top 500 most variable genes") +
     theme_cowplot() +
-    scale_fill_manual(values = colours) +
-    scale_color_manual(values = colours) +
     # ggrepel::geom_text_repel(aes(label = sample))
     geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8) +
     theme(legend.position = "none") +
     theme(plot.margin = unit(c(1,1,1,1), "cm")) +
     coord_cartesian(clip = "off")
 
-  fwrite(get_rlog_pca(featurecounts.df)$rlog, "featurecounts.rlog.tsv.gz", sep = "\t")
+  fwrite(featurecounts_pca$rlog, "featurecounts.rlog.tsv.gz", sep = "\t", row.names = TRUE)
+  fwrite(featurecounts_pca$data, "featurecounts_pca.tsv.gz", sep = "\t")
+
+  # MultiQC: create header and append PCA data
+  create_multiqc_headers("featurecounts_pca")
+  fwrite(featurecounts_pca$data, "featurecounts_pca_mqc.tsv", sep = "\t", append = TRUE)
   
   
   if (!is.na(opt$cds)) {
@@ -115,8 +125,8 @@ if (ncol(featurecounts.df) < 5 ) {
       
       cds.df <- fread(opt$cds)
 
-      if (ncol(cds.df) < 6) {
-        message("There aren't enough samples provided. This analysis is only valid for 4 or more samples.")
+      if (ncol(cds.df) < 5) {
+        message("There aren't enough samples provided. This analysis is only valid for 3 or more samples.")
         # Create empty plot to specify the analysis is not available
         cds.pca.gg <- ggplot() + theme_void() + ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") + geom_text(aes(0,0,label='N/A'))
       } else {
@@ -126,22 +136,27 @@ if (ncol(featurecounts.df) < 5 ) {
           remove_rownames() %>% 
           column_to_rownames(var = "transcript")  %>%
           dplyr::select(-length_cds)
+
+        psite_pca <- get_rlog_pca(cds_longest.df)
         
-        cds.pca.gg <- get_rlog_pca(cds_longest.df)$plot +
-          geom_point(aes(color = sample)) +
+        cds.pca.gg <- psite_pca$plot +
+          geom_point(color = "606060") +
           ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") +
           labs(caption = "*top 500 most variable CDS") +
           theme_cowplot() +
-          scale_fill_manual(values = colours) +
-          scale_color_manual(values = colours) +
           # ggrepel::geom_text_repel(aes(label = sample))
           geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8)+
           theme(legend.position = "none") +
           theme(plot.margin = unit(c(1,1,1,1), "cm")) +
           coord_cartesian(clip = "off")
 
-        fwrite(get_rlog_pca(cds_longest.df)$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t")
+        fwrite(psite_pca$rlog, "psite_cds_coverage.rlog.tsv.gz", sep = "\t", row.names = TRUE)
+        fwrite(psite_pca$data, "psite_pca.tsv.gz", sep = "\t")
 
+        # MultiQC: create header and append PCA data
+        create_multiqc_headers("psite_pca")
+        fwrite(psite_pca$data, "psite_pca_mqc.tsv", sep = "\t", append = TRUE)
+        
       }
       
       # =========
@@ -150,8 +165,8 @@ if (ncol(featurecounts.df) < 5 ) {
 
       cds_window.df <- fread(opt$cds_window)
 
-      if (ncol(cds_window.df) < 6) {
-        message("There aren't enough samples provided. This analysis is only valid for 4 or more samples.")
+      if (ncol(cds_window.df) < 5) {
+        message("There aren't enough samples provided. This analysis is only valid for 3 or more samples.")
 
         # Create empty plot to specify the analysis is not available
         cds_window.pca.gg <- ggplot() + theme_void() + ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") + geom_text(aes(0,0,label='N/A'))
@@ -163,21 +178,26 @@ if (ncol(featurecounts.df) < 5 ) {
           remove_rownames() %>% 
           column_to_rownames(var = "transcript")  %>%
           dplyr::select(-length_selection, -length_cds)
+
+        psite_cds_window_pca <- get_rlog_pca(cds_window_longest.df)
         
-        cds_window.pca.gg <- get_rlog_pca(cds_window_longest.df)$plot +
-          geom_point(aes(color = sample)) +
+        cds_window.pca.gg <- psite_cds_window_pca$plot +
+          geom_point(color = "606060") +
           ggtitle("CDS (+15th codon to -10th codon) occupancy", "P-sites (rlog-normalised counts)") +
           labs(caption = "*top 500 most variable CDS") +
           theme_cowplot() +
-          scale_fill_manual(values = colours) +
-          scale_color_manual(values = colours) +
         # ggrepel::geom_text_repel(aes(label = sample))
-        geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8) +
-        theme(legend.position = "none") +
-        theme(plot.margin = unit(c(1,1,1,1), "cm")) +
-        coord_cartesian(clip = "off")
+          geom_text(aes(label = sample), size = 3, hjust = -0.1, vjust = 0.8) +
+          theme(legend.position = "none") +
+          theme(plot.margin = unit(c(1,1,1,1), "cm")) +
+          coord_cartesian(clip = "off")
 
-        fwrite(get_rlog_pca(cds_window_longest.df)$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t")
+        fwrite(psite_cds_window_pca$rlog, "psite_cds_window_coverage.rlog.tsv.gz", sep = "\t", row.names = TRUE)
+        fwrite(psite_cds_window_pca$data, "psite_cds_window_pca.tsv.gz", sep = "\t")
+
+        # MultiQC: create header and append PCA data
+        create_multiqc_headers("psite_cds_window_pca")
+        fwrite(psite_cds_window_pca$data, "psite_cds_window_pca_mqc.tsv", sep = "\t", append = TRUE)
 
       }
       
@@ -187,9 +207,6 @@ if (ncol(featurecounts.df) < 5 ) {
       
       pca.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, nrow = 3)
       ggsave("pca.pdf", pca.gg, dpi = 600, height = 30, width = 12)
-
-      pca_mqc.gg <- cowplot::plot_grid(featurecounts.pca.gg, cds.pca.gg, cds_window.pca.gg, ncol = 3)
-      ggsave("pca_mqc.png", pca_mqc.gg, dpi = 600, height = 6, width = 21)
       
       # save longest CDS tables
       # fwrite(semi_join(cds.df, tx_info.df, by = c("transcript" = "transcript_id")), "longest_cds_coverage_psite.tsv.gz", sep = "\t")
@@ -199,7 +216,6 @@ if (ncol(featurecounts.df) < 5 ) {
     } else {
       
       ggsave("pca.pdf", featurecounts.pca.gg, dpi = 600, height = 10, width = 10)
-      gsave("pca_mqc.png", pca.gg, dpi = 600, height = 6, width = 7)
       
     }
 }
