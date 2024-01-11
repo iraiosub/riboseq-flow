@@ -56,7 +56,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     ch_genome_fai = SAMTOOLS_FAIDX.out.fai.map{ it[1] }
 
     // Prepare annotation: create index for alignment
-    GENERATE_REFERENCE_INDEX(ch_scontaminants_fasta, ch_genome_fasta, ch_genome_gtf)
+    GENERATE_REFERENCE_INDEX(ch_contaminants_fasta, ch_genome_fasta, ch_genome_gtf)
 
     if (!params.transcript_info) {
         GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] })
