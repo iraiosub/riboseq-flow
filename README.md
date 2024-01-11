@@ -1,6 +1,6 @@
 [![DOI](https://zenodo.org/badge/552979223.svg)](https://zenodo.org/doi/10.5281/zenodo.10372020)
 
-# riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis
+# riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis and comprehensive quality control
 
 ## Table of contents
 
@@ -81,7 +81,7 @@ nextflow pull iraiosub/riboseq-flow -r v1.0.2
 
 3. Create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below. 
 
-**Note:** Only single-end read data can be used as input; if you used paired-end sequencing make sure the correct read is used fro the analysis.
+**Note:** Only single-end read data can be used as input; if you used paired-end sequencing make sure the correct read is used for the analysis.
 
 ```
 sample,fastq
@@ -161,7 +161,7 @@ The pipeline supports UMI-based deduplication. If UMIs were used, you must expli
 
 #### Read trimming and filtering options
 
-Read trimming steps are executed in the following order: (i) adaptors and low quality bases are trimmed, (ii) bases that need to be removed from read extremities are removed (e.g. non-templated bases, if applicable) and (iii) filtering out reads that are shorter than a minimum length. 
+Read trimming steps are executed in the following order: (i) adaptors and low quality bases are trimmed, (ii) bases that need to be removed from read extremities are removed (e.g. non-templated bases, if applicable) and (iii) reads shorter than a minimum length are filtered out. 
 
 - `--skip_trimming` skip the adapter and quality trimming and length filtering step
 - `--save_fastq` save the FASTQ files produced during the trimming steps. By default, not enabled.
@@ -193,8 +193,8 @@ Important: This step is perfomed after adapter trimming, and after UMIs have bee
 
 #### Ribo-seq quality control options
 
-- `--skip_qc` skips mapping_length_analysis and generation of ribo-seq QC plots
-- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of ribo-seq QC plots, and for specifying the range of RPF lengths used for P-site identification  (default `26:32`). 
+- `--skip_qc` skips mapping length analysis and generation of ribo-seq QC plots
+- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of ribo-seq QC plots, and for specifying the range of read lengths used for P-site identification  (default `26:32`). 
 
 **Important:**  The `--expected_length` parameter does not filter footprints based on this length range for any other analyses, including alignment, gene-level quantification or track data generation.
 
@@ -245,7 +245,7 @@ The pipeline outputs results in a number of subfolders:
 
 ### Files
 
-- `annotation` contains information on the representative transcript per gene used for ribo-eq QC and P-site analyses, as well as bowtie2 and STAR indexes used by the pipeline
+- `annotation` contains information on the representative transcript per gene used for ribo-eq QC and P-site analyses, as well as bowtie2, STAR indexes and annotation files used by the pipeline
     - `*.longest_cds.transcript_info.tsv` TSV file with a single representative transcript for each gene, with information on CDS start, length and end
     - `bowtie2` and `star` folders with indexes used for aligning reads
 - `preprocessed` contains reads pre-processed according to user settings for UMI extraction and trimming and filtering, and the corresponding logs. The `*.filtered.fastq.gz` files are used for downstream alignment steps.
@@ -262,15 +262,16 @@ The pipeline outputs results in a number of subfolders:
 - `deduplicated` contains files resulting after deduplication based on genomic or transcriptomic location and UMIs:
     - `*.genome.dedup.sorted.bam` UMI deduplicated alignments to the genome, in BAM format
     - `*.transcriptome.dedup.sorted.bam` UMI deduplicated alignments to the transcriptome in BAM format
-- `riboseq_qc` contains QC plots informing on read and mapping lengths, frame, periodicity, signal around start and stop codons, contaminants content, duplication, fraction of useful reads
+- `riboseq_qc` contains QC plots informing on read and mapping lengths, frame, periodicity, signal around start and stop codons, contaminants content, duplication, fraction of useful (mapped to protein-coding transcripts) reads, proprtion of reads remaining after alignment steps etc and folders containing other QC results.
+    - `*.qc_results.pdf` per-sample QC reports with specialised ribo-seq quality metrics stratified by read length
     - `mapping_length_analysis` contains csv files with number of raw and mapped reads by length:
         - `*.after_premap.csv` 
         - `*.before_dedup.csv` 
         - `*.after_dedup.csv`
     - `multiqc_tables` contains tsv files with sample summary metrics for multiQC
     - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding useful reads yield and troubleshooting. 
-    - `pca` contains PCA plots and rlog-normalised count tables. Only produced if 4 samples or more are analysed.
-    - `rust_analysis` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by footprint length, using the inferred P-sites.
+    - `pca` contains PCA plots and rlog-normalised count tables. Only produced if 3 samples or more are analysed.
+    - `rust_analysis` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by read length, using the inferred P-sites.
 - `featurecounts` contains gene-level quantification of the UMI deduplicated alignments to the genome
 - `psites` contains P-sites information, codon coverage and CDS coverage tables, and riboWaltz diagnostic plots:
     - `psite_offset.tsv.gz` P-site offsets for each read-length for all samples
@@ -287,7 +288,7 @@ The pipeline outputs results in a number of subfolders:
     - `*.transcriptome.dedup.bed.gz` UMI deduplicated alignments to the transcriptomie in BED format
     - `psite` folder containing BED files with the genomic coordinates and counts of inferred P-sites
 - `ribocutter` contains results of Ribocutter run on the pre-processed reads of minimum length defined by user, and minimum length of 23 nt, respectively
-    - `*.csv` CSV file with the designed oligo sequences, their target sequence, the fraction of the library that each oligo targets and the total fraction of the library targeted by all oligos
+    - `*.csv` CSV files with the designed oligo sequences, their target sequence, the fraction of the library that each oligo targets and the total fraction of the library targeted by all oligos
     - `ribocutter.pdf` plot showing the estimated fraction of the library that is estimated to be targeted by the guides designed using Ribocutter
 - `multiqc` contains a MultiQC report summarising the FastQC reports, pre-mapping and mapping logs, and summarised ribo-seq QC metrics
 - `pipeline_info` contains the execution reports, traces and timelines generated by Nextflow:
