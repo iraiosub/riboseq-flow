@@ -21,11 +21,11 @@ workflow GENERATE_REFERENCE_INDEX {
     if(!params.skip_premap) {
 
         BOWTIE2_BUILD(smallrna_fasta)
-        smallrna_bowtie2_index = BOWTIE2_BUILD.out.index
+        contaminants_bowtie2_index = BOWTIE2_BUILD.out.index
         
     } else {
 
-        smallrna_bowtie2_index = Channel.empty()
+        contaminants_bowtie2_index = Channel.empty()
     }
    
     // Generate genome index
@@ -43,7 +43,7 @@ workflow GENERATE_REFERENCE_INDEX {
 
     emit:
 
-    smallrna_bowtie2_index
+    contaminants_bowtie2_index
     genome_star_index
 
 
