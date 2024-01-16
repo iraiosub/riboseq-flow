@@ -66,7 +66,7 @@ process GET_PSITE_TRACKS {
     path(fai)
 
     output:
-    path("*.psites.bed.gz"), emit: psite_bed
+    path("*.codon_coverage_psite.bed.gz"), emit: psite_bed
     // path("*.bigwig"), emit: psite_bigwig
 
     script:

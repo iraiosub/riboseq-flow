@@ -79,7 +79,7 @@ convert_coordinates <- function(tx.gr, annotation, chr_lengths) {
   
   # Sum up scores for identical positions
   genomic.gr <- sum_scores(genomic.gr)
-  export.bed(genomic.gr, paste0(unique(tx.gr$sample), ".psites.bed.gz"))
+  export.bed(genomic.gr, paste0(unique(tx.gr$sample), ".codon_coverage_psite.bed.gz"))
   
   # Separate plus and minus strand and export bigwigs
   plus.gr <- genomic.gr[strand(genomic.gr) == "+" ]

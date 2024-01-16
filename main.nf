@@ -351,13 +351,17 @@ workflow RIBOSEQ {
 
         }
 
-        // Get P-site tracks
+        // Convert codon coverage from transcriptomic to genomic coordinates
+        if (params.genomic_codon_coverage) {
         GET_PSITE_TRACKS(
             IDENTIFY_PSITES.out.psites.flatten(),
             PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] },
             PREPARE_RIBOSEQ_REFERENCE.out.genome_fai
-            )
+        )
 
+
+        }
+     
     }
 
     if (!params.skip_psite & !params.skip_qc) {
