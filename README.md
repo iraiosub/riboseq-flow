@@ -50,7 +50,7 @@ We recommend using Nextflow with `Java 17.0.9` or later.
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq-flow -r v1.0.2
+nextflow pull iraiosub/riboseq-flow -r v1.1.0
 ```
 
 3. Run the pipeline on the provided test dataset:
@@ -58,13 +58,13 @@ nextflow pull iraiosub/riboseq-flow -r v1.0.2
 Using Singularity:
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.0.2 -profile test,singularity
+nextflow run iraiosub/riboseq-flow -r v1.1.0 -profile test,singularity
 ```
 
 or using Docker:
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.0.2 -profile test,docker
+nextflow run iraiosub/riboseq-flow -r v1.1.0 -profile test,docker
 ```
 
 4. Check succesful execution.
@@ -76,7 +76,7 @@ nextflow run iraiosub/riboseq-flow -r v1.0.2 -profile test,docker
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq-flow -r v1.0.2
+nextflow pull iraiosub/riboseq-flow -r v1.1.0
 ```
 
 3. Create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below. 
@@ -93,7 +93,7 @@ sample3,/path/to/file3.fastq.gz
 4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.0.2 \
+nextflow run iraiosub/riboseq-flow -r v1.1.0 \
 -profile singularity,crick \
 -resume \
 --input samplesheet.csv \
@@ -168,7 +168,7 @@ Read trimming steps are executed in the following order: (i) adaptors and low qu
 - `--adapter_threeprime` sequence of 3' adapter (equivalent to `-a` in `cutadapt`) (Required if trimming enabled)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to `-g` in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
-- `--cut_end` number of nucleotides to be trimmed from 5' or 3' end of read (equivalent to `-u` in `cutadapt`). Supply positive values for trimming from the 5' end, and negative values for trimming from the 3'end. (default `0`, no residues are trimmed). 
+- `--cut_end` number of nucleotides to be trimmed from 5' or 3' end of reads (equivalent to `-u` in `cutadapt`). Supply positive values for trimming from the 5' end, and negative values for trimming from the 3'end (default `0`, no residues are trimmed). 
 Important: This step is perfomed after adapter trimming, and after UMIs have been moved to the read header. Useful for libraries where non-templated nucleotides are part of the read and need trimming (e.g. template-switching, OTTR libraries).
 - `--minimum_quality` cutoff value for trimming low-quality ends from reads (default `10`)
 - `--minimum_length` minimum read length after trimming (default `20`)
@@ -198,7 +198,7 @@ Important: This step is perfomed after adapter trimming, and after UMIs have bee
 - `--skip_qc` skips mapping length analysis and generation of ribo-seq QC plots
 - `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of ribo-seq QC plots, and for specifying the range of read lengths used for P-site identification  (default `26:32`). 
 
-**Important:**  The `--expected_length` parameter does not filter footprints based on this length range for any other analyses, including alignment, gene-level quantification or track data generation.
+**Important:**  The `--expected_length` parameter does not filter reads based on this length range for any other analyses, including alignment, gene-level quantification or track data generation.
 
 #### P-site identification and quantification options
 
@@ -270,7 +270,7 @@ The pipeline outputs results in a number of subfolders:
         - `*.before_dedup.csv` 
         - `*.after_dedup.csv`
     - `multiqc_tables` contains tsv files with sample summary metrics for multiQC
-    - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding useful reads yield and troubleshooting. 
+    - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding the yield of useful reads and troubleshooting. 
     - `pca` contains PCA plots and rlog-normalised count tables. Only produced if 3 samples or more are analysed.
     - `rust_analysis` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by read length, using the inferred P-sites.
 - `featurecounts` contains gene-level quantification of the UMI deduplicated alignments to the genome
@@ -346,7 +346,7 @@ If you wish to make an addition or change to the pipeline, please follow these s
 3. Modify the code exclusively on this new branch and mention the relavant issue in the commit messages.
 4. When your modifications are complete, submit a pull request to the `dev` branch describing the changes. 
 5. Request a review from iraiosub on your pull request.
-6. The pull-request will trigger a workflow execution on GitHub Actions for continuous integration (CI) of the pipeline.
+6. The pull request will trigger a workflow execution on GitHub Actions for continuous integration (CI) of the pipeline.
 This is designed to automatically test riboseq-flow whenever a pull request is made to the main or dev branches of the repository. It ensures that the pipeline runs correctly in an Ubuntu environment, helping to catch any issues or errors early in the development process. 
 
 
