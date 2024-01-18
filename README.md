@@ -14,7 +14,7 @@
 8. [Authors and contact](#authors-and-contact)
 9. [Issues and contributions](#issues-and-contributions)
 10. [Contributing guidelines](#contributing-guidelines)
-11. [Why use riboseq-flow?](#why-use-riboseq-flow-?)
+11. [Why use riboseq-flow](#why-use-riboseq-flow)
 
 ## Introduction
 
@@ -356,7 +356,7 @@ If you wish to make an addition or change to the pipeline, please follow these s
 6. The pull request will trigger a workflow execution on GitHub Actions for continuous integration (CI) of the pipeline.
 This is designed to automatically test riboseq-flow whenever a pull request is made to the main or dev branches of the repository. It ensures that the pipeline runs correctly in an Ubuntu environment, helping to catch any issues or errors early in the development process. 
 
-## Why use riboseq-flow?
+## Why use riboseq-flow
 
 - it's user-friendly: it only requires minimal knowledge of the command-line interface
 - it can be reliably and consistently executed across different systems using `Docker` or `Singularity`
