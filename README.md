@@ -42,7 +42,7 @@ riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of
 
 ## Quick start (test the pipeline with a minimal dataset)
 
-1. Ensure `Nextflow`(version `21.10.3` or later) and `Docker` or`Singularity` (version `3.6.4` or later) are installed on your system.
+1. Ensure `Nextflow`(version `21.10.3` or later) and `Docker` or `Singularity` (version `3.6.4` or later) are installed on your system.
 Nextflow installation instructions can be found [here](https://nf-co.re/docs/usage/installation).
 We recommend using Nextflow with `Java 17.0.9` or later.
 
@@ -149,7 +149,7 @@ If `--org` is not specified, the user needs to provide full paths to all require
 
 The pipeline allows the user to set preferred parameter values, or the option to skip pipeline steps, as detailed below. 
 Most parameters have default values, which will be used by the pipeline unless the user overrides them by adding the appropriate options to the run script. 
-Where a default value is missing, the user must provide an appropriate value. All pre-defined parameter values are listed [here](https://github.com/iraiosub/riboseq-flow/blob/main/conf/defaults.config)
+Where a default value is missing, the user must provide an appropriate value. All pre-defined parameter values are listed [here](https://github.com/iraiosub/riboseq-flow/blob/main/conf/defaults.config).
 
 #### UMI options
 
@@ -310,19 +310,19 @@ When a Nextflow pipeline requires multiple Docker images, it can sometimes fail 
 
 Follow these steps to pre-download and cache the necessary images:
 1. Identify the desired location on your system where you want to store the container images.
-2. Set the 'NXF_SINGULARITY_CACHEDIR' environment variable to point to this chosen location.
+2. Set the `NXF_SINGULARITY_CACHEDIR` environment variable to point to this chosen location.
 For example, you can add the following line to your shell profile or run script:
 
 ```
 export NXF_SINGULARITY_CACHEDIR=/path/to/image/cache
 ```
-3. Make sure you have Singularity installed. Please use the same version you intend to use for running the pipeline. 
+3. Make sure you have `Singularity` installed. Please use the same version you intend to use for running the pipeline. 
 4. Run the code below to pre-download and cache the required Docker images:
 
 ```
 #!/bin/sh
 
-# A script to pre-download singularity images required by iraiosub/riboseq-flow pipeline
+# A script to pre-download Singularity images required by iraiosub/riboseq-flow pipeline
 
 # change dir to your NXF_SINGULARITY_CACHEDIR path
 cd /path/to/image/cache
@@ -359,8 +359,8 @@ This is designed to automatically test riboseq-flow whenever a pull request is m
 ## Why use riboseq-flow
 
 - it's user-friendly: it only requires minimal knowledge of the command-line interface
-- it can be reliably and consistently executed across different systems using `Docker` or `Singularity`
-- the user doesn't need to manage or install individual tool dependencies, only `Nextflow` and `Docker` or `Singularity`; containerisation ensures each process has the exact software and environment it needs
+- it can be reliably and consistently executed across different systems using Docker or Singularity
+- the user doesn't need to manage or install individual tool dependencies, only Nextflow and Docker or Singularity; containerisation ensures each process has the exact software and environment it needs
 - it produces the same results regardless of where the pipeline is run, which is a cornerstone of computational reproduciblity in scientific research
 - it enables efficient analysis of many samples in parallel, enabling comparative studies
 - it integrates data processing steps with quality control
