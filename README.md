@@ -14,7 +14,7 @@
 8. [Authors and contact](#authors-and-contact)
 9. [Issues and contributions](#issues-and-contributions)
 10. [Contributing guidelines](#contributing-guidelines)
-11. [Why use riboseq-flow?](#why-use-riboseq-fow?)
+11. [Why use riboseq-flow?](#why-use-riboseq-flow-?)
 
 ## Introduction
 
