@@ -11,7 +11,6 @@ report_header_info:
 
 exclude_modules:
     - 'general_stats'
-    - 'software_versions'
 
 # Other MultiQC config stuff here
 custom_data:
@@ -277,8 +276,6 @@ report_section_order:
     order: 1001
   mapping:
     order: 1000
-  star:
-    order: -1000
   read_length:
     order: 999
   pca:

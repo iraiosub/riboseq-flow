@@ -27,7 +27,7 @@ process RIBOCUTTER {
 
     args = "-g " + params.guide_number
     args += " -r " + params.max_reads
-    args += " " + params.ribocutter_args
+    args += " " + params.extra_ribocutter_args
 
 
     if (!params.min_length) {

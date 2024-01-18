@@ -34,18 +34,7 @@ process MAP {
     STAR --runThreadN ${task.cpus} \
     --genomeDir $genome_star_index \
     --readFilesIn $unmapped \
-    --readFilesCommand zcat \
     --outFileNamePrefix ${sample_id}. \
-    --outSAMtype BAM SortedByCoordinate \
-    --seedSearchStartLmax 15 \
-    --outReadsUnmapped Fastx \
-    --genomeLoad NoSharedMemory \
-    --outFilterMultimapNmax 1 \
-    --outFilterMismatchNoverReadLmax 0.08 \
-    --alignEndsType EndToEnd \
-    --quantMode TranscriptomeSAM \
-    --outSAMattributes Standard \
-    --quantTranscriptomeBan Singleend \
     $args
 
     samtools index -@ ${task.cpus} ${sample_id}.Aligned.sortedByCoord.out.bam

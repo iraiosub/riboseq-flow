@@ -24,7 +24,7 @@ riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of
 1. UMI extraction ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/)) (Optional)
 2. Adapter and quality trimming, read length filtering ([`Cutadapt`](https://cutadapt.readthedocs.io)) (Optional)
 3. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-4. Pre-mapping to remove reads mapping to contaminants ([`bowtie2`](), [`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/)) (Optional)
+4. Pre-mapping to remove reads mapping to contaminants ([`Bowtie2`](https://bowtie-bio.sourceforge.net/bowtie2/index.shtml), [`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/)) (Optional)
 5. Mapping to the genome and transcriptome ([`STAR`](https://github.com/alexdobin/STAR))
 6. UMI-based deduplication ([`UMI-tools`](https://umi-tools.readthedocs.io/en/latest/),[`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/), [`BEDTools`](https://github.com/arq5x/bedtools2/)) (Optional)
 7. Extensive QC specialised for ribo-seq ([`mapping_length_analysis`](https://pypi.org/project/mapping-length-analysis/),[`R`](https://www.r-project.org/)) (Optional)
@@ -147,7 +147,7 @@ If `--org` is not specified, the user needs to provide full paths to all require
 
 The pipeline allows the user to set preferred parameter values, or the option to skip pipeline steps, as detailed below. 
 Most parameters have default values, which will be used by the pipeline unless the user overrides them by adding the appropriate options to the run script. 
-Where a default value is missing, the user must provide an appropriate value.
+Where a default value is missing, the user must provide an appropriate value. All pre-defined parameter values are listed [here](https://github.com/iraiosub/riboseq-flow/blob/main/conf/defaults.config)
 
 #### UMI options
 
@@ -164,7 +164,7 @@ The pipeline supports UMI-based deduplication. If UMIs were used, you must expli
 Read trimming steps are executed in the following order: (i) adaptors and low quality bases are trimmed, (ii) bases that need to be removed from read extremities are removed (e.g. non-templated bases, if applicable) and (iii) reads shorter than a minimum length are filtered out. 
 
 - `--skip_trimming` skip the adapter and quality trimming and length filtering step
-- `--save_fastq` save the FASTQ files produced during the trimming steps. By default, not enabled.
+- `--save_trimmed` save the final and intermediate FASTQ files produced during the trimming steps. By default, not enabled.
 - `--adapter_threeprime` sequence of 3' adapter (equivalent to `-a` in `cutadapt`) (Required if trimming enabled)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to `-g` in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
@@ -181,12 +181,17 @@ Important: This step is perfomed after adapter trimming, and after UMIs have bee
 - `--guide_number` number of guides to design (default: `50`)
 - `--max_reads` maximum number of reads analysed (default: `1000000`)
 - `--min_read_length` minimum read length threshold for reads to be analysed
-- `--ribocutter_args` string specifying additional ribocutter arguments
+- `--extra_ribocutter_args` string specifying additional arguments that will be appended to the `ribocutter` command
 
 #### Read alignment options
 
-- `--skip_premap` skips pre-mapping to abundant contaminant sequences
-- `--star_args` string specifying additional STAR arguments
+- `--skip_premap` skips pre-mapping to common contaminant sequences
+
+- `--bowtie2_args` allows users to input custom arguments for `bowtie2`
+- `--star_args` enables the input of specific argumants for `STAR`
+
+The preset alignment settings for both STAR and Bowtie2 are optimized for standard ribo-seq analysis. Altering these arguments is generally not advised unless specific data requirements or unique analytical needs arise.
+
 
 #### Gene-level quantification options
 

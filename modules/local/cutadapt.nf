@@ -13,7 +13,7 @@ process CUTADAPT {
         'quay.io/biocontainers/cutadapt:4.2--py39hbf8eff0_0' }"
 
     publishDir "${params.outdir}/preprocessed", pattern: "*.log", mode: 'copy', overwrite: true
-    if (params.save_fastq) publishDir "${params.outdir}/preprocessed", pattern: "*.fastq.gz", mode: 'copy', overwrite: true
+    if (params.save_trimmed) publishDir "${params.outdir}/preprocessed", pattern: "*.fastq.gz", mode: 'copy', overwrite: true
        
 
     input:
