@@ -46,7 +46,7 @@ get_rlog_pca <- function(count_data) {
   rlog.df <- data.frame(assay(rlog))
   
   # Plot
-  count_data.pca <- plotPCA(rlog, intgroup = c("sample"), returnData = FALSE)
+  count_data.pca <- plotPCA(rlog, returnData = FALSE)
 
   # Data for the plot
   count_data.pca_data <- plotPCA(rlog, intgroup = c("sample"), returnData = TRUE) %>%
@@ -99,7 +99,7 @@ if (ncol(featurecounts.df) < 4 ) {
   featurecounts_pca <- get_rlog_pca(featurecounts.df)
   
   featurecounts.pca.gg <- featurecounts_pca$plot +
-    geom_point(color = "#606060", fill = "#606060") +
+    geom_point(colour = "#606060") +
     ggtitle("Gene-level counts", "featureCounts (rlog-normalised counts)") +
     labs(caption = "*top 500 most variable genes") +
     theme_cowplot() +
@@ -140,7 +140,7 @@ if (ncol(featurecounts.df) < 4 ) {
         psite_pca <- get_rlog_pca(cds_longest.df)
         
         cds.pca.gg <- psite_pca$plot +
-          geom_point(color = "#606060", fill = "#606060") +
+          geom_point(colour = "#606060") +
           ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") +
           labs(caption = "*top 500 most variable CDS") +
           theme_cowplot() +
@@ -183,7 +183,7 @@ if (ncol(featurecounts.df) < 4 ) {
         psite_cds_window_pca <- get_rlog_pca(cds_window_longest.df)
         
         cds_window.pca.gg <- psite_cds_window_pca$plot +
-          geom_point(color = "#606060", fill = "#606060") +
+          geom_point(colour = "#606060") +
           ggtitle("CDS (+15th codon to -10th codon) occupancy", "P-sites (rlog-normalised counts)") +
           labs(caption = "*top 500 most variable CDS") +
           theme_cowplot() +
