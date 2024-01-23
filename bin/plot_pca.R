@@ -37,7 +37,7 @@ get_rlog_pca <- function(count_data) {
                                 colData = meta.df, 
                                 design = ~1)
   dds <- estimateSizeFactors(dds)
-  idx <- rowSums( counts(dds, normalized = TRUE) >= 2 ) >= 3
+  idx <- rowSums( counts(dds, normalized = TRUE) >= 2 ) >= 3 # at least 3 samples with a count of 2
   dds <- dds[idx,]
   results.dds <- DESeq(dds)
   
@@ -116,7 +116,6 @@ if (ncol(featurecounts.df) < 4 ) {
   create_multiqc_headers("featurecounts_pca")
   fwrite(featurecounts_pca$data, "featurecounts_pca_mqc.tsv", sep = "\t", append = TRUE)
   
-  
   if (!is.na(opt$cds)) {
     
       # =========
@@ -126,9 +125,10 @@ if (ncol(featurecounts.df) < 4 ) {
       cds.df <- fread(opt$cds)
 
       if (ncol(cds.df) < 5) {
-        message("There aren't enough samples provided. This analysis is only valid for 3 or more samples.")
+        message("There aren't enough samples provided for P-sites PCA. This analysis is only valid for 3 or more samples.")
         # Create empty plot to specify the analysis is not available
         cds.pca.gg <- ggplot() + theme_void() + ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") + geom_text(aes(0,0,label='N/A'))
+      
       } else {
 
         # Select the longest CDS transcript based on transcript info table
@@ -165,8 +165,9 @@ if (ncol(featurecounts.df) < 4 ) {
 
       cds_window.df <- fread(opt$cds_window)
 
-      if (ncol(cds_window.df) < 5) {
-        message("There aren't enough samples provided. This analysis is only valid for 3 or more samples.")
+      # this table has an extra col
+      if (ncol(cds_window.df) < 6) {
+        message("There aren't enough samples provided for P-sites PCA. This analysis is only valid for 3 or more samples.")
 
         # Create empty plot to specify the analysis is not available
         cds_window.pca.gg <- ggplot() + theme_void() + ggtitle("CDS occupancy", "P-sites (rlog-normalised counts)") + geom_text(aes(0,0,label='N/A'))
