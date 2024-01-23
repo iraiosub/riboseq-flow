@@ -40,7 +40,7 @@ custom_data:
     parent_name: "Read Length"
     file_format: "tsv"
     section_name: "Input Read Length Distribution"
-    description: "Length distribution for input reads (reads kept and analysed after filtering based on length). Unless specified otherwise with <code>minimum_length</code>, reads under 20 nt are discarded and are not included in this plot."
+    description: "Length distribution for input reads (adaptor-trimmed and before filtering based on length). Unless specified otherwise with <code>minimum_length</code>, reads under 20 nt are discarded and are not included in downstream analyses."
     plot_type: "linegraph"
     pconfig:
       id: "starting_length_linegraph"
@@ -99,7 +99,7 @@ custom_data:
     parent_description: "This section contains various Ribo-seq quality control metrics, summarised across all samples. These results are obtained using the <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc.R'><code>riboseq_qc.R</code></a> and <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/riboseq_qc_summary.R'><code>riboseq_qc_summary.R</code></a> scripts. More detailed QC metrics regarding the quality of the Ribo-seq data can be found in the sample-specific PDF reports in the <code>riboseq_qc</code> folder."
     file_format: "tsv"
     section_name: "Protein-coding Genes Mapping Percentage"
-    description: "Percentage of input reads mapping uniquely to protein-coding transcripts (useful reads). This is the proportion of reads that are useful for most downstream analyses. If <code>transcript_info</code> was not provided, each gene is represented by its longest CDS transcript by default, selected using <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/get_transcript_info.R'><code>get_transcript_info.R</code></a>. A higher fraction indicates better quality."
+    description: "Percentage of the input reads mapping uniquely to protein-coding transcripts (useful reads). This is the proportion of reads that are useful for most downstream analyses. If <code>transcript_info</code> was not provided, each gene is represented by its longest CDS transcript by default, selected using <a href='https://github.com/iraiosub/riboseq-flow/blob/main/bin/get_transcript_info.R'><code>get_transcript_info.R</code></a>. A higher fraction indicates better quality."
     plot_type: "bargraph"
     pconfig:
       id: "pcoding_percentage_barplot"
