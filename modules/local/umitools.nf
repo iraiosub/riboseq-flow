@@ -4,7 +4,7 @@
 nextflow.enable.dsl=2
 
 process UMITOOLS_EXTRACT {
-    
+
     tag "${sample_id}"
     label "process_low"
 

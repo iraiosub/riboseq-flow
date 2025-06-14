@@ -14,7 +14,7 @@ process IDENTIFY_PSITES {
         'quay.io/biocontainers/ribowaltz:1.2.0--r42hdfd78af_1' }"
 
     publishDir "${params.outdir}/psites", mode: 'copy', overwrite: true
-    
+
     input:
     path(bam_list)
     path(gtf)
@@ -42,7 +42,7 @@ process IDENTIFY_PSITES {
         """
 
         INPUT=`echo $bam_list | sed 's/ /,/g'`
-        
+
         Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info
 
         """

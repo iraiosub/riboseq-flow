@@ -4,7 +4,7 @@
 nextflow.enable.dsl=2
 
 process GET_TRANSCRIPT_INFO {
-    
+
     tag "$gtf"
     label 'process_single'
 
@@ -17,21 +17,21 @@ process GET_TRANSCRIPT_INFO {
 
     output:
         path("*.longest_cds.transcript_info.tsv"), emit: transcript_info
-        path("*.longest_cds_transcripts.gtf"), emit: transcripts_gtf
+        path("*.longest_cds_transcripts.gtf"),     emit: transcripts_gtf
 
     script:
 
     def organism = params.org_name ?: 'Homo sapiens'
-    
+
     """
     get_transcript_info.R -g $gtf -o "$organism"
-    
+
     """
 }
 
 
 process GET_TRANSCRIPT_FASTA {
-    
+
     tag "$gtf"
     label 'process_single'
 
@@ -45,7 +45,7 @@ process GET_TRANSCRIPT_FASTA {
         path(fasta)
         path(fai)
         path(gtf)
-        
+
 
     output:
         path("*.longest_cds_transcripts.fa"), emit: transcripts_fa
@@ -53,7 +53,7 @@ process GET_TRANSCRIPT_FASTA {
     script:
 
     def prefix = "${gtf.baseName}"
-    
+
     """
     gffread -w ${prefix}_gffread.fa -g $fasta $gtf
 
@@ -64,7 +64,7 @@ process GET_TRANSCRIPT_FASTA {
     "${task.process}":
         gffread: \$(gffread --version 2>&1)
     END_VERSIONS
-    
+
     """
-    
+
 }

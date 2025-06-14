@@ -4,7 +4,7 @@
 nextflow.enable.dsl=2
 
 process RIBOSEQ_QC {
-    
+
     tag "${sample_id}"
     label 'process_medium'
 
@@ -16,7 +16,7 @@ process RIBOSEQ_QC {
     input:
         tuple val(sample_id), path(bam), path(bai), path(before_dedup_length_analysis), path(after_premap_length_analysis), path(after_dedup_length_analysis)
         path(transcript_info)
-    
+
     output:
         tuple val(sample_id), path("*.qc_results.tsv.gz"), emit: qc
         path("*.qc_results.pdf"), emit: plots
@@ -25,10 +25,10 @@ process RIBOSEQ_QC {
         tuple val(sample_id), path("*_region_counts_mqc.tsv"), emit: region_counts
         tuple val(sample_id), path("*_start_dist_mqc.tsv"), emit: start_dist
         tuple val(sample_id), path("*_frame_mqc.tsv"), emit: frame_counts
-        
+
 
     script:
-        
+
         expected_length_range = params.expected_length
 
         if (params.with_umi && !params.skip_premap) 
@@ -36,7 +36,7 @@ process RIBOSEQ_QC {
             """
             riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --after_premap $after_premap_length_analysis --before_dedup $before_dedup_length_analysis --after_dedup $after_dedup_length_analysis --expected_length $expected_length_range
             """
-        
+
         else if (!params.with_umi && !params.skip_premap) 
 
             """
@@ -44,21 +44,21 @@ process RIBOSEQ_QC {
             """
 
         else if (params.with_umi && params.skip_premap) 
-            
+
             """
             riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --before_dedup $before_dedup_length_analysis --after_dedup $after_dedup_length_analysis --expected_length $expected_length_range
             """
 
-        else 
+        else
             """
             riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --before_dedup $before_dedup_length_analysis --expected_length $expected_length_range
             """
 
-}       
+}
 
 
 process SUMMARISE_RIBOSEQ_QC {
-    
+
     tag "${workflow.runName}"
     label 'process_low'
 
