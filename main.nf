@@ -463,12 +463,19 @@ workflow RIBOSEQ {
     MULTIQC(ch_logs)
 
     // Run RIBOLOCO
-    if (params.run_riboloco) {
+    if (params.run_riboloco && params.with_umi) {
         RIBOLOCO(
-        DEDUPLICATE.out.dedup_transcriptome_bam,
-        PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa.collect(),
-        PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+            DEDUPLICATE.out.dedup_transcriptome_bam,
+            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa.collect(),
+            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
         )
+    } else if (params.run_riboloco && !params.with_umi) {
+        RIBOLOCO(
+            MAP.out.transcriptome_bam,
+            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa.collect(),
+            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+        )
+
     }
 
 }

@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Author: Oscar Wilkins
+
 import pysam
 import argparse
 import re
