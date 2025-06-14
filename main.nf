@@ -88,7 +88,7 @@ include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
 include { PCA } from './modules/local/riboseq_qc.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
-include { RIBOLOCO_ORFS } from './modules/local/riboloco.nf'
+include { RIBOLOCO } from './modules/local/riboloco.nf'
 
 
 
@@ -462,12 +462,14 @@ workflow RIBOSEQ {
 
     MULTIQC(ch_logs)
 
-    // Run RIBOLOCO_ORFS
-    RIBOLOCO_ORFS(
+    // Run RIBOLOCO
+    if (params.run_riboloco) {
+        RIBOLOCO(
         DEDUPLICATE.out.dedup_transcriptome_bam,
         PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa.collect(),
         PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
-    )
+        )
+    }
 
 }
 

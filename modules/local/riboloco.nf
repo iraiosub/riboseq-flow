@@ -3,7 +3,7 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-process RIBOLOCO_ORFS {
+process RIBOLOCO {
     tag "${sample_id}"
     label 'process_medium'
 
@@ -28,7 +28,7 @@ process RIBOLOCO_ORFS {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${sample_id}"
-    def flank = task.ext.flank ?: 300
+    def flank = task.ext.riboloco_orf_flank ?: 300
     """
     riboloco_lite.py \\
         --bam ${bam} \\
