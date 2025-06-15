@@ -8,9 +8,7 @@ process RIBOLOCO {
     label 'process_medium'
 
     // conda "bioconda::pysam=0.23.3 bioconda::pandas=2.3.0"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'oras://community.wave.seqera.io/library/pip_pandas_pysam:53252df0639df67e' :
-        'community.wave.seqera.io/library/pip_pandas_pysam:739f5a8d01204142' }"
+    container 'iraiosub/riboloco_env:latest'
 
     input:
     tuple val(sample_id), path(bam), path(bai)
