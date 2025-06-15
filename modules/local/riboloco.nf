@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 
 process RIBOLOCO {
     tag "${sample_id}"
-    label 'process_medium'
+    label 'process_high'
 
     // conda "bioconda::pysam=0.23.3 bioconda::pandas=2.3.0"
     container 'iraiosub/riboloco_env:latest'
