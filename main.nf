@@ -89,6 +89,7 @@ include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
 include { PCA } from './modules/local/riboseq_qc.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 include { RIBOLOCO } from './modules/local/riboloco.nf'
+include { ANALYSE_RIBOLOCO } from './modules/local/riboloco.nf'
 
 
 
@@ -475,7 +476,14 @@ workflow RIBOSEQ {
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa.collect(),
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
         )
+    }
 
+    // Run ANALYSE_RIBOLOCO after RIBOLOCO (regardless of UMI setting)
+    if (params.run_riboloco) {
+        ANALYSE_RIBOLOCO(
+            RIBOLOCO.out.results,
+            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
+        )
     }
 
 }

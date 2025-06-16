@@ -10,5 +10,6 @@ dependencies:
   - r-patchwork
   - r-ggrepel
   - r-ggeasy
+  - r-optparse
   - bioconda::pysam=0.23.3
   - conda-forge::pandas=2.3.0
