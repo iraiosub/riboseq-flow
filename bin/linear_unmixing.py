@@ -106,7 +106,7 @@ def main():
 
     # Read in data and process
 
-    actual_df = pd.read_csv(args.all_footprints, sep = "\t")
+    actual_df = pd.read_csv(args.all_footprints)
 
     if actual_df.empty:
         print("No ORF footprint data found in input. Exiting.")
@@ -115,7 +115,7 @@ def main():
 
     orf_ids = list(set(actual_df['orf_id']))
 
-    expected_df = pd.read_csv(args.expected_dist, sep = "\t")
+    expected_df = pd.read_csv(args.expected_dist)
 
     frame0_dict = dict(zip(expected_df['footprint_type'], expected_df['frac']))
     frame1_dict = convert_frame_of_dict(frame0_dict, 1)
