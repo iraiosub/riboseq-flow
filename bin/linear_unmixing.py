@@ -54,7 +54,7 @@ def fit_weights(D, y):
 
     result = minimize(objective, x0, args=(D, y), bounds=bounds, constraints=constraints)
     return result.x
-    
+
 
 def kl_divergence(p, q, eps=1e-12):
     # Ensure no zero entries

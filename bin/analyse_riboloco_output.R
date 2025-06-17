@@ -13,7 +13,7 @@ option_list <- list(make_option(c("-i", "--input"), action = "store", type = "ch
                     make_option(c("-c", "--min_footprints"), action = "store", type = "integer", default=10, help = "min footprints in orf"),
                     make_option(c("-p", "--min_unique_footprint_positions"), action = "store", type = "integer", default=3, help = "min unique footprint positions"),
                     make_option(c("-g", "--gene_names"), action = "store", type = "character", default=NULL,help = "Comma-separated list of gene name patterns (e.g., 'Scn,Grin1')"),
-                    make_option(c("-o", "--output_prefix"), action = "store", type = "character", help = "output prefix"))
+                    make_option(c("-o", "--output"), action = "store", type = "character", help = "output prefix"))
 
 
 opt_parser = OptionParser(option_list = option_list)
@@ -25,7 +25,7 @@ info <- fread(opt$transcript_info)
 lengths_of_interest <- eval(parse(text = opt$lengths))
 min_footprints_in_orf <- opt$min_footprints
 min_unique_footprint_positions <- opt$min_unique_footprint_positions
-prefix <- opt$output_prefix
+prefix <- opt$output
 
 downsample_for_heatmaps <- 20
 
@@ -207,7 +207,7 @@ if (nrow(df3) > 0 && sum(!is.na(df3$kl_div)) > 0) {
             'Higher score = more weird = more likely out-of-frame')
 
     ggsave(paste0(prefix,'.kl_div_rank_plot.pdf'),
-        p5, height = 15, width = 15, units = 'cm')
+        p5, height = 25, width = 25, units = 'cm')
   } else {
     message("Skipping p4 and p5 plots: no valid data.")
   }
@@ -345,5 +345,5 @@ if (nrow(df3_0) > 0 && nrow(df3_1) > 0 && nrow(df3_2) > 0) {
   write_csv(df4, paste0(prefix, ".kld_div_decrease.csv.gz"))
 
 } else {
-  message("Skipping KL-div decrease plots: one or more offset-shifted dataframes are empty.")
+  message("Skipping KL-div decrease plots: one or more shifted dataframes are empty.")
 }
