@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 
 process RIBOLOCO {
     tag "${sample_id}"
-    label 'process_high'
+    label 'process_high_memory'
 
     container 'iraiosub/riboloco_env:latest'
 
