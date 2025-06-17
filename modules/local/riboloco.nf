@@ -72,7 +72,7 @@ process ANALYSE_RIBOLOCO {
     def min_unique_footprint_positions = task.ext.riboloco_min_unique_footprint_positions ?: 3
 
     """
-    analyse_riboloco.R \\
+    analyse_riboloco_output.R \\
         --input ${riboloco} \\
         --transcript_info ${transcript_info} \\
         --lengths ${lengths} \\
@@ -94,7 +94,7 @@ process RIBOLOCO_UNMIXING {
         tuple val(sample_id), path(expected_dist), path(all_footprints)
 
         output:
-        tuple val(sample_id), path("*.csv"), emit: results
+        tuple val(sample_id), path("*.csv"), emit: results, optional: true
         path "versions.yml",                 emit: versions
 
         when:

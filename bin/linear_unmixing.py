@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+# Author: Oscar Wilkins
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -60,7 +64,7 @@ def kl_divergence(p, q, eps=1e-12):
 
 def main():
     parser = argparse.ArgumentParser()
-    
+
     parser.add_argument(
         '--expected_dist', '-e',
         type=str,
@@ -103,6 +107,12 @@ def main():
     # Read in data and process
 
     actual_df = pd.read_csv(args.all_footprints, sep = "\t")
+
+    if actual_df.empty:
+        print("No ORF footprint data found in input. Exiting.")
+        exit(0)
+
+
     orf_ids = list(set(actual_df['orf_id']))
 
     expected_df = pd.read_csv(args.expected_dist, sep = "\t")
