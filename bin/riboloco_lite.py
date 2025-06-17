@@ -161,69 +161,91 @@ def main():
     bam_tx_list = []
     bam_pos_list = []
     bam_footprint_list = []
-    with pysam.AlignmentFile(args.bam) as bam:
 
-        for i, record in enumerate(bam):
+    chunk_size = 100
+    bam_path = args.bam
 
-            if record.is_reverse:
-                continue
+    with pysam.AlignmentFile(bam_path, "rb") as bam:
+        transcripts = bam.references
 
-            tx = bam.get_reference_name(record.rname)
+        all_tx = []
+        all_pos = []
+        all_footprints = []
 
-            if tx not in info_dict.keys():
-                continue
+        for i in range(0, len(transcripts), chunk_size):
+            chunk = transcripts[i:i+chunk_size]
 
-            tx_info = info_dict[tx]
+            # For this chunk, temporary lists
+            chunk_tx_list = []
+            chunk_pos_list = []
+            chunk_footprint_list = []
 
-            # Identify type of read
-            footprint = str(record.query_sequence)
-            footprint_start = record.reference_start
-            footprint_length = len(footprint)
-            annotated_start = int(tx_info[3])
-            footprint_frame = (footprint_start - annotated_start) % 3
+            for tx in chunk:
+                if tx not in info_dict:
+                    continue
 
-            if footprint[0] == tx_fasta_d[tx][footprint_start]:
-                mismatch = 'MM'
-            else:
-                mismatch = 'm'
+                for record in bam.fetch(tx):
+                    if record.is_reverse:
+                        continue
 
-            estimated_A_site = footprint_start + footprint_length - 12
+                    footprint = str(record.query_sequence)
+                    footprint_start = record.reference_start
+                    footprint_length = len(footprint)
+                    tx_info = info_dict[tx]
+                    annotated_start = int(tx_info[3])
+                    footprint_frame = (footprint_start - annotated_start) % 3
 
-            bam_tx_list.append(tx)
-            bam_pos_list.append(estimated_A_site)
-            bam_footprint_list.append(str(footprint_length) + "_" + str(footprint_frame) + "_" + mismatch)
+                    if footprint[0] == tx_fasta_d[tx][footprint_start]:
+                        mismatch = 'MM'
+                    else:
+                        mismatch = 'm'
 
+                    estimated_A_site = footprint_start + footprint_length - 12
 
-    footprint_df = pd.DataFrame({'transcript_id': bam_tx_list,
-                             'A_site_estimate': bam_pos_list,
-                             'footprint_type': bam_footprint_list})
+                    chunk_tx_list.append(tx)
+                    chunk_pos_list.append(estimated_A_site)
+                    chunk_footprint_list.append(f"{footprint_length}_{footprint_frame}_{mismatch}")
 
-    # For all ORFs, calculate the number of each footprint type we get
+            # Append chunk data to all data
+            all_tx.extend(chunk_tx_list)
+            all_pos.extend(chunk_pos_list)
+            all_footprints.extend(chunk_footprint_list)
 
-    print(orf_df)
+        # After all chunks processed, build full DataFrame once
+        footprint_df = pd.DataFrame({
+            'transcript_id': all_tx,
+            'A_site_estimate': all_pos,
+            'footprint_type': all_footprints
+        })
 
-    joint_df = pd.merge(footprint_df, orf_df, on='transcript_id', how='inner')
+        # Proceed with merging and filtering as before:
+        joint_df = pd.merge(footprint_df, orf_df, on='transcript_id', how='inner')
 
-    # filter for footprints within each ORF
-    joint_df = joint_df[joint_df['orf_start'] - args.flank <= joint_df['A_site_estimate']]
-    joint_df = joint_df[joint_df['A_site_estimate'] <= joint_df['orf_stop'] + args.flank]
+        joint_df = joint_df[
+            (joint_df['orf_start'] - args.flank <= joint_df['A_site_estimate']) &
+            (joint_df['A_site_estimate'] <= joint_df['orf_stop'] + args.flank)
+        ]
 
-    joint_df.to_csv(args.output + '.csv.gz', compression='gzip', index=False)
+        joint_df.to_csv(args.output + '.csv.gz', compression='gzip', index=False)
 
-    joint_df = joint_df[joint_df['orf_start'] <= joint_df['A_site_estimate']]
-    joint_df = joint_df[joint_df['A_site_estimate'] <= joint_df['orf_stop']]
+        joint_df = joint_df[
+            (joint_df['orf_start'] <= joint_df['A_site_estimate']) &
+            (joint_df['A_site_estimate'] <= joint_df['orf_stop'])
+        ]
 
-    joint_df['n'] = joint_df.groupby(['transcript_id', 'orf_start', 'orf_stop', 'footprint_type']).transform('size')
+        joint_df['n'] = joint_df.groupby(
+            ['transcript_id', 'orf_start', 'orf_stop', 'footprint_type']
+        )['footprint_type'].transform('size')
 
-    joint_df = joint_df.reset_index().drop_duplicates(subset=['transcript_id', 'footprint_type', 'annotated', 'orf_start',
-                                                          'orf_stop',
-                                                          'n'])
+        joint_df = joint_df.reset_index().drop_duplicates(
+            subset=['transcript_id', 'footprint_type', 'annotated', 'orf_start', 'orf_stop', 'n']
+        )
 
+        joint_df = joint_df.drop(['A_site_estimate', 'index'], axis=1)
 
+        # Output the final summary CSV
+        joint_df.to_csv(args.output + '.summary.csv.gz', compression='gzip', index=False)
 
-    joint_df = joint_df.drop(['A_site_estimate', 'index'], axis=1)
-
-    joint_df.to_csv(args.output + '.summary.csv.gz', compression='gzip', index=False)
 
 
 
@@ -235,6 +257,8 @@ def main():
 
 
 main()
+
+
 
 
 
