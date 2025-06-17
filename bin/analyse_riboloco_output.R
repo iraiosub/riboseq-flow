@@ -12,6 +12,7 @@ option_list <- list(make_option(c("-i", "--input"), action = "store", type = "ch
                     make_option(c("-l", "--lengths"), action = "store", type = "character", default="27:31", help = "lengths of interest"),
                     make_option(c("-c", "--min_footprints"), action = "store", type = "integer", default=10, help = "min footprints in orf"),
                     make_option(c("-p", "--min_unique_footprint_positions"), action = "store", type = "integer", default=3, help = "min unique footprint positions"),
+                    make_option(c("-g", "--gene_names"), action = "store", type = "character", default=NULL,help = "Comma-separated list of gene name patterns (e.g., 'Scn,Grin1')"),
                     make_option(c("-o", "--output_prefix"), action = "store", type = "character", help = "output prefix"))
 
 
@@ -29,8 +30,9 @@ prefix <- opt$output_prefix
 downsample_for_heatmaps <- 20
 
 # Genes to label
+gene_pattern <- gsub(",", "|", opt$gene_names)
 gene_info <- info %>%
-  dplyr::filter(str_detect(gene_name, 'Scn'))
+  filter(str_detect(gene_name, gene_pattern))
 
 
 #### RUN ####

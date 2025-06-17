@@ -70,6 +70,7 @@ process ANALYSE_RIBOLOCO {
     def lengths = task.ext.riboloco_lengths ?: "27:30"
     def min_footprints = task.ext.riboloco_min_footprints ?: 10
     def min_unique_footprint_positions = task.ext.riboloco_min_unique_footprint_positions ?: 3
+    def gene_names = task.ext.riboloco_gene_names ?: "SCN"
 
     """
     analyse_riboloco_output.R \\
@@ -78,6 +79,7 @@ process ANALYSE_RIBOLOCO {
         --lengths ${lengths} \\
         --min_footprints ${min_footprints} \\
         --min_unique_footprint_positions ${min_unique_footprint_positions} \\
+        --gene_names ${gene_names} \\
         --output ${prefix} \\
         ${args}
     """
