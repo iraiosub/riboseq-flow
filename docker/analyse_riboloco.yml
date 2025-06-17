@@ -1,0 +1,22 @@
+name: analyse_riboloco
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+
+dependencies:
+  # Python + required packages
+  - conda-forge::python=3.12.11
+  - pandas=2.3.0
+  - numpy
+  - matplotlib
+  - scipy
+
+  # R base + required R packages
+  - conda-forge::r-base
+  - r-optparse
+  - r-tidyverse
+  - r-patchwork
+  - r-ggeasy
+  - r-ggrepel
+  - r-data.table

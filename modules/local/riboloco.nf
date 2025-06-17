@@ -37,6 +37,7 @@ process RIBOLOCO {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
+        python: \$(python -c "import sys; print(sys.version.split()[0])")
         pysam: \$(python -c "import pysam; print(pysam.__version__)")
         pandas: \$(python -c "import pandas; print(pandas.__version__)")
     END_VERSIONS
@@ -49,7 +50,7 @@ process ANALYSE_RIBOLOCO {
     tag "${sample_id}"
     label 'process_medium'
 
-    container 'iraiosub/riboloco_env:latest'
+    container 'iraiosub/analyse_riboloco:latest'
 
     input:
     tuple val(sample_id), path(riboloco)
@@ -58,8 +59,8 @@ process ANALYSE_RIBOLOCO {
     output:
     tuple val(sample_id), path("*.footprint_types_per_orf.csv.gz"),                  emit: footprint_types_per_orf
     tuple val(sample_id), path("*.annotated_fractions.csv.gz"),                      emit: annotated_fractions
-    tuple val(sample_id), path(".kld_div.csv.gz"), path(".kld_div_decrease.csv.gz"), emit: kld
-    tuple val(sample_id), path("*.pdf"),                                             emit: plots
+    tuple val(sample_id), path(".kld_div.csv.gz"), path(".kld_div_decrease.csv.gz"), emit: kld, optional: true
+    tuple val(sample_id), path("*.pdf"),                                             emit: plots, optional: true
 
     when:
     task.ext.when == null || task.ext.when
