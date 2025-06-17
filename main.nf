@@ -90,6 +90,7 @@ include { PCA } from './modules/local/riboseq_qc.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 include { RIBOLOCO } from './modules/local/riboloco.nf'
 include { ANALYSE_RIBOLOCO } from './modules/local/riboloco.nf'
+include { RIBOLOCO_UNMIXING } from './modules/local/riboloco.nf'
 
 
 
@@ -484,6 +485,8 @@ workflow RIBOSEQ {
             RIBOLOCO.out.results,
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.collect()
         )
+
+        RIBOLOCO_UNMIXING(ANALYSE_RIBOLOCO.out.annotated_fractions.join(ANALYSE_RIBOLOCO.out.footprint_types_per_orf))
     }
 
 }

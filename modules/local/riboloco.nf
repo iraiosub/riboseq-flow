@@ -45,7 +45,6 @@ process RIBOLOCO {
 }
 
 
-
 process ANALYSE_RIBOLOCO {
     tag "${sample_id}"
     label 'process_medium'
@@ -85,7 +84,51 @@ process ANALYSE_RIBOLOCO {
 }
 
 
-// RIBOLOCO_UNMIXING
+process RIBOLOCO_UNMIXING {
+    tag "${sample_id}"
+    label 'process_high_memory'
+
+    container 'iraiosub/analyse_riboloco:latest'
+
+    input:
+        tuple val(sample_id), path(expected_dist), path(all_footprints)
+
+        output:
+        tuple val(sample_id), path("*.csv"), emit: results
+        path "versions.yml",                 emit: versions
+
+        when:
+        task.ext.when == null || task.ext.when
+
+        script:
+        def args = task.ext.args ?: ''
+        def prefix = task.ext.prefix ?: "${meta.id}"
+        def bootstrap_number = task.ext.bootstrap_number ?: 10
+        def min_count = task.ext.riboloco_min_footprints ?: 10
+
+        """
+        linear_unmixing.py \\
+            --expected_dist ${expected_dist} \\
+            --all_footprints ${all_footprints} \\
+            --output ${prefix}_unmixing_results.csv \\
+            --bootstrap_number ${bootstrap_number} \\
+            --min_count ${min_count} \\
+            ${args}
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            python: \$(python --version | sed 's/Python //g')
+            pandas: \$(python -c "import pandas; print(pandas.__version__)")
+            numpy: \$(python -c "import numpy; print(numpy.__version__)")
+            scipy: \$(python -c "import scipy; print(scipy.__version__)")
+            matplotlib: \$(python -c "import matplotlib; print(matplotlib.__version__)")
+        END_VERSIONS
+        """
+}
+
+
+
+
 
 // RIBOLOCO_UNMIXING_ANALYSIS
 
