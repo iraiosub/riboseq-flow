@@ -104,7 +104,7 @@ process RIBOLOCO_UNMIXING {
 
         script:
         def args = task.ext.args ?: ''
-        def prefix = task.ext.prefix ?: "${meta.id}"
+        def prefix = task.ext.prefix ?: "${sample_id}"
         def bootstrap_number = task.ext.bootstrap_number ?: 10
         def min_count = task.ext.riboloco_min_footprints ?: 10
 
