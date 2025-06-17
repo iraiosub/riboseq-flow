@@ -96,8 +96,8 @@ process RIBOLOCO_UNMIXING {
         tuple val(sample_id), path(expected_dist), path(all_footprints)
 
         output:
-        tuple val(sample_id), path("*.csv"), emit: results, optional: true
-        path "versions.yml",                 emit: versions
+        tuple val(sample_id), path("*.unmixing_results.csv"), emit: results, optional: true
+        path "versions.yml",                                  emit: versions
 
         when:
         task.ext.when == null || task.ext.when
@@ -112,7 +112,7 @@ process RIBOLOCO_UNMIXING {
         linear_unmixing.py \\
             --expected_dist ${expected_dist} \\
             --all_footprints ${all_footprints} \\
-            --output ${prefix}_unmixing_results.csv \\
+            --output ${prefix}.unmixing_results.csv \\
             --bootstrap_number ${bootstrap_number} \\
             --min_count ${min_count} \\
             ${args}
@@ -129,8 +129,4 @@ process RIBOLOCO_UNMIXING {
 }
 
 
-
-
-
-// RIBOLOCO_UNMIXING_ANALYSIS
 
