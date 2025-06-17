@@ -54,7 +54,7 @@ def fit_weights(D, y):
 
     result = minimize(objective, x0, args=(D, y), bounds=bounds, constraints=constraints)
     return result.x
-    
+
 
 def kl_divergence(p, q, eps=1e-12):
     # Ensure no zero entries
@@ -106,7 +106,7 @@ def main():
 
     # Read in data and process
 
-    actual_df = pd.read_csv(args.all_footprints, sep = "\t")
+    actual_df = pd.read_csv(args.all_footprints)
 
     if actual_df.empty:
         print("No ORF footprint data found in input. Exiting.")
@@ -115,7 +115,7 @@ def main():
 
     orf_ids = list(set(actual_df['orf_id']))
 
-    expected_df = pd.read_csv(args.expected_dist, sep = "\t")
+    expected_df = pd.read_csv(args.expected_dist)
 
     frame0_dict = dict(zip(expected_df['footprint_type'], expected_df['frac']))
     frame1_dict = convert_frame_of_dict(frame0_dict, 1)
