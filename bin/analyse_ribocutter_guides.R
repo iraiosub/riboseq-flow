@@ -22,8 +22,8 @@ get_ribocutter_table <- function(ribocutter_csv) {
   actual_name <- str_remove(basename(ribocutter_csv), ".csv")
   
   df <- read_csv(ribocutter_csv) %>%
-    mutate(name = str_split(actual_name, ".min")[[1]][1]) %>%
-    mutate(min_length = case_when(str_detect(actual_name, ".min") ~ as.integer(str_split(actual_name, ".min")[[1]][2]),
+    mutate(name = str_split(actual_name, "\\.min")[[1]][1]) %>%
+    mutate(min_length = case_when(str_detect(actual_name, "\\.min") ~ as.integer(str_split(actual_name, "\\.min")[[1]][2]),
                                   TRUE ~ 1L))
   
   df <- mutate(df, guide_number = nrow(df))
