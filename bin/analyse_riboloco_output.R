@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+# Author: Oscar Wilkins
+
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(patchwork))
@@ -20,7 +22,7 @@ opt <- parse_args(opt_parser)
 
 # Load input
 riboloco_lite_output <- opt$input
-info <- fread(opt$transcript_info)
+info <- readr::read_tsv(opt$transcript_info)
 
 lengths_of_interest <- eval(parse(text = opt$lengths))
 min_footprints_in_orf <- opt$min_footprints

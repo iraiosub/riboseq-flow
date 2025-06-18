@@ -1,5 +1,7 @@
 #!/usr/bin/env Rscript
 
+# Author: Oscar Wilkins
+
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(tidyverse))
 
