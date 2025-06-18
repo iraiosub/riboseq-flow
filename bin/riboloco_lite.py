@@ -231,7 +231,7 @@ def main():
             (joint_df['A_site_estimate'] <= joint_df['orf_stop'] + args.flank)
         ]
 
-        joint_df.to_csv(args.output + '.csv.gz', compression='gzip', index=False)
+        joint_df.to_csv(args.output + '.riboloco.csv.gz', compression='gzip', index=False)
 
         joint_df = joint_df[
             (joint_df['orf_start'] <= joint_df['A_site_estimate']) &
@@ -249,7 +249,7 @@ def main():
         joint_df = joint_df.drop(['A_site_estimate', 'index'], axis=1)
 
         # Output the final summary CSV
-        joint_df.to_csv(args.output + '.summary.csv.gz', compression='gzip', index=False)
+        joint_df.to_csv(args.output + '.riboloco_summary.csv.gz', compression='gzip', index=False)
 
 
 
