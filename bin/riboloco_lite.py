@@ -99,7 +99,9 @@ def load_tsv_into_dict(filename, key_column):
         values are the entire rows of data (as lists).
     """
     data_dict = {}
-    with open(filename, 'r') as file:
+
+    open_func = gzip.open if filename.endswith(".gz") else open
+    with open_func(filename, 'rt') as file:
         reader = csv.reader(file, delimiter='\t')
         header = next(reader)  # Extract the header line
         for row in reader:

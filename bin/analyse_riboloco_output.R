@@ -15,10 +15,10 @@ option_list <- list(make_option(c("-i", "--input"), action = "store", type = "ch
                     make_option(c("-g", "--gene_names"), action = "store", type = "character", default=NULL,help = "Comma-separated list of gene name patterns (e.g., 'Scn,Grin1')"),
                     make_option(c("-o", "--output"), action = "store", type = "character", help = "output prefix"))
 
-
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
 
+# Load input
 riboloco_lite_output <- opt$input
 info <- fread(opt$transcript_info)
 
@@ -229,11 +229,9 @@ if (nrow(df3) > 0 && sum(!is.na(df3$kl_div)) > 0) {
 #   ggtitle('"Weirdness of distribution of footprint types" score',
 #           'Higher score = more weird = more likely out-of-frame') 
 
-### Write results ###
-
 write_csv(df3, paste0(prefix, ".kld_div.csv.gz"))
 
-
+# Frame shift analyses
 df3_0 <- df %>%
   inner_join(annotated_fractions) %>%
   dplyr::filter(within_orf) %>%
