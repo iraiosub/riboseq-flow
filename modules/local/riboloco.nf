@@ -15,9 +15,9 @@ process RIBOLOCO {
     path transcript_info
 
     output:
-    tuple val(sample_id), path("${sample_id}.csv.gz"),  emit: results
-    tuple val(sample_id), path("*.summary.csv.gz"),     emit: summary
-    path "versions.yml",                                emit: versions
+    tuple val(sample_id), path("${sample_id}.riboloco.csv.gz"),  emit: results
+    tuple val(sample_id), path("*.riboloco_summary.csv.gz"),     emit: summary
+    path "versions.yml",                                         emit: versions
 
     when:
     task.ext.when == null || task.ext.when

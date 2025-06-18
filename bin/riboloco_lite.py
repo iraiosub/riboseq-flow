@@ -6,6 +6,7 @@ import pysam
 import argparse
 import re
 import pandas as pd
+import gzip
 
 
 import csv
@@ -121,7 +122,9 @@ def read_fasta(filename):
   current_seq_name = None
   current_seq = ""
 
-  with open(filename, "r") as f:
+  open_func = gzip.open if filename.endswith(".gz") else open
+
+  with open_func(filename, "rt") as f:
     for line in f:
       line = line.rstrip()  # Remove trailing whitespace
       if line.startswith(">"):
