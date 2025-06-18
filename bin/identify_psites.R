@@ -46,13 +46,13 @@ dir.create("ribowaltz_qc")
 
 
 export_psites <- function(name, df_list) {
-  
+
   df <- df_list[[name]]
   df$sample <- name
-  
+
   data.table::fwrite(df, paste0(getwd(), "/", name, ".psite.tsv.gz"), sep = "\t")
   return(df)
-  
+
 }
 
 
@@ -74,46 +74,46 @@ plot_length_bins <- function(sample_name, df_list) {
                                         multisamples = "average",
                                         plot_style = "split",
                                         colour = c("gray70"))
-    
+
   } else {
-    
+
     rpf_list <- list("Only_start" = c("start_codon"), "All" = c("whole_sample"))
-    
+
     length_dist_split <-  rlength_distr(comparison_list,
                                         sample = rpf_list,
                                         multisamples = "average",
                                         plot_style = "split",
                                         colour = c("#699FC4", "gray70"))
   }
-  
+
   length_dist_split.gg <- length_dist_split$plot +
     ggplot2::theme(plot.background = ggplot2::element_blank(), 
                    panel.grid.minor = ggplot2::element_blank(),
                    panel.grid.major = ggplot2::element_blank())
-  
-  
+
+
   ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", sample_name, ".length_bins_for_psite.pdf"), length_dist_split.gg, dpi = 400, width = 10, height = 5)
-  
+
 }
 
 
 plot_metaheatmap <- function(name, df_list, annotation) {
-  
+
   ends_heatmap <- rends_heat(df_list, annotation, sample = name, 
                              cl = 100,
                              utr5l = 25, cdsl = 40, utr3l = 25)
-  
+
   ends_heatmap.gg <- ends_heatmap$plot +
     ggplot2::ylim(20,45)
-  
+
   ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", name, ".ends_heatmap.pdf"), ends_heatmap.gg, dpi = 400, width = 12, height = 8)
-  
+
   return(ends_heatmap.gg)
 }
 
 
 save_metaprofile_psite_plot <- function(sample_name, plots_ls) {
-  
+
   plot <- plots_ls[[sample_name]]
   ggplot2::ggsave(paste0(getwd(),"/ribowaltz_qc/", strsplit(sample_name, "plot_")[[1]][2], ".metaprofile_psite.pdf"), plot, dpi = 400, width = 12, height = 6) # save in wide format
 
@@ -125,16 +125,16 @@ plot_codon_usage <- function(sample_name, psite_info_ls) {
   psite.ls <- psite_info_ls[sample_name]
 
   cu_barplot <- codon_usage_psite(psite.ls, annotation = annotation.dt, sample = sample_name,
-                                        fasta_genome = TRUE, 
+                                        fasta_genome = TRUE,
                                         fastapath = fasta,
                                         gtfpath = gtf,
-                                        frequency_normalization = FALSE) 
-  
+                                        frequency_normalization = FALSE)
+
   # plot <- plots_ls[[sample_name]]
   # cu_barplot.gg <- unlist(cu_barplot[!(names(cu_barplot) %in% c("dt", "plot_comparison")) ])
 
   cu_barplot.gg <-cu_barplot$plot +
-    ggplot2::theme(plot.background = ggplot2::element_blank(), 
+    ggplot2::theme(plot.background = ggplot2::element_blank(),
                   panel.grid.minor = ggplot2::element_blank(),
                   panel.grid.major = ggplot2::element_blank())
 
@@ -142,21 +142,21 @@ plot_codon_usage <- function(sample_name, psite_info_ls) {
 }
 
 exclude_samples <- function(sample_name, df_list) {
-  
+
   sample_list <- list()
   exclude <- c()
   sample_list[["start_codon"]] <- df_list[[sample_name]][end5 <= cds_start & end3 >= cds_start]
-  
+
   if(nrow(sample_list[["start_codon"]]) == 0) {
     message("No reads overlapping start codon. Removing sample from analysis.")
-    
+
     exclude <- sample_name
-    
+
   } else {
-    
+
     message("This sample will not be excluded")
   }
-  
+
   return(exclude)
 }
 
@@ -166,6 +166,12 @@ stop_quietly <- function() {
   on.exit(options(opt))
   stop()
 }
+
+read_tsv_flexible <- function(file) {
+  con <- if (grepl("\\.gz$", file)) gzfile(file) else file
+  read.table(con, header = TRUE, sep = "\t", stringsAsFactors = FALSE)
+}
+
 
 
 # =========
@@ -204,7 +210,8 @@ reads.ls <- bamtolist(bamfolder = getwd(),
 reads.ls <- reads.ls[order(names(reads.ls))]
 
 # Filter to only transcript with longest CDS per gene
-tx <- data.table::fread(longest_cds.df)
+# tx <- data.table::fread(longest_cds.df)
+tx <- read_tsv_flexible(longest_cds.df)
 
 reads.ls <- lapply(reads.ls, function(df, tx.df) {
   df <- df[df$transcript %in% unique(tx.df$transcript_id),]
@@ -241,7 +248,7 @@ exclude.ls <- lapply(names(filtered.ls), exclude_samples, df_list = filtered.ls)
 filtered.ls <- filtered.ls[!names(filtered.ls) %in% exclude.ls]
 
 if (length(filtered.ls) == 0) {
-  
+
   message("No sample has reads passing filters for P-site identification. Stopping analysis.")
   stop_quietly()
 }
@@ -256,36 +263,36 @@ if (length(filtered.ls) == 0) {
 # each read, determined by the localisation of its first nucleotide
 
 if (method == "global_max_5end") {
-  
+
   message("P site offset = distance between the 1st nucleotide of the TIS and the nt corresponding to the global maximum found in the read length-specific 5' end profiles")
-  
+
   psite_offset.dt <- psite(filtered.ls, flanking = 6, extremity = "5end", 
                            plot = FALSE, plot_format = "pdf")
-  
-  
+
+
   # Replace ribowaltz-corrected offsets with temporary offests
   psite_offset.dt$corrected_offset_from_5 <- psite_offset.dt$offset_from_5
   psite_offset.dt$corrected_offset_from_3 <- psite_offset.dt$offset_from_3
 
   data.table::fwrite(psite_offset.dt, paste0(getwd(), "/psite_offset.tsv.gz"), sep = "\t")
 
-  
+
   # Update reads information according to the inferred P-sites
   filtered_psite.ls <- psite_info(filtered.ls, psite_offset.dt, site = "psite",
                                   fasta_genome = TRUE, refseq_sep = " ",
                                   fastapath = fasta,
                                   gtfpath = gtf)
-  
+
 } else if (method == "ribowaltz") {
-  
+
   message("P site offset = defined by the ribowaltz method")
-  
+
   # Compute P-site offsets: temporary and corrected
   psite_offset.dt <- psite(filtered.ls, flanking = 6, extremity = "auto", 
                            plot = TRUE, plot_format = "pdf")
 
   data.table::fwrite(psite_offset.dt, paste0(getwd(), "/psite_offset.tsv.gz"), sep = "\t")
-  
+
   # Update reads information according to the inferred P-sites
   filtered_psite.ls <- psite_info(filtered.ls, psite_offset.dt, site = "psite",
                                   fasta_genome = TRUE, refseq_sep = " ",
@@ -293,7 +300,7 @@ if (method == "global_max_5end") {
                                   gtfpath = gtf)
 
 } else {
-  
+
   stop("Incorrect P-site offset method option. Available options are 'global_max_5end` or 'rbowaltz'")
 }
 
