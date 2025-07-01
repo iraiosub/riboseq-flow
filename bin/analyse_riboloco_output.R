@@ -60,7 +60,7 @@ write_csv(df_unique_orf_identifier_footprint_types,
 
 # Assign ORF labels based on overlap with annotated ORFs
 orf_labels <- df %>%
-  dplyr::select(transcript_id, orf_start, orf_stop, annotated) %>%
+  dplyr::select(transcript_id, orf_start, orf_stop, annotated, frame) %>%
   distinct() %>%
   group_by(transcript_id) %>%
   mutate(annotated_start = max(ifelse(annotated == 1, orf_start, -1)),
@@ -189,18 +189,18 @@ if (nrow(df3) > 0 && sum(!is.na(df3$kl_div)) > 0) {
       geom_violin(scale = "width") +
       theme_classic() +
       ggeasy::easy_rotate_x_labels(side = 'right') +
-      ylab("KullbackLeibler Divergence") +
+      ylab("Kullback-Leibler divergence") +
       ggtitle('"Weirdness of distribution of footprint types" score',
               'Higher score = more weird = more likely out-of-frame') +
       xlab("Type of ORF")
 
-    ggsave(paste0(prefix,'.footprint_heatmap.pdf'), p4, height = 25, width = 20, units = 'cm')
+    ggsave(paste0(prefix,'.kl_div_distribution.pdf'), p4, height = 25, width = 20, units = 'cm')
 
 
     p5 <- ggplot(df3 %>% ungroup() %>% arrange(desc(label)), aes(x = r, y = kl_div, colour = label)) +
-      geom_point() +
+      geom_point(alpha = 0.7) +
       theme_classic() +
-      ylab("KullbackLeibler Divergence") +
+      ylab("Kullback-Leibler divergence") +
       xlab('Rank') +
       facet_wrap(~orf_label, scales = 'free_x')  +
       ggrepel::geom_label_repel(aes(label = label, alpha = 0.5), box.padding = 2) +
@@ -335,7 +335,10 @@ if (nrow(df3_0) > 0 && nrow(df3_1) > 0 && nrow(df3_2) > 0) {
     mutate(label = ifelse(orf_label == 'Upstream overlapping ORF', gene_name, NA))
 
   decrease.gg <- ggplot(df4, aes(x = r, y = value, colour = label)) +
-    geom_point() +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    geom_point(alpha = 0.7) +
+    theme_classic() +
+    ylab("Kullback-Leibler divergence decrease") +
     facet_grid(cols = vars(orf_label), rows = vars(name), scales = 'free_x') +
     ggrepel::geom_label_repel(aes(label = label), alpha = 0.5, box.padding = 1)
 

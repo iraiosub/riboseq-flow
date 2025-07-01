@@ -7,9 +7,8 @@ import argparse
 import re
 import pandas as pd
 import gzip
-
-
 import csv
+import os
 
 
 def find_all_orfs(tx_fasta_d, info_dict, max_tx=1_000_000):
@@ -162,6 +161,12 @@ def main():
     info_dict = load_tsv_into_dict(args.info, 'transcript_id')
 
     orf_df = find_all_orfs(tx_fasta_d, info_dict)
+
+    # Save ORFs using the basename of the --info file
+    info_basename = os.path.splitext(os.path.basename(args.info))[0]
+    orf_df.to_csv(f"{info_basename}.orf_predictions.csv.gz", compression='gzip', index=False)
+
+
     x = 0
     bam_tx_list = []
     bam_pos_list = []

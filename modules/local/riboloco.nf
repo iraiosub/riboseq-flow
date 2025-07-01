@@ -17,6 +17,7 @@ process RIBOLOCO {
     output:
     tuple val(sample_id), path("${sample_id}.riboloco.csv.gz"),  emit: results
     tuple val(sample_id), path("*.riboloco_summary.csv.gz"),     emit: summary
+    path "*.orf_predictions.csv.gz",                             emit: orf_predictions
     path "versions.yml",                                         emit: versions
 
     when:
