@@ -104,8 +104,10 @@ def main():
 
     args = parser.parse_args()
 
-    # Read in data and process
+    # Make all random operations reproducible
+    np.random.seed(42)
 
+    # Read in data and process
     actual_df = pd.read_csv(args.all_footprints)
 
     if actual_df.empty:
