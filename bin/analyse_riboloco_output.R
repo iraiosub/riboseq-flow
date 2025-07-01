@@ -15,8 +15,8 @@ option_list <- list(make_option(c("-i", "--input"), action = "store", type = "ch
                     make_option(c("-c", "--min_footprints"), action = "store", type = "integer", default=10, help = "min footprints in orf"),
                     make_option(c("-p", "--min_unique_footprint_positions"), action = "store", type = "integer", default=3, help = "min unique footprint positions"),
                     make_option(c("-g", "--gene_names"), action = "store", type = "character", default=NULL,help = "Comma-separated list of gene name patterns (e.g., 'Scn,Grin1')"),
-                    make_option(c("--periodicity_threshold"), action = "store", default = 0, help = "Filter for periodic read types; default fraction = 0 i.e. no filtering"),
-                    make_option(c("--periodicity_min_counts"), action = "store", default = 100, help = "Min total reads across all frames to define periodic read types"),
+                    make_option(c("--periodicity_threshold"), action = "store", default = 0, type = "double", help = "Filter for periodic read types; default fraction = 0 i.e. no filtering"),
+                    make_option(c("--periodicity_min_counts"), action = "store", default = 100, type = "integer", help = "Min total reads across all frames to define periodic read types"),
                     make_option(c("-o", "--output"), action = "store", type = "character", help = "output prefix"))
 
 opt_parser = OptionParser(option_list = option_list)
