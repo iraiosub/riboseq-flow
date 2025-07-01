@@ -15,10 +15,50 @@ option_list <- list(make_option(c("-i", "--input"), action = "store", type = "ch
                     make_option(c("-c", "--min_footprints"), action = "store", type = "integer", default=10, help = "min footprints in orf"),
                     make_option(c("-p", "--min_unique_footprint_positions"), action = "store", type = "integer", default=3, help = "min unique footprint positions"),
                     make_option(c("-g", "--gene_names"), action = "store", type = "character", default=NULL,help = "Comma-separated list of gene name patterns (e.g., 'Scn,Grin1')"),
+                    make_option(c("--periodicity_threshold"), action = "store", default = 0, help = "Filter for periodic read types; default fraction = 0 i.e. no filtering"),
+                    make_option(c("--periodicity_min_counts"), action = "store", default = 100, help = "Min total reads across all frames to define periodic read types"),
                     make_option(c("-o", "--output"), action = "store", type = "character", help = "output prefix"))
 
 opt_parser = OptionParser(option_list = option_list)
 opt <- parse_args(opt_parser)
+
+# Functions
+get_periodic_read_types <- function(footprint_types, lengths_of_interest, periodicity = 0.45, min_sum_frames = 100) {
+
+  summary.df <- footprint_types %>%
+  group_by(footprint_type) %>%
+  mutate(n = n()) %>%
+  distinct(footprint_type, n) %>%
+  mutate(length = as.numeric(word(footprint_type, 1, sep="_")),
+         frame = as.numeric(word(footprint_type, 2, sep="_")),
+         mismatch = str_detect(footprint_type, "MM")) %>%
+  ungroup() %>%
+  dplyr::filter(length %in% lengths_of_interest)
+
+
+  periodicity.df <- summary.df %>%
+    group_by(length, mismatch, frame) %>%
+    summarise(total = sum(n), .groups = 'drop')
+
+  periodicity.wide.df <- periodicity.df %>%
+    pivot_wider(names_from = frame, values_from = total, names_prefix = "frame_") %>%
+    replace_na(list(frame_0 = 0, frame_1 = 0, frame_2 = 0))
+
+  periodicity.wide.df <- periodicity.wide.df %>%
+    mutate(total = frame_0 + frame_1 + frame_2,
+           max_frac = pmax(frame_0, frame_1, frame_2) / total,
+           periodic = max_frac > periodicity & total > min_sum_frames)
+
+
+  periodic_types <- summary.df %>%
+    inner_join(periodicity.wide.df %>% dplyr::filter(periodic), by = c("length", "mismatch")) %>%
+    pull(footprint_type) %>%
+    unique()
+
+  return(periodic_types)
+}
+
+
 
 # Load input
 riboloco_lite_output <- opt$input
@@ -41,13 +81,24 @@ gene_info <- info %>%
 df <- readr::read_csv(riboloco_lite_output) %>%
   mutate(within_orf = A_site_estimate >= orf_start & A_site_estimate <= orf_stop)
 
-# Get ORF types counts
+# Create ORF id
 df_unique_orf_identifier <- df %>%
   dplyr::filter(within_orf) %>%
   ungroup() %>%
   mutate(orf_id = paste(transcript_id, orf_start, orf_stop, orf_frame, sep = "_"))
 
 
+# Optionally keep only periodic read types
+if (opt$periodicity_threshold > 0) {
+
+# Get periodic_lengths
+periodic_footprint_types <- get_periodic_read_types(df_unique_orf_identifier, lengths_of_interest, periodicity = opt$periodicity_threshold, min_sum_frames = opt$periodicity_min_counts)
+
+  df_unique_orf_identifier <- df_unique_orf_identifier %>%
+    dplyr::filter(footprint_type %in% periodic_footprint_types)
+}
+
+# Get ORF types counts
 df_unique_orf_identifier_footprint_types <- df_unique_orf_identifier %>%
   group_by(orf_id, footprint_type) %>%
   summarise(footprint_type_n = n()) %>%
@@ -56,6 +107,24 @@ df_unique_orf_identifier_footprint_types <- df_unique_orf_identifier %>%
 
 write_csv(df_unique_orf_identifier_footprint_types,
        paste0(prefix,".footprint_types_per_orf.csv.gz"))
+
+
+# Find fractions of each footprint in annotated regions
+annotated_fractions <- df_unique_orf_identifier %>%
+  dplyr::filter(annotated == 1) %>%
+  # dplyr::filter(within_orf) %>% # already filtered
+  group_by(footprint_type) %>%
+  mutate(n = n()) %>%
+  distinct(footprint_type, n) %>%
+  mutate(length = as.numeric(word(footprint_type, 1, sep="_")),
+         frame = as.numeric(word(footprint_type, 2, sep="_")),
+         mismatch = str_detect(footprint_type, "MM")) %>%
+  dplyr::filter(length %in% lengths_of_interest) %>%
+  ungroup() %>%
+  mutate(frac = n/sum(n))
+
+
+write_csv(annotated_fractions, paste0(prefix, ".annotated_fractions.csv.gz"))
 
 
 # Assign ORF labels based on overlap with annotated ORFs
@@ -73,28 +142,10 @@ orf_labels <- df %>%
                                orf_stop > annotated_stop & orf_start < annotated_stop ~ 'Downstream overlapping ORF',
                                T ~ 'Overlapping ORF'))
 
-# Find fractions of each footprint in annotated regions
-annotated_fractions <- df %>%
-  dplyr::filter(annotated == 1) %>%
-  dplyr::filter(within_orf) %>%
-  group_by(footprint_type) %>%
-  mutate(n = n()) %>%
-  distinct(footprint_type, n) %>%
-  mutate(length = as.numeric(word(footprint_type, 1, sep="_")),
-         frame = as.numeric(word(footprint_type, 2, sep="_")),
-         mismatch = str_detect(footprint_type, "MM")) %>%
-  filter(length %in% lengths_of_interest) %>%
-  ungroup() %>%
-  mutate(frac = n/sum(n))
-
-
-write_csv(annotated_fractions, paste0(prefix, ".annotated_fractions.csv.gz"))
-
-
 # Produce heatmap of footprint type densities near start and stop codons
 df2 <- df %>%
   group_by(transcript_id) %>%
-  filter(annotated == 1) %>%
+  dplyr::filter(annotated == 1) %>%
   mutate(cds_start = max(ifelse(annotated == 1, orf_start, -1000))) %>%
   mutate(cds_stop  = max(ifelse(annotated == 1, orf_stop, -1000))) %>%
   mutate(Position_relative_to_CDS_start = A_site_estimate - cds_start,
@@ -213,9 +264,6 @@ if (nrow(df3) > 0 && sum(!is.na(df3$kl_div)) > 0) {
   } else {
     message("Skipping p4 and p5 plots: no valid data.")
   }
-
-
-
 
 
 # combined_2 =(p4 | p5) + plot_layout(widths = c(1, 3))
@@ -350,3 +398,4 @@ if (nrow(df3_0) > 0 && nrow(df3_1) > 0 && nrow(df3_2) > 0) {
 } else {
   message("Skipping KL-div decrease plots: one or more shifted dataframes are empty.")
 }
+

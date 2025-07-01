@@ -72,6 +72,8 @@ process ANALYSE_RIBOLOCO {
     def min_footprints = task.ext.riboloco_min_footprints ?: 10
     def min_unique_footprint_positions = task.ext.riboloco_min_unique_footprint_positions ?: 3
     def gene_names = task.ext.riboloco_gene_names ?: "SCN"
+    def periodicity = task.ext.riboloco_periodicity_threshold ?: 0
+    def periodicity_min_counts = task.ext.riboloco_periodicity_min_counts ?: 100
 
     """
     analyse_riboloco_output.R \\
@@ -81,6 +83,8 @@ process ANALYSE_RIBOLOCO {
         --min_footprints ${min_footprints} \\
         --min_unique_footprint_positions ${min_unique_footprint_positions} \\
         --gene_names ${gene_names} \\
+        --periodicity_threshold ${periodicity} \\
+        --periodicity_min_counts ${periodicity_min_counts} \\
         --output ${prefix} \\
         ${args}
     """
