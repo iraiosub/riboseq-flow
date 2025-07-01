@@ -129,7 +129,7 @@ write_csv(annotated_fractions, paste0(prefix, ".annotated_fractions.csv.gz"))
 
 # Assign ORF labels based on overlap with annotated ORFs
 orf_labels <- df %>%
-  dplyr::select(transcript_id, orf_start, orf_stop, annotated, frame) %>%
+  dplyr::select(transcript_id, orf_start, orf_stop, annotated, orf_frame) %>%
   distinct() %>%
   group_by(transcript_id) %>%
   mutate(annotated_start = max(ifelse(annotated == 1, orf_start, -1)),
