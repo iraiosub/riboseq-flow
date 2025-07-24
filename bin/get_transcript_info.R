@@ -90,6 +90,13 @@ tx.info.dt <- unique.longest.pc.dt %>%
                 cds_start, cds_len, tx_len, cds_end) %>%
   dplyr::rename(cds_length = cds_len, tx_length = tx_len)
 
+
+# Remove support columns before export
+tx.info.dt <- tx.info.dt %>%
+  dplyr::select(gene_name, gene_id, transcript_id,
+                cds_start, cds_length, tx_length, cds_end)
+
+
 # Save transcript info
 output_prefix <- str_split(basename(opt$gtf), ".gtf")[[1]][1]
 tx_info_name <- paste0(output_prefix , ".longest_cds.transcript_info.tsv")
