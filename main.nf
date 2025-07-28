@@ -31,13 +31,13 @@ Sequencing Adapter Optional Channels
 if (params.adapter_file_threeprime) {
     ch_adapters_3p = Channel.fromPath(params.adapter_file_threeprime, checkIfExists: true)
 } else {
-    ch_adapters_3p = Channel.empty()
+    ch_adapters_3p = Channel.value("NO_3P").collectFile{it -> ["${it}", it]}
 }
 
 if (params.adapter_file_fiveprime) {
     ch_adapters_5p = Channel.fromPath(params.adapter_file_fiveprime, checkIfExists: true)
 } else {
-    ch_adapters_5p = Channel.empty()
+    ch_adapters_5p = Channel.value("NO_5P").collectFile{it -> ["${it}", it]}
 }
 
 

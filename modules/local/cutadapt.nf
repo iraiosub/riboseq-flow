@@ -36,12 +36,12 @@ process CUTADAPT {
     adapter_args = ""
     if (params.adapter_threeprime) {
         adapter_args += " -a ${params.adapter_threeprime}"
-    } else if (adapter_file_3p){
+    } else if (adapter_file_3p.name != 'NO_3P') {
         adapter_args += " -a file:${adapter_file_3p}"
     }
     if (params.adapter_fiveprime) { 
         adapter_args += " -g ${params.adapter_fiveprime}"
-    } else if (adapter_file_5p) {
+    } else if (adapter_file_5p.name != 'NO_5P') {
         adapter_args += " -g file:${adapter_file_5p}"
     }
     if ((params.adapter_threeprime || adapter_file_3p) && ( params.adapter_fiveprime || adapter_file_5p ) && params.times_trimmed < 2) params.times_trimmed = 2
