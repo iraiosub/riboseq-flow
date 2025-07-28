@@ -25,6 +25,23 @@ if (params.org  && !params.genomes.containsKey(params.org)) {
 }
 
 /* 
+Sequencing Adapter Optional Channels
+*/
+
+if (params.adapter_file_threeprime) {
+    ch_adapters_3p = Channel.fromPath(params.adapter_file_threeprime, checkIfExists: true)
+} else {
+    ch_adapters_3p = Channel.empty()
+}
+
+if (params.adapter_file_fiveprime) {
+    ch_adapters_5p = Channel.fromPath(params.adapter_file_fiveprime, checkIfExists: true)
+} else {
+    ch_adapters_5p = Channel.empty()
+}
+
+
+/* 
 PREPARE GENOME CHANNELS
 */
 
@@ -104,7 +121,11 @@ workflow RIBOSEQ {
     )
     
     // Extract UMIs and/or trim adapters and filter on min length, then run FASTQC
-    PREPROCESS_READS(ch_input)
+    PREPROCESS_READS(
+        ch_input, 
+        ch_adapters_3p, 
+        ch_adapters_5p
+    )
     FASTQC(PREPROCESS_READS.out.fastq)
 
     // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)
