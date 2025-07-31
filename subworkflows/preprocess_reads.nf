@@ -17,6 +17,8 @@ workflow PREPROCESS_READS {
 
     take:
     reads
+    adapters_3p
+    adapters_5p
 
     main:
     
@@ -26,7 +28,11 @@ workflow PREPROCESS_READS {
 
         if (!params.skip_trimming) {
 
-            CUTADAPT(UMITOOLS_EXTRACT.out.fastq)
+            CUTADAPT(
+                UMITOOLS_EXTRACT.out.fastq,
+                adapters_3p, 
+                adapters_5p
+            )
 
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
             cut_fastq = CUTADAPT.out.cut_fastq
@@ -50,7 +56,11 @@ workflow PREPROCESS_READS {
         // Skip UMI-extract 
         if (!params.skip_trimming) {
 
-            CUTADAPT(reads)
+            CUTADAPT(
+                reads, 
+                adapters_3p, 
+                adapters_5p
+            )
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
             cut_fastq = CUTADAPT.out.cut_fastq
             fastq = CUTADAPT.out.filtered_fastq

@@ -18,6 +18,8 @@ process CUTADAPT {
 
     input:
         tuple val(sample_id), path(reads)
+        path(adapter_file_3p)
+        path(adapter_file_5p)
 
     output:
         tuple val(sample_id), path("${sample_id}.trimmed.fastq.gz"), emit: trimmed_fastq // necessary for Ribocutter
@@ -32,9 +34,17 @@ process CUTADAPT {
 
     // Append adapter-specific args
     adapter_args = ""
-    if (params.adapter_threeprime) adapter_args += " -a ${params.adapter_threeprime}"
-    if (params.adapter_fiveprime) adapter_args += " -g ${params.adapter_fiveprime}"
-    if (params.adapter_threeprime && params.adapter_fiveprime && params.times_trimmed < 2) params.times_trimmed = 2
+    if (params.adapter_threeprime) {
+        adapter_args += " -a ${params.adapter_threeprime}"
+    } else if (adapter_file_3p.name != 'NO_3P') {
+        adapter_args += " -a file:${adapter_file_3p}"
+    }
+    if (params.adapter_fiveprime) { 
+        adapter_args += " -g ${params.adapter_fiveprime}"
+    } else if (adapter_file_5p.name != 'NO_5P') {
+        adapter_args += " -g file:${adapter_file_5p}"
+    }
+    if ((params.adapter_threeprime || adapter_file_3p) && ( params.adapter_fiveprime || adapter_file_5p ) && params.times_trimmed < 2) params.times_trimmed = 2
     adapter_args += " -n ${params.times_trimmed}"
 
     // Define args for cutting bases from the end of the reads

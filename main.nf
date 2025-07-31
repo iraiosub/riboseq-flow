@@ -1,5 +1,7 @@
 #!/usr/bin/env nextflow
 
+include { getAdapterChannel } from './modules/local/helper.nf'
+
 // Specify DSL2
 nextflow.enable.dsl=2
 
@@ -23,6 +25,15 @@ if (!params.input) {
 if (params.org  && !params.genomes.containsKey(params.org)) {
     exit 1, "The provided genome '${params.org}' is not available. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
 }
+
+/* 
+Sequencing Adapter Optional Channels
+*/
+
+
+// Create channels for adapters
+ch_adapters_3p = getAdapterChannel(params.adapter_file_threeprime, "NO_3P")
+ch_adapters_5p = getAdapterChannel(params.adapter_file_fiveprime, "NO_5P")
 
 /* 
 PREPARE GENOME CHANNELS
@@ -104,7 +115,11 @@ workflow RIBOSEQ {
     )
     
     // Extract UMIs and/or trim adapters and filter on min length, then run FASTQC
-    PREPROCESS_READS(ch_input)
+    PREPROCESS_READS(
+        ch_input, 
+        ch_adapters_3p, 
+        ch_adapters_5p
+    )
     FASTQC(PREPROCESS_READS.out.fastq)
 
     // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)

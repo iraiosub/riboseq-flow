@@ -42,7 +42,7 @@ riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of
 
 ## Quick start (test the pipeline with a minimal dataset)
 
-1. Ensure `Nextflow`(version `21.10.3` or later) and `Docker` or `Singularity` (version `3.6.4` or later) are installed on your system.
+1. Ensure `Nextflow`(version `21.10.3` or later) and `Docker` or `Singularity`/`Apptainer` (Singularity version `3.6.4` or later) are installed on your system.
 Nextflow installation instructions can be found [here](https://nf-co.re/docs/usage/installation).
 We recommend using Nextflow with `Java 17.0.9` or later.
 
@@ -108,7 +108,7 @@ nextflow run iraiosub/riboseq-flow -r v1.1.1 \
 
 ### Core Nextflow arguments
 
-- `-profile`: specifies a configuration profile. Profiles can give configuration presets for different compute environments. Options are `test`, `docker`,`singularity` and `crick` depending on the system being used and resources available. Others can be found at [nf-core](https://github.com/nf-core/configs).
+- `-profile`: specifies a configuration profile. Profiles can give configuration presets for different compute environments. Options are `test`, `docker`,`singularity`,`apptainer`, and `crick` depending on the system being used and resources available. Others can be found at [nf-core](https://github.com/nf-core/configs).
 - `-resume`: specify this when restarting a pipeline. Nextflow will use cached results from any pipeline steps where the inputs are the same, continuing from where it got to previously. For input to be considered the same, not only the names must be identical but the files'contents as well.
 
 ### General parameters
@@ -167,7 +167,9 @@ Read trimming steps are executed in the following order: (i) adaptors and low qu
 - `--skip_trimming` skip the adapter and quality trimming and length filtering step
 - `--save_trimmed` save the final and intermediate FASTQ files produced during the trimming steps. By default, not enabled.
 - `--adapter_threeprime` sequence of 3' adapter (equivalent to `-a` in `cutadapt`)
+- `--adapter_file_threeprime` fasta file containing a list of 3' adapter sequences. Mutually exclusive with `--adapter_threeprime`
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to `-g` in `cutadapt`)
+- `adapter_file_fiveprime` fasta file containing a list of 5' adapter sequences. Mutually exclusive with `--adapter_fiveprime`
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
 - `--cut_end` number of nucleotides to be trimmed from 5' or 3' end of reads (equivalent to `-u` in `cutadapt`). Supply positive values for trimming from the 5' end, and negative values for trimming from the 3'end (default `0`, no residues are trimmed). **Important:**: This step is perfomed after adapter trimming, and after UMIs have been moved to the read header. Useful for libraries where non-templated nucleotides are part of the read and need trimming (e.g. template-switching, OTTR libraries).
 - `--minimum_quality` cutoff value for trimming low-quality ends from reads (default: `10`)
