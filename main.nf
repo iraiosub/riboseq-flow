@@ -1,5 +1,7 @@
 #!/usr/bin/env nextflow
 
+include { getAdapterChannel } from './modules/local/helper.nf'
+
 // Specify DSL2
 nextflow.enable.dsl=2
 
@@ -28,18 +30,10 @@ if (params.org  && !params.genomes.containsKey(params.org)) {
 Sequencing Adapter Optional Channels
 */
 
-if (params.adapter_file_threeprime) {
-    ch_adapters_3p = Channel.fromPath(params.adapter_file_threeprime, checkIfExists: true)
-} else {
-    ch_adapters_3p = Channel.value("NO_3P").collectFile{it -> ["${it}", it]}
-}
 
-if (params.adapter_file_fiveprime) {
-    ch_adapters_5p = Channel.fromPath(params.adapter_file_fiveprime, checkIfExists: true)
-} else {
-    ch_adapters_5p = Channel.value("NO_5P").collectFile{it -> ["${it}", it]}
-}
-
+// Create channels for adapters
+ch_adapters_3p = getAdapterChannel(params.adapter_file_threeprime, "NO_3P")
+ch_adapters_5p = getAdapterChannel(params.adapter_file_fiveprime, "NO_5P")
 
 /* 
 PREPARE GENOME CHANNELS
