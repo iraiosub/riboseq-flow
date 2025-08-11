@@ -210,8 +210,8 @@ def main():
                     else:
                         mismatch = 'm'
 
-                    # estimated_A_site = footprint_start + footprint_length - 12
-                    estimated_A_site = footprint_start + footprint_length - 12 - (footprint_length - 28)/2
+                    estimated_A_site = footprint_start + footprint_length - 12
+                    # estimated_A_site = footprint_start + footprint_length - 12 - (footprint_length - 28)/2
 
                     chunk_tx_list.append(tx)
                     chunk_pos_list.append(estimated_A_site)
