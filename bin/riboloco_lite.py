@@ -83,6 +83,64 @@ def find_all_orfs(tx_fasta_d, info_dict, max_tx=1_000_000):
     return orf_df
 
 
+def build_orf_children_table(tx_fasta_d, info_dict, orf_df):
+    """
+    Build an extended ORF table with a 'child_starts' column listing any
+    additional (downstream) starts linked to the same stop as the reported ORF.
+    Values are 1-based; 'child_starts' is a ';'-separated string ('' if none).
+    """
+    rows = []
+
+    # Only iterate over transcripts present in the predicted ORFs
+    for tx_id in orf_df["transcript_id"].unique():
+        if tx_id not in tx_fasta_d or tx_id not in info_dict:
+            continue
+
+        tx_seq = tx_fasta_d[tx_id]
+        cds_start = int(info_dict[tx_id][3])  # 1-based
+
+        starts = [m.start() for m in re.finditer('ATG', tx_seq)]  # 0-based
+        starts1 = [a + 1 for a in starts]                         # 1-based
+
+        stops = [m.start() + 1 for m in re.finditer('TGA', tx_seq)]
+        stops += [m.start() + 1 for m in re.finditer('TAA', tx_seq)]
+        stops += [m.start() + 1 for m in re.finditer('TAG', tx_seq)]
+
+        start_frames = {s: ((s - cds_start) % 3) for s in starts1}
+        stop_frames = {s: ((s - cds_start) % 3) for s in stops}
+
+        # first in-frame stop at/after each start (or large sentinel)
+        first_stop = {}
+        for s in starts1:
+            z = [100_000_000]
+            try:
+                first_stop[s] = min(z + [a for a in stops if a > s and start_frames[s] == stop_frames[a]])
+            except KeyError:
+                # If a stop somehow isn't in stop_frames, skip this start
+                continue
+
+        # group starts by their first in-frame stop
+        all_linked_starts = {}
+        for s, stp in first_stop.items():
+            all_linked_starts.setdefault(stp, []).append(s)
+
+        # For each real stop, pick the reported 'parent' (earliest start)
+        for stp, start_list in all_linked_starts.items():
+            if stp == 100_000_000:
+                continue
+            parent = min(start_list)
+            children = sorted([s for s in start_list if s != parent])
+            child_str = ";".join(str(s) for s in children) if children else ""
+            rows.append((tx_id, parent, stp, child_str))
+
+    children_df = pd.DataFrame(rows, columns=["transcript_id", "orf_start", "orf_stop", "child_starts"])
+
+    # Merge to preserve original columns/values and just append child_starts
+    extended = pd.merge(orf_df, children_df, on=["transcript_id", "orf_start", "orf_stop"], how="left")
+    # Ensure empty strings instead of NaN for ORFs without children
+    extended["child_starts"] = extended["child_starts"].fillna("")
+    return extended
+
 
 def load_tsv_into_dict(filename, key_column):
     """
@@ -143,9 +201,6 @@ def read_fasta(filename):
   return sequences
 
 
-
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--bam", "-b")
@@ -155,9 +210,7 @@ def main():
     parser.add_argument('--flank', type=int, default=300)
     args = parser.parse_args()
 
-
     tx_fasta_d = read_fasta(args.fasta)
-
     info_dict = load_tsv_into_dict(args.info, 'transcript_id')
 
     orf_df = find_all_orfs(tx_fasta_d, info_dict)
@@ -166,6 +219,9 @@ def main():
     info_basename = os.path.splitext(os.path.basename(args.info))[0]
     orf_df.to_csv(f"{info_basename}.orf_predictions.csv.gz", compression='gzip', index=False)
 
+    # NEW: also save a version with child starts (semicolon-separated)
+    orf_df_with_children = build_orf_children_table(tx_fasta_d, info_dict, orf_df)
+    orf_df_with_children.to_csv(f"{info_basename}.orf_predictions.children.csv.gz", compression='gzip', index=False)
 
     x = 0
     bam_tx_list = []
@@ -257,19 +313,9 @@ def main():
         # Output the final summary CSV
         joint_df.to_csv(args.output + '.riboloco_summary.csv.gz', compression='gzip', index=False)
 
-
-
-
     # annotated_only_df = joint_df[joint_df['annotated'] == 1]
     # annotated_only_df['n2'] = annotated_only_df.reset_index().groupby('footprint_type')['n'].transform('sum')
     # print(annotated_only_df)
 
 
-
-
 main()
-
-
-
-
-
