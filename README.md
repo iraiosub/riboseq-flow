@@ -2,12 +2,22 @@
 
 # riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis and comprehensive quality control
 
+
+## Citation
+
+If you use **riboseq-flow**, please cite:
+
+> **Iosub IA, Wilkins OG and Ule J.**  
+> *Riboseq-flow: A streamlined, reliable pipeline for ribosome profiling data analysis and quality control*  
+> **Wellcome Open Research 2024**, **9:179**  
+> [https://doi.org/10.12688/wellcomeopenres.21000.1](https://doi.org/10.12688/wellcomeopenres.21000.1)
+
 ## Table of contents
 
 1. [Introduction](#introduction)
 2. [Pipeline summary](#pipeline-summary)
-3. [Quick start (test the pipeline)](#quick-start-testing)
-4. [Quick start (run the pipeline on your data)](#quick-start-running)
+3. [Quick start (test the pipeline)](#quick-start-test-the-pipeline-with-a-minimal-dataset)
+4. [Quick start (run the pipeline on your data)](#quick-start-run-the-pipeline-on-your-data)
 5. [Pipeline parameters](#pipeline-parameters)
 6. [Pipeline outputs](#pipeline-outputs)
 7. [Pre-download container images](#pre-download-container-images)
@@ -334,10 +344,15 @@ singularity pull iraiosub-nf-riboseq-dedup-latest.img docker://iraiosub/nf-ribos
 riboseq-flow is written and maintained by Ira Iosub in Prof. Jernej Ule's lab at The Francis Crick Institute. It is based on a Snakemake pipeline in collaboration with its original author, Oscar Wilkins. 
 Contact email: `ira.iosub@crick.ac.uk`
 
+### Citation policy
+Please ensure the paper and Zenodo DOIs above are cited in any reuse, fork, or hosted implementation of this workflow.
+
 ### Issues and contributions
 
 riboseq-flow is under active development by Ira Iosub. For queries related to the pipeline, raise an issue on GitHub.
 If you are interested in building more functionality or want to get involved please reach out.
+
+---
 
 ### Contributing guidelines
 
@@ -346,25 +361,26 @@ We welcome contributions to riboseq-flow.
 If you wish to make an addition or change to the pipeline, please follow these steps:
 
 1. Open an issue to detail the proposed fix or feature and select the appropriate label.
-2. Create a new branch based on the `dev` branch, with a short, descriptive name e.g. `feat-colours` for making changes to a color palette
-3. Modify the code exclusively on this new branch and mention the relavant issue in the commit messages.
-4. When your modifications are complete, submit a pull request to the `dev` branch describing the changes. 
-5. Request a review from iraiosub on your pull request.
-6. The pull request will trigger a workflow execution on GitHub Actions for continuous integration (CI) of the pipeline.
-This is designed to automatically test riboseq-flow whenever a pull request is made to the main or dev branches of the repository. It ensures that the pipeline runs correctly in an Ubuntu environment, helping to catch any issues or errors early in the development process. 
+2. Fork this repo.
+3. Create a new branch based on the `dev` branch, with a short, descriptive name e.g. `feat-colours` for making changes to a color palette.
+4. Modify the code exclusively on this new branch and mention the relavant issue in the commit messages.
+5. When your modifications are complete, submit a pull request to the `dev` branch describing the changes. 
+6. Request a review from iraiosub on your pull request.
+7. The pull request will trigger a workflow execution on GitHub Actions for continuous integration (CI) of the pipeline.
+This is designed to automatically test riboseq-flow whenever a pull request is made to the main or dev branches of the repository.
+It ensures that the pipeline runs correctly in an Ubuntu environment, helping to catch any issues or errors early in the development process. 
 
 ## Why use riboseq-flow
 
-- it's user-friendly: it only requires minimal knowledge of the command-line interface
-- it can be reliably and consistently executed across different systems using Docker or Singularity
-- the user doesn't need to manage or install individual tool dependencies, only Nextflow and Docker or Singularity; containerisation ensures each process has the exact software and environment it needs
-- it produces the same results regardless of where the pipeline is run, which is a cornerstone of computational reproduciblity in scientific research
-- it enables efficient analysis of many samples in parallel, enabling comparative studies
-- it integrates data processing steps with quality control
-- it tallies reads at each critical step and produces bespoke ribo-seq quality reports
-- it provides users with a transparent view of the read processing and quality, and empowers them with a deeper understanding of the data, enabling more informed decisions for downstream analyses
-- it's open-source and version-controlled
-- it meets FAIR principles
+- **User-friendly:** requires only minimal command-line experience.  
+- **Portable and reproducible:** runs identically across systems using Docker or Singularity.  
+- **Self-contained:** no manual dependency installation—each process runs in a container with the exact software it needs.  
+- **Reproducible results:** produces the same outputs regardless of platform, a cornerstone of computational reproducibility.  
+- **Scalable:** efficiently processes many samples in parallel for comparative studies.  
+- **Integrated QC:** combines data processing with extensive ribo-seq–specific QC.  
+- **Transparent:** tracks read counts at every step and provides custom QC reports for each sample.  
+- **Insightful:** visualises read fate and key metrics, helping users make informed downstream decisions.  
+- **Open and FAIR:** fully version-controlled, openly available, and compliant with FAIR principles.
 
 
 
