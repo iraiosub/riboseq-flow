@@ -3,7 +3,7 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-/* 
+/*
 PREPARE INPUTS
 */
 
