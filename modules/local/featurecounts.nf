@@ -2,9 +2,9 @@
 
 // Specify DSL2
 nextflow.enable.dsl=2
- 
+
 process GENE_COUNTS_FEATURECOUNTS {
- 
+
     tag "${sample_id}"
     label 'process_medium'
 
@@ -14,7 +14,7 @@ process GENE_COUNTS_FEATURECOUNTS {
         'quay.io/biocontainers/subread:2.0.1--hed695b0_0' }"
 
     publishDir "${params.outdir}/featurecounts", pattern: "*.featureCounts*", mode: 'copy', overwrite: true
-    
+
     input:
     tuple val(sample_id), path(bam), path(bai)
     path(gtf)
@@ -28,10 +28,10 @@ process GENE_COUNTS_FEATURECOUNTS {
     def feature = params.feature ?: 'exon'
 
     if (params.strandedness == "forward") {
-        
+
         strandedness = 1
     } else if (params.strandedness == "reverse") {
-        
+
         strandedness = 2 
     } else if (params.strandedness == "unstranded") {
 
@@ -40,25 +40,25 @@ process GENE_COUNTS_FEATURECOUNTS {
 
         error "Library strandedness must be a valid argument. Options are 'forward', 'reverse', 'unstranded'. "
     }
-    
-    
+
+
         """
         featureCounts -a $gtf -s $strandedness -t $feature -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
-        
+
         """
 
 }
 
 
 process MERGE_FEATURECOUNTS {
- 
+
     label 'process_single'
 
     // conda '/camp/lab/ulej/home/users/luscomben/users/iosubi/projects/riboseq_nf/riboseq/env.yml'
     container 'iraiosub/nf-riboseq-qc:latest'
 
     publishDir "${params.outdir}/featurecounts", pattern: "*.featureCounts.tsv.gz", mode: 'copy', overwrite: true
-    
+
     input:
     path(featurecounts_tables)
 
@@ -69,7 +69,7 @@ process MERGE_FEATURECOUNTS {
 
         """
         INPUT=`echo $featurecounts_tables | sed 's/ /,/g'`
-            
+
         get_featurecounts_tables.R -i \$INPUT
         """
 

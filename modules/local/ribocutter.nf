@@ -41,7 +41,7 @@ process RIBOCUTTER {
         suffix = ".min" + params.min_length
     }
 
-    
+
         """
 
         ribocutter -i $reads -o ${sample_id}${suffix} $min_read_length_arg $args
@@ -52,7 +52,6 @@ process RIBOCUTTER {
 
 process GET_PROPORTION_TARGETED {
 
-    tag "${sample_id}"
     label 'process_single'
 
     container 'iraiosub/nf-riboseq-qc:latest'
@@ -68,13 +67,13 @@ process GET_PROPORTION_TARGETED {
 
 
     script:
-    
+
         """
 
         INPUT=`echo $guides | sed 's/ /,/g'`
 
         echo \$INPUT
-            
+
         analyse_ribocutter_guides.R -g \$INPUT
 
         """

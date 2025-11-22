@@ -25,7 +25,7 @@ workflow RUN_RIBOCUTTER {
     )
 
     GET_PROPORTION_TARGETED(RIBOCUTTER_DEFAULT.out.guides.map { [ it[1] ] }.collect().mix(RIBOCUTTER_MIN23.out.guides.map { [ it[1] ] }.collect()).collect())
-    
+
     emit:
 
     ribocutter_guides = RIBOCUTTER_DEFAULT.out.guides
