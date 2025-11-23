@@ -1,4 +1,10 @@
 [![DOI](https://zenodo.org/badge/552979223.svg)](https://zenodo.org/doi/10.5281/zenodo.10372020)
+[![Cite riboseq-flow](https://img.shields.io/badge/Cite%20this%20workflow-DOI:10.12688/wellcomeopenres.21000.1-blue.svg)](https://doi.org/10.12688/wellcomeopenres.21000.1)
+[![CI](https://github.com/iraiosub/riboseq-flow/actions/workflows/riboseq-flow-ci.yml/badge.svg)](https://github.com/iraiosub/riboseq-flow/actions/workflows/riboseq-flow-ci.yml)
+![Nextflow](https://img.shields.io/badge/nextflow->=21.10.3-23aa62?logo=nextflow)
+![GitHub Repo stars](https://img.shields.io/github/stars/iraiosub/riboseq-flow?style=social)
+![GitHub release (latest)](https://img.shields.io/github/v/release/iraiosub/riboseq-flow)
+
 
 # riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis and comprehensive quality control
 
@@ -7,9 +13,9 @@
 
 If you use **riboseq-flow**, please cite:
 
-> **Iosub IA, Wilkins OG and Ule J.**  
-> *Riboseq-flow: A streamlined, reliable pipeline for ribosome profiling data analysis and quality control*  
-> **Wellcome Open Research 2024**, **9:179**  
+> **Iosub IA, Wilkins OG and Ule J.**
+> *Riboseq-flow: A streamlined, reliable pipeline for ribosome profiling data analysis and quality control*
+> **Wellcome Open Research 2024**, **9:179**
 > [https://doi.org/10.12688/wellcomeopenres.21000.1](https://doi.org/10.12688/wellcomeopenres.21000.1)
 
 ## Table of contents
@@ -56,7 +62,7 @@ riboseq-flow is a Nextflow DSL2 pipeline for the analysis and quality control of
 Nextflow installation instructions can be found [here](https://nf-co.re/docs/usage/installation).
 We recommend using Nextflow with `Java 17.0.9` or later.
 
-**Note:** The pipeline has been tested on with `Nextflow` versions `21.10.3`, `22.10.3`, `23.04.2` and `23.10.0`. 
+**Note:** The pipeline has been tested on with `Nextflow` versions `21.10.3`, `22.10.3`, `23.04.2`, `23.10.0`, `24.10.2` and `25.10.0`.
 
 2. Pull the desired version of the pipeline from the GitHub repository:
 

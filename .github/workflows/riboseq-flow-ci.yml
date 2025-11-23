@@ -1,6 +1,6 @@
-name: riboseq-flow-github-actions
+name: riboseq-flow CI
 run-name: ${{ github.actor }} is using GitHub Actions
-on: 
+on:
   pull_request:
     branches:
       - main
@@ -12,5 +12,5 @@ jobs:
       - uses: actions/checkout@v3
       - run: |
           wget -qO- get.nextflow.io | bash
-          mv nextflow /usr/local/bin/  
+          mv nextflow /usr/local/bin/
       - run: nextflow run ${GITHUB_WORKSPACE}/main.nf -profile github,docker

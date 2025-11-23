@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+title: "riboseq-flow"
+message: "If you use riboseq-flow, please cite the software and the associated paper."
+type: software
+
+authors:
+  - family-names: Iosub
+    given-names: Ira A.
+    orcid: "0000-0002-2924-2471"
+  - family-names: Wilkins
+    given-names: Oscar G.
+
+# Software DOI (Zenodo CONCEPT DOI; stable across versions)
+doi: "10.5281/zenodo.10372020"
+
+url: "https://github.com/iraiosub/riboseq-flow"
+repository-code: "https://github.com/iraiosub/riboseq-flow"
+
+version: "1.2.0"
+date-released: "2025-11-23"
+license: "GPL-3.0"
+
+preferred-citation:
+  type: article
+  authors:
+    - family-names: Iosub
+      given-names: Ira A.
+    - family-names: Wilkins
+      given-names: Oscar G.
+    - family-names: Ule
+      given-names: Jernej
+  title: "Riboseq-flow: A streamlined, reliable pipeline for ribosome profiling data analysis and quality control"
+  journal: "Wellcome Open Research"
+  volume: "9"
+  year: 2024
+  doi: "10.12688/wellcomeopenres.21000.1"
