@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added MultiQC configuration file as an input to the `MULTIQC` process, closes [#98](https://github.com/iraiosub/riboseq-flow/issues/98).
 - Cap resources for profile `test` testing and override base profile labels.
 - Added one more sample in the samplesheet for for profile `test` testing.
-- Bump riboWaltz version.
+- Bump MultiQC version.
 
 ### Fixed
 - Removed `tag` directive from processes not requiring it, enabling compatibility with Nextflow `25.10.0`, closes [#99](https://github.com/iraiosub/riboseq-flow/issues/99).
