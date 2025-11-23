@@ -15,7 +15,7 @@ suppressPackageStartupMessages(library(riboWaltz))
 #                     make_option(c("-g", "--gtf"), action = "store", type = "character", default=NA, help = "GTF file"),
 #                     make_option(c("-f", "--fasta"), action = "store", type = "character", default=NA, help = "genome FASTA file"),
 #                     make_option(c("-l", "--length_range"), action = "store", type = "character", default="26:31", help = "string specifying the min and max length filter for RPFs, e.g.26:31"))
-# 
+#
 # opt_parser = OptionParser(option_list = option_list)
 # opt <- parse_args(opt_parser)
 
@@ -241,7 +241,7 @@ exclude.ls <- lapply(names(filtered.ls), exclude_samples, df_list = filtered.ls)
 filtered.ls <- filtered.ls[!names(filtered.ls) %in% exclude.ls]
 
 if (length(filtered.ls) == 0) {
-  
+
   message("No sample has reads passing filters for P-site identification. Stopping analysis.")
   stop_quietly()
 }

@@ -37,11 +37,18 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
 
     ch_genome_gtf = Channel.empty()
     if (genome_gtf.toString().endsWith('.gz')) {
-        ch_genome_gtf = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip
+        ch_genome_gtf = GUNZIP_GTF ( [ [:], genome_gtf ] ).gunzip
+
+        // println "DEBUG: genome_gtf type: ${genome_gtf.getClass()}"
+        // println "DEBUG: params.gtf type: ${params.gtf.getClass()}"
+
     } else {
 
         ch_genome_gtf = Channel.from( [ [ [:], genome_gtf ] ] )
+
     }
+
+    // println "ch_genome_gtf class: ${ch_genome_gtf.getClass()}"
 
     ch_contaminants_fasta = Channel.empty()
     if (!params.skip_premap && contaminants_fasta.toString().endsWith('.gz')) {
@@ -62,7 +69,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
         GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] })
         ch_transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
         ch_transcript_info_gtf = GET_TRANSCRIPT_INFO.out.transcripts_gtf
-        
+
         GET_TRANSCRIPT_FASTA(ch_genome_fasta.map{ it[1] }, ch_genome_fai, ch_transcript_info_gtf)
         ch_transcript_info_fa = GET_TRANSCRIPT_FASTA.out.transcripts_fa
 

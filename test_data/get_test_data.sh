@@ -30,5 +30,9 @@ nextflow run nf-core/fetchngs -r 1.10.1 \
 cd $WORKDIR/fastq/fastq
 
 # Subsample 30k reads
+# conda activate trim_env; seqtk version: 1.4-r122
 seqtk sample -s100 SRX19188681_SRR23242345.fastq.gz 30000 > subsampled_SRX19188681_SRR23242345.fastq
 gzip subsampled_SRX19188681_SRR23242345.fastq
+
+seqtk sample -s100 SRX19188682_SRR23242344.fastq.gz 30000 > subsampled_SRX19188682_SRR23242344.fastq
+gzip subsampled_SRX19188682_SRR23242344.fastq

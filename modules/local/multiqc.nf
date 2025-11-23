@@ -7,21 +7,17 @@ process MULTIQC {
     // tag "${workflow.runName}"
     label 'process_medium'
 
-    // conda "bioconda::multiqc=1.14"
+    // conda "bioconda::multiqc=1.19"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/multiqc:1.19--pyhdfd78af_0' :
         'quay.io/biocontainers/multiqc:1.19--pyhdfd78af_0' }"
 
-
     publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
 
     input:
-    // path('fastqc/*')
-    // path('premapped/*')
-    // path('mapped/*')
-    // path('deduplicated/*')
     path(logs)
-    
+    path(multiqc_config)
+
     output:
     path "*multiqc_report.html", emit: report
     path "*_data", emit: data
@@ -29,10 +25,10 @@ process MULTIQC {
 
     script:
 
-    def config_file = params.multiqc_config ? "--config $params.multiqc_config" : ''
+    // def config_file = params.multiqc_config ? "--config $params.multiqc_config" : ''
 
     """
-    multiqc -f $config_file .
+    multiqc -f $multiqc_config .
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

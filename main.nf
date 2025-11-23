@@ -3,7 +3,7 @@
 // Specify DSL2
 nextflow.enable.dsl=2
 
-/* 
+/*
 PREPARE INPUTS
 */
 
@@ -24,7 +24,7 @@ if (params.org  && !params.genomes.containsKey(params.org)) {
     exit 1, "The provided genome '${params.org}' is not available. Currently the available genomes are ${params.genomes.keySet().join(", ")}"
 }
 
-/* 
+/*
 PREPARE GENOME CHANNELS
 */
 
@@ -40,7 +40,7 @@ if(params.org) {
 }  else {
 
     if(!params.fasta ) { exit 1, '--fasta is not specified.' }
-    if(!params.gtf ) { exit 1, '--gtf is not specified.' } 
+    if(!params.gtf ) { exit 1, '--gtf is not specified.' }
     if(!params.contaminants_fasta && !params.skip_premap ) {exit 1, '--contaminants_fasta is not specified.' }
 
 }
@@ -50,8 +50,13 @@ ch_genome_fasta = file(params.fasta, checkIfExists: true)
 ch_contaminants_fasta = file(params.contaminants_fasta, checkIfExists: true)
 ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
+/*
+MultiQC config
+*/
+// ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+ch_multiqc_config = Channel.fromPath(params.multiqc_config, checkIfExists: true)
 
-/* 
+/*
 Channel for OPTIONAL INPUT - contains a tuple with sample ids as keys, but no path/file
 */
 
@@ -61,7 +66,7 @@ ch_optional = Channel
             .map { row -> [ row.sample, [] ] }
 
 
-/* 
+/*
 SUBWORKFLOWS
 */
 
@@ -72,7 +77,7 @@ include { MAPPING_LENGTH_ANALYSES } from './subworkflows/mapping_length_analyses
 include { GET_GENE_LEVEL_COUNTS } from './subworkflows/gene_level_counts.nf'
 include { RUN_RIBOCUTTER } from './subworkflows/ribocutter_analysis.nf'
 
-/* 
+/*
 MODULES
 */
 
@@ -90,7 +95,7 @@ include { PCA } from './modules/local/riboseq_qc.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 
 
-/* 
+/*
 MAIN WORKFLOW
 */
 
@@ -98,11 +103,17 @@ workflow RIBOSEQ {
 
     // Prepare annotation
     PREPARE_RIBOSEQ_REFERENCE(
-        ch_genome_fasta, 
+        ch_genome_fasta,
         ch_genome_gtf,
         ch_contaminants_fasta
     )
-    
+
+    // Test to asses channel type
+    // def test = PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf
+    //                 .map { it[1] }
+
+    // println "genome_gtf_main class: ${test.getClass()}"
+
     // Extract UMIs and/or trim adapters and filter on min length, then run FASTQC
     PREPROCESS_READS(ch_input)
     FASTQC(PREPROCESS_READS.out.fastq)
@@ -113,7 +124,7 @@ workflow RIBOSEQ {
             PREPROCESS_READS.out.trimmed_fastq
             )
     }
- 
+
     // Align reads
     if (!params.skip_premap) {
 
@@ -122,7 +133,7 @@ workflow RIBOSEQ {
             PREPROCESS_READS.out.fastq,
             PREPARE_RIBOSEQ_REFERENCE.out.contaminants_bowtie2_index.collect()
         )
-        
+
         MAP(
             PREMAP.out.unmapped,
             PREPARE_RIBOSEQ_REFERENCE.out.genome_star_index.collect()
@@ -135,7 +146,7 @@ workflow RIBOSEQ {
             PREPARE_RIBOSEQ_REFERENCE.out.genome_star_index.collect()
         )
     }
-    
+
     if (params.with_umi) {
 
         // Remove duplicate reads from BAM file based on UMIs
@@ -307,7 +318,7 @@ workflow RIBOSEQ {
         )
 
         GET_COVERAGE_TRACKS(DEDUPLICATE.out.dedup_genome_bam)
-    
+
     } else {
         GET_GENE_LEVEL_COUNTS(
             MAP.out.genome_bam,
@@ -322,7 +333,7 @@ workflow RIBOSEQ {
     if (!params.skip_psite) {
 
          if (params.with_umi) {
-            
+
             IDENTIFY_PSITES(
                 DEDUPLICATE.out.dedup_transcriptome_bam
                     .map { [it[1]] }
@@ -334,9 +345,9 @@ workflow RIBOSEQ {
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
-        
+
         } else {
-            
+
             IDENTIFY_PSITES(
                 MAP.out.transcriptome_bam
                     .map { [it[1]] }
@@ -361,7 +372,7 @@ workflow RIBOSEQ {
 
 
         }
-     
+
     }
 
     if (!params.skip_psite & !params.skip_qc) {
@@ -373,23 +384,23 @@ workflow RIBOSEQ {
         )
     }
 
-   
+
     // PCA on gene-level RPF counts and transcript-level P-sites
     if (!params.skip_psite) {
-        
+
         PCA(
             GET_GENE_LEVEL_COUNTS.out.merged_counts_table,
             IDENTIFY_PSITES.out.cds_coverage,
             IDENTIFY_PSITES.out.cds_window_coverage,
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
         )
-    
+
     } else {
 
         PCA(
             GET_GENE_LEVEL_COUNTS.out.merged_counts_table,
-            Channel.empty(), 
-            Channel.empty(), 
+            Channel.empty(),
+            Channel.empty(),
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
     }
@@ -400,14 +411,14 @@ workflow RIBOSEQ {
     if (params.skip_ribocutter) {
 
         ch_ribocutter = Channel.empty()
-    
+
     } else {
 
         ch_ribocutter = RUN_RIBOCUTTER.out.ribocutter_mqc
     }
 
     if (!params.skip_premap && !params.skip_qc) {
-   
+
         ch_logs = FASTQC.out.html.join(FASTQC.out.zip)
             .map { [it[1], it[2]] }
             .collect()
@@ -458,9 +469,9 @@ workflow RIBOSEQ {
             )
             .collect()
     }
-    
-    MULTIQC(ch_logs)
-    
+
+    MULTIQC(ch_logs, ch_multiqc_config)
+
 }
 
 
@@ -468,7 +479,7 @@ workflow {
     RIBOSEQ ()
 }
 
-/* 
+/*
 COMPLETION EVENTS
 */
 

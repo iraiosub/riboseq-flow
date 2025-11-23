@@ -14,7 +14,7 @@ process CUTADAPT {
 
     publishDir "${params.outdir}/preprocessed", pattern: "*.log", mode: 'copy', overwrite: true
     if (params.save_trimmed) publishDir "${params.outdir}/preprocessed", pattern: "*.fastq.gz", mode: 'copy', overwrite: true
-       
+
 
     input:
         tuple val(sample_id), path(reads)
