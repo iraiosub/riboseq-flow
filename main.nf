@@ -103,6 +103,12 @@ workflow RIBOSEQ {
         ch_contaminants_fasta
     )
 
+    // Test to asses channel type
+    // def test = PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf
+    //                 .map { it[1] }
+
+    // println "genome_gtf_main class: ${test.getClass()}"
+
     // Extract UMIs and/or trim adapters and filter on min length, then run FASTQC
     PREPROCESS_READS(ch_input)
     FASTQC(PREPROCESS_READS.out.fastq)
@@ -307,7 +313,7 @@ workflow RIBOSEQ {
         )
 
         GET_COVERAGE_TRACKS(DEDUPLICATE.out.dedup_genome_bam)
-    
+
     } else {
         GET_GENE_LEVEL_COUNTS(
             MAP.out.genome_bam,
@@ -322,7 +328,7 @@ workflow RIBOSEQ {
     if (!params.skip_psite) {
 
          if (params.with_umi) {
-            
+
             IDENTIFY_PSITES(
                 DEDUPLICATE.out.dedup_transcriptome_bam
                     .map { [it[1]] }
@@ -334,9 +340,9 @@ workflow RIBOSEQ {
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
 
-        
+
         } else {
-            
+
             IDENTIFY_PSITES(
                 MAP.out.transcriptome_bam
                     .map { [it[1]] }
