@@ -50,6 +50,11 @@ ch_genome_fasta = file(params.fasta, checkIfExists: true)
 ch_contaminants_fasta = file(params.contaminants_fasta, checkIfExists: true)
 ch_genome_gtf = file(params.gtf, checkIfExists: true)
 
+/*
+MultiQC config
+*/
+// ch_multiqc_config = Channel.fromPath("$projectDir/assets/multiqc_config.yml", checkIfExists: true)
+ch_multiqc_config = Channel.fromPath(params.multiqc_config, checkIfExists: true)
 
 /*
 Channel for OPTIONAL INPUT - contains a tuple with sample ids as keys, but no path/file
@@ -465,7 +470,7 @@ workflow RIBOSEQ {
             .collect()
     }
 
-    MULTIQC(ch_logs)
+    MULTIQC(ch_logs, ch_multiqc_config)
 
 }
 

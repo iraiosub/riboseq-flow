@@ -21,7 +21,8 @@ process MULTIQC {
     // path('mapped/*')
     // path('deduplicated/*')
     path(logs)
-    
+    path(multiqc_config)
+
     output:
     path "*multiqc_report.html", emit: report
     path "*_data", emit: data
@@ -29,10 +30,10 @@ process MULTIQC {
 
     script:
 
-    def config_file = params.multiqc_config ? "--config $params.multiqc_config" : ''
+    // def config_file = params.multiqc_config ? "--config $params.multiqc_config" : ''
 
     """
-    multiqc -f $config_file .
+    multiqc -f $multiqc_config .
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

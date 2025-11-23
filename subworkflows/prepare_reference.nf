@@ -39,8 +39,8 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     if (genome_gtf.toString().endsWith('.gz')) {
         ch_genome_gtf = GUNZIP_GTF ( [ [:], params.gtf ] ).gunzip
 
-        println "DEBUG: genome_gtf type: ${genome_gtf.getClass()}"
-        println "DEBUG: params.gtf type: ${params.gtf.getClass()}"
+        // println "DEBUG: genome_gtf type: ${genome_gtf.getClass()}"
+        // println "DEBUG: params.gtf type: ${params.gtf.getClass()}"
 
     } else {
 
