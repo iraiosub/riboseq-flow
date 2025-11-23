@@ -37,7 +37,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
 
     ch_genome_gtf = Channel.empty()
     if (genome_gtf.toString().endsWith('.gz')) {
-        ch_genome_gtf = GUNZIP_GTF ( [ [:], ch_genome_gtf ] ).gunzip
+        ch_genome_gtf = GUNZIP_GTF ( [ [:], genome_gtf ] ).gunzip
 
         // println "DEBUG: genome_gtf type: ${genome_gtf.getClass()}"
         // println "DEBUG: params.gtf type: ${params.gtf.getClass()}"
