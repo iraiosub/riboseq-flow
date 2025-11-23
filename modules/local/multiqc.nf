@@ -7,18 +7,14 @@ process MULTIQC {
     // tag "${workflow.runName}"
     label 'process_medium'
 
-    // conda "bioconda::multiqc=1.21"
+    // conda "bioconda::multiqc=1.20"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/multiqc:1.21--pyhdfd78af_0' :
-        'quay.io/biocontainers/multiqc:1.21--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/multiqc:1.20--pyhdfd78af_0' :
+        'quay.io/biocontainers/multiqc:1.20--pyhdfd78af_0' }"
 
     publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
 
     input:
-    // path('fastqc/*')
-    // path('premapped/*')
-    // path('mapped/*')
-    // path('deduplicated/*')
     path(logs)
     path(multiqc_config)
 
