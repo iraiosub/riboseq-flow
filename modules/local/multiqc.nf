@@ -9,8 +9,8 @@ process MULTIQC {
 
     // conda "bioconda::multiqc=1.26"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/multiqc:1.26--pyhdfd78af_0' :
-        'quay.io/biocontainers/multiqc:1.26--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/multiqc:1.22--pyhdfd78af_0' :
+        'quay.io/biocontainers/multiqc:1.22--pyhdfd78af_0' }"
 
     publishDir "${params.outdir}/multiqc", mode: 'copy', overwrite: true
 
