@@ -9,8 +9,8 @@ process IDENTIFY_PSITES {
 
     // conda "bioconda::ribowaltz=1.2.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ribowaltz:1.2.0--r42hdfd78af_1' :
-        'quay.io/biocontainers/ribowaltz:1.2.0--r42hdfd78af_1' }"
+        'https://depot.galaxyproject.org/singularity/ribowaltz:2.0--r43hdfd78af_0':
+        'quay.io/biocontainers/ribowaltz:2.0--r43hdfd78af_0' }"
 
     publishDir "${params.outdir}/psites", mode: 'copy', overwrite: true
 
