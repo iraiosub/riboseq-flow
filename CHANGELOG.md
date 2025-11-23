@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added Zenodo concept DOI badge and citation badge to README.
 - Added Nextflow version badge (≥ 21.10.3).
 - Added CODEOWNERS file for maintainership.
+- Added NOTICE file for attribution.
 - Added CHANGELOG.md.
 - Added additional Nextflow versions tested in documentation.
 - Added `base.config` for resource management.
