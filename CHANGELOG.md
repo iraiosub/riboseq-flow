@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Cap resources for profile `test` testing and override base profile labels.
 - Added one more sample in the samplesheet for for profile `test` testing.
 - Bump MultiQC version.
+- Change references path in CI.
 
 ### Fixed
 - Removed `tag` directive from processes not requiring it, enabling compatibility with Nextflow `25.10.0`, closes [#99](https://github.com/iraiosub/riboseq-flow/issues/99).
