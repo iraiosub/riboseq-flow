@@ -2,10 +2,9 @@
 
 // Specify DSL2
 nextflow.enable.dsl=2
- 
+
 process IDENTIFY_PSITES {
- 
-    tag "${sample_id}"
+
     label 'process_high'
 
     // conda "bioconda::ribowaltz=1.2.0"
@@ -14,7 +13,7 @@ process IDENTIFY_PSITES {
         'quay.io/biocontainers/ribowaltz:1.2.0--r42hdfd78af_1' }"
 
     publishDir "${params.outdir}/psites", mode: 'copy', overwrite: true
-    
+
     input:
     path(bam_list)
     path(gtf)
@@ -42,7 +41,7 @@ process IDENTIFY_PSITES {
         """
 
         INPUT=`echo $bam_list | sed 's/ /,/g'`
-        
+
         Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info
 
         """
@@ -52,14 +51,14 @@ process IDENTIFY_PSITES {
 
 
 process GET_PSITE_TRACKS {
- 
+
     label 'process_high'
 
     container 'iraiosub/nf-riboseq:latest'
 
     publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.bed.gz", mode: 'copy', overwrite: true
     // publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.bigWig", mode: 'copy', overwrite: true
-    
+
     input:
     path(psite_table)
     path(gtf)
@@ -72,7 +71,7 @@ process GET_PSITE_TRACKS {
     script:
 
         """
-            
+
         get_psite_tracks.R -p $psite_table -g $gtf -f $fai
 
         """

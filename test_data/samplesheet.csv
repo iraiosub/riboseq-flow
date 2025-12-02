@@ -1,2 +1,3 @@
 sample,fastq
-test_data,https://github.com/iraiosub/riboseq-flow/raw/main/test_data/subsampled_SRX19188681_SRR23242345.fastq.gz
+test_data_1,https://github.com/iraiosub/riboseq-flow/raw/main/test_data/subsampled_SRX19188681_SRR23242345.fastq.gz
+test_data_2,https://github.com/iraiosub/riboseq-flow/raw/main/test_data/subsampled_SRX19188682_SRR23242344.fastq.gz

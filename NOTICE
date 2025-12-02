@@ -1,0 +1,16 @@
+riboseq-flow NOTICE
+
+Copyright (C) 2023-2025
+Ira Alexandra Iosub
+
+This software includes original work by:
+- Ira Alexandra Iosub
+- Oscar G. Wilkins
+
+If you use this software in published work, please cite:
+Iosub IA, Wilkins OG, Ule J.
+"Riboseq-flow: A streamlined, reliable pipeline for ribosome profiling data analysis and quality control."
+Wellcome Open Research 2024, 9:179.
+DOI: 10.12688/wellcomeopenres.21000.1
+
+This NOTICE file must be included with any redistribution or modified version of this software.

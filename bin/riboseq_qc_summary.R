@@ -145,11 +145,11 @@ start_dist.df <- start_dist.df %>%
 fwrite(start_dist.df, "start_dist_mqc.tsv", row.names = TRUE, sep = "\t")
 
 
-# Barplots data for multiqc 
+# Barplots data for multiqc
 # Region counts
 region_counts.ls <- as.list(strsplit(opt$region_counts_list, ",")[[1]])
-region_counts.df <- rbindlist(lapply(region_counts.ls , fread), use.names = TRUE) %>%
-  dplyr::arrange(sample) 
+region_counts.df <- rbindlist(lapply(region_counts.ls , fread), use.names = TRUE, fill = TRUE) %>%
+  dplyr::arrange(sample)
 
 # If dim of df are n x n, multiqc overrides plot_type and plots a heatmap
 if (ncol(region_counts.df) == nrow(region_counts.df) + 1) {
