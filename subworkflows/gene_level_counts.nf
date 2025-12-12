@@ -17,7 +17,7 @@ workflow GET_GENE_LEVEL_COUNTS {
     main:
 
     // Get gene-level counts from BAM alignments using featureCounts
-    GENE_COUNTS_FEATURECOUNTS(bam, genome_gtf)
+    GENE_COUNTS_FEATURECOUNTS(bam, genome_gtf.first())
     MERGE_FEATURECOUNTS(GENE_COUNTS_FEATURECOUNTS.out.counts.map { [ it[1] ] }.collect())
 
     emit:
