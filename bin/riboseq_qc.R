@@ -107,6 +107,10 @@ max_length <- str_split(opt$expected_length, ":")[[1]][2]
 
 riboseq_info <- get_info_from_bam(opt$bam, opt$transcript_info)
 
+fwrite(riboseq_info$frame, paste0(actual_name, "_frame_qc.tsv.gz"), sep = "\t", row.names = FALSE)
+fwrite(riboseq_info$start_dist, paste0(actual_name, "_start_dist_qc.tsv.gz"), sep = "\t", row.names = FALSE)
+fwrite(riboseq_info$end_dist, paste0(actual_name, "_end_dist_qc.tsv.gz"), sep = "\t", row.names = FALSE)
+
 # frame_colours = list(factor(0) = "#7cb5ec", factor(1) = "#434348", factor(2) = "#90ed7d")
 
 p1 <- ggplot(riboseq_info$frame, aes(x = read_length, y = n, fill=factor(frame))) +
@@ -215,6 +219,7 @@ region_counts.df <- riboseq_info$bam %>%
 
 # Now reformat for multiqc
 region_counts_mqc.df <- region_counts.df %>%
+  complete(region = c("5UTR", "CDS", "3UTR"), fill = list(region_counts = 0)) %>%
   pivot_wider(names_from = region, values_from = region_counts)
 
 fwrite(region_counts_mqc.df, paste0(actual_name, "_region_counts_mqc.tsv"), sep = "\t", row.names = FALSE)
@@ -234,16 +239,36 @@ start_dist_mqc.df <- riboseq_info$start_dist %>%
 fwrite(start_dist_mqc.df, paste0(actual_name, "_start_dist_mqc.tsv"), sep = "\t", row.names = FALSE)
 
 # Frames for MultiQC, summarised for the expected length range
-frame_mqc.df <- riboseq_info$frame %>%
-  mutate(sample = actual_name) %>%
+expected_frame.df <- riboseq_info$frame %>%
   dplyr::filter(read_length >= as.numeric(min_length) & read_length <= as.numeric(max_length)) %>%
-  group_by(sample, frame) %>%
+  group_by(frame) %>%
   summarise(number_of_reads = sum(n)) %>%
+  complete(frame = 0:2, fill = list(number_of_reads = 0))
+
+frame_mqc.df <- expected_frame.df %>%
+  mutate(sample = actual_name) %>%
   dplyr::select(sample, frame, number_of_reads) %>%
   mutate(frame = paste0("frame ", frame)) %>%
   pivot_wider(names_from = frame, values_from = number_of_reads)
 
 fwrite(frame_mqc.df, paste0(actual_name, "_frame_mqc.tsv"), sep = "\t", row.names = FALSE)
+
+# Frame counts and periodicity for the most abundant useful read length (shortest in a tie)
+most_abundant_length <- useful_length.df %>%
+  dplyr::slice_max(number_of_reads, with_ties = FALSE) %>%
+  pull(rl) %>%
+  first()
+
+most_abundant_frame.df <- riboseq_info$frame %>%
+  dplyr::filter(read_length == most_abundant_length) %>%
+  dplyr::select(frame, number_of_reads = n) %>%
+  complete(frame = 0:2, fill = list(number_of_reads = 0))
+
+most_abundant_periodicity <- if (sum(most_abundant_frame.df$number_of_reads) > 0) 100*max(most_abundant_frame.df$number_of_reads) / sum(most_abundant_frame.df$number_of_reads) else NA_real_
+
+# Ratios are unavailable when the least abundant frame has no reads
+expected_frame_ratio <- if (min(expected_frame.df$number_of_reads) > 0) max(expected_frame.df$number_of_reads) / min(expected_frame.df$number_of_reads) else NA_real_
+most_abundant_frame_ratio <- if (min(most_abundant_frame.df$number_of_reads) > 0) max(most_abundant_frame.df$number_of_reads) / min(most_abundant_frame.df$number_of_reads) else NA_real_
 
 
 # =========
@@ -378,7 +403,14 @@ summary_df <- useful_df %>%
           duplication = duplication_perc,
           expected_length = opt$expected_length,
           percent_expected_length = tx_map_expected_length_perc,
-          expected_length_n = tx_map_expected_length_count)
+          expected_length_n = tx_map_expected_length_count,
+          most_abundant_length = most_abundant_length,
+          most_abundant_periodicity = most_abundant_periodicity,
+          most_abundant_frame_0 = most_abundant_frame.df$number_of_reads[most_abundant_frame.df$frame == 0],
+          most_abundant_frame_1 = most_abundant_frame.df$number_of_reads[most_abundant_frame.df$frame == 1],
+          most_abundant_frame_2 = most_abundant_frame.df$number_of_reads[most_abundant_frame.df$frame == 2],
+          expected_frame_ratio = expected_frame_ratio,
+          most_abundant_frame_ratio = most_abundant_frame_ratio)
 
 
 # Customise sub-title based on whether UMIs were used or not
@@ -398,7 +430,10 @@ useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
   ylab("Proportion (%)")
 
 # Pull together plots
-fig <- ((p1 + ggtitle(paste("Sample:", actual_name)) | useful_plot) +  plot_layout(widths = c(3, 1))) / (p2|p3) / 
+fig <- ((p1 + ggtitle(paste("Sample:", actual_name),
+  paste0("Most abundant length: ", most_abundant_length, " nt (dominant frame: ", round(most_abundant_periodicity, 1), "%)\n",
+         "Dominant / least frame: expected lengths = ", round(expected_frame_ratio, 2),
+         "; most abundant length = ", round(most_abundant_frame_ratio, 2))) | useful_plot) +  plot_layout(widths = c(3, 1))) / (p2|p3) /
   (length_plot | rRNA_plot) /
   (premapping_plot | mapping_plot | duplication_plot)
 

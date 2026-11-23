@@ -8,6 +8,8 @@
 
 # riboseq-flow - A Nextflow DSL2 pipeline to perform ribo-seq data analysis and comprehensive quality control
 
+riboseq-flow is released under the [MIT License](LICENSE). Third-party tools and data retain their respective licenses.
+
 
 ## Citation
 
@@ -67,7 +69,7 @@ We recommend using Nextflow with `Java 17.0.9` or later.
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq-flow -r v1.2.3
+nextflow pull iraiosub/riboseq-flow -r v1.3.0
 ```
 
 3. Run the pipeline on the provided test dataset:
@@ -75,13 +77,13 @@ nextflow pull iraiosub/riboseq-flow -r v1.2.3
 Using Singularity:
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.2.3 -profile test,singularity
+nextflow run iraiosub/riboseq-flow -r v1.3.0 -profile test,singularity
 ```
 
 or using Docker:
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.2.3 -profile test,docker
+nextflow run iraiosub/riboseq-flow -r v1.3.0 -profile test,docker
 ```
 
 4. Check succesful execution.
@@ -93,7 +95,7 @@ nextflow run iraiosub/riboseq-flow -r v1.2.3 -profile test,docker
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq-flow -r v1.2.3
+nextflow pull iraiosub/riboseq-flow -r v1.3.0
 ```
 
 3. Create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below.
@@ -110,7 +112,7 @@ sample3,/path/to/file3.fastq.gz
 4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.2.3 \
+nextflow run iraiosub/riboseq-flow -r v1.3.0 \
 -profile singularity,crick \
 -resume \
 --input samplesheet.csv \
@@ -285,11 +287,13 @@ The pipeline outputs results in a number of folders:
     - `*.transcriptome.dedup.sorted.bam` UMI deduplicated alignments to the transcriptome in BAM format
 - `riboseq_qc` contains QC plots informing on read and mapping lengths, frame, periodicity, signal around start and stop codons, contaminants content, duplication, fraction of useful (mapped to protein-coding transcripts) reads, proprtion of reads remaining after alignment steps etc and folders containing other QC results.
     - `*.qc_results.pdf` per-sample QC reports with specialised ribo-seq quality metrics stratified by read length
+    - `*.qc_results.tsv.gz` and `qc_summary.tsv.gz` contain per-sample and combined QC summary metrics
+    - `qc_tables` contains compressed TSV files with frame counts by read length and read length-specific distances from start and stop codons
     - `mapping_length_analysis` contains CSV files with number of raw and mapped reads by length:
         - `*.after_premap.csv` 
         - `*.before_dedup.csv` 
         - `*.after_dedup.csv`
-    - `multiqc_tables` contains TSV files with sample summary metrics for multiQC
+    - `multiqc_tables` contains combined TSV files underlying the MultiQC plots, with all samples in each table
     - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding the yield of useful reads and troubleshooting. 
     - `pca` contains PCA plots and rlog-normalised count tables. Only produced if 3 samples or more are analysed.
     - `rust_analysis` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by read length, using the inferred P-sites.
