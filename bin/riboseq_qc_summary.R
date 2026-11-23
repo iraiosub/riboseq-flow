@@ -69,7 +69,7 @@ use <- ggplot(full_summary.df, aes(x = name, y = y)) +
 use + exp + dup + 
   plot_layout(nrow = 3)
 
-# fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t")
+fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t", row.names = FALSE)
 
 # Set dimensions for plot based on the number of samples
 if (length(unique(full_summary.df$name)) >= 3) {
@@ -149,7 +149,8 @@ fwrite(start_dist.df, "start_dist_mqc.tsv", row.names = TRUE, sep = "\t")
 # Region counts
 region_counts.ls <- as.list(strsplit(opt$region_counts_list, ",")[[1]])
 region_counts.df <- rbindlist(lapply(region_counts.ls , fread), use.names = TRUE, fill = TRUE) %>%
-  dplyr::arrange(sample)
+  dplyr::arrange(sample) %>%
+  replace(is.na(.), 0)
 
 # If dim of df are n x n, multiqc overrides plot_type and plots a heatmap
 if (ncol(region_counts.df) == nrow(region_counts.df) + 1) {
@@ -188,6 +189,31 @@ if (ncol(frame_counts.df) == nrow(frame_counts.df) + 1) {
 }
 
 fwrite(frame_counts.df, "frame_mqc.tsv", row.names = FALSE, sep = "\t")
+
+# Frame counts for the most abundant useful read length
+most_abundant_frame_mqc.df <- full_summary.df %>%
+  dplyr::select(name, most_abundant_frame_0, most_abundant_frame_1, most_abundant_frame_2) %>%
+  dplyr::rename(sample = name, `frame 0` = most_abundant_frame_0, `frame 1` = most_abundant_frame_1, `frame 2` = most_abundant_frame_2) %>%
+  dplyr::arrange(sample)
+
+# If dim of df are n x n, multiqc overrides plot_type and plots a heatmap
+if (ncol(most_abundant_frame_mqc.df) == nrow(most_abundant_frame_mqc.df) + 1) {
+
+  most_abundant_frame_mqc.df <- most_abundant_frame_mqc.df %>%
+    mutate(x = 0)
+}
+
+fwrite(most_abundant_frame_mqc.df, "most_abundant_frame_mqc.tsv", row.names = FALSE, sep = "\t")
+
+# Dominant / least abundant frame ratios
+frame_ratio_mqc.df <- full_summary.df %>%
+  dplyr::select(name, expected_frame_ratio, most_abundant_frame_ratio) %>%
+  dplyr::rename(sample = name, `Expected length range` = expected_frame_ratio, `Most abundant length` = most_abundant_frame_ratio) %>%
+  dplyr::arrange(sample)
+
+# Keep unavailable ratios from changing MultiQC's inferred plot type
+writeLines("# plot_type: bargraph", "frame_ratio_mqc.tsv")
+fwrite(frame_ratio_mqc.df, "frame_ratio_mqc.tsv", row.names = FALSE, sep = "\t", append = TRUE, col.names = TRUE)
 
 # Length filter counts
 length_filter.ls <- as.list(strsplit(opt$length_filter_list, ",")[[1]])
