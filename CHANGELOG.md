@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
+## [v1.3.0] - 2026-11-23
+### Added
+- Added frame distributions and dominant-frame percentages for the most abundant useful read length.
+- Added dominant / least abundant frame ratios for the expected read length range and the most abundant useful read length.
+- Exported frame counts by read length and distances from start and stop codons in `riboseq_qc/qc_tables`, and combined QC metrics in `qc_summary.tsv.gz`.
+
+### Changed
+- Updated project licensing to MIT.
+- Clarified the MultiQC frame plot title to identify the expected read length range.
+
+### Fixed
+- Filled missing UTR counts with zero so the MultiQC Region section remains a stacked bar chart, defaulting to percentages that sum to 100% per sample.
+
+---
 ## [v1.2.3] - 2026-05-25
 ### Changed
 - Pinned custom Docker container images to immutable SHA digests for reproducible execution.
@@ -42,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added `base.config` for resource management.
 
 ### Changed
-- Updated workflow metadata, licensing to GPL-3.0.
+- Updated workflow metadata and licensing.
 - Added MultiQC configuration file as an input to the `MULTIQC` process, closes [#98](https://github.com/iraiosub/riboseq-flow/issues/98).
 - Cap resources for profile `test` testing and override base profile labels.
 - Added one more sample in the samplesheet for for profile `test` testing.
@@ -105,6 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - The first main release of **riboseq-flow**.
 
+[v1.3.0]: https://github.com/iraiosub/riboseq-flow/releases/tag/v1.3.0
 [v1.2.3]: https://github.com/iraiosub/riboseq-flow/releases/tag/v1.2.3
 [v1.2.2]: https://github.com/iraiosub/riboseq-flow/releases/tag/v1.2.2
 [v1.2.1]: https://github.com/iraiosub/riboseq-flow/releases/tag/v1.2.1
