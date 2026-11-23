@@ -16,9 +16,9 @@ doi: "10.5281/zenodo.10372020"
 url: "https://github.com/iraiosub/riboseq-flow"
 repository-code: "https://github.com/iraiosub/riboseq-flow"
 
-version: "1.2.3"
-date-released: "2026-05-25"
-license: "GPL-3.0"
+version: "1.3.0"
+date-released: "2026-11-23"
+license: "MIT"
 
 preferred-citation:
   type: article

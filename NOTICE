@@ -1,6 +1,6 @@
 riboseq-flow NOTICE
 
-Copyright (C) 2023-2025
+Copyright (C) 2023-2026
 Ira Alexandra Iosub
 
 This software includes original work by:
@@ -13,4 +13,7 @@ Iosub IA, Wilkins OG, Ule J.
 Wellcome Open Research 2024, 9:179.
 DOI: 10.12688/wellcomeopenres.21000.1
 
-This NOTICE file must be included with any redistribution or modified version of this software.
+This software is distributed under the MIT License; see LICENSE.
+
+The nf-core modules in modules/nf-core retain their upstream MIT license;
+see modules/nf-core/LICENSE. Third-party tools and data retain their respective licenses.

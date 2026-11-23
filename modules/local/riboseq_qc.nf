@@ -11,6 +11,7 @@ process RIBOSEQ_QC {
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 
     publishDir "${params.outdir}/riboseq_qc", pattern: "*.qc_results.*", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc/qc_tables", pattern: "*_qc.tsv.gz", mode: 'copy', overwrite: true
 
     input:
         tuple val(sample_id), path(bam), path(bai), path(before_dedup_length_analysis), path(after_premap_length_analysis), path(after_dedup_length_analysis)
@@ -19,6 +20,7 @@ process RIBOSEQ_QC {
     output:
         tuple val(sample_id), path("*.qc_results.tsv.gz"), emit: qc
         path("*.qc_results.pdf"), emit: plots
+        tuple val(sample_id), path("*_qc.tsv.gz"), emit: qc_tables
         tuple val(sample_id), path("*_fq_length_mqc.tsv"), emit: fq_length_distr
         tuple val(sample_id), path("*_useful_length_mqc.tsv"), emit: useful_length_distr
         tuple val(sample_id), path("*_region_counts_mqc.tsv"), emit: region_counts
@@ -64,6 +66,7 @@ process SUMMARISE_RIBOSEQ_QC {
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 
     publishDir "${params.outdir}/riboseq_qc", pattern: "*.pdf", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc", pattern: "qc_summary.tsv.gz", mode: 'copy', overwrite: true
     publishDir "${params.outdir}/riboseq_qc/multiqc_tables", pattern: "*_mqc.tsv", mode: 'copy', overwrite: true
 
     input:
@@ -78,6 +81,7 @@ process SUMMARISE_RIBOSEQ_QC {
     
     output:
         path("qc_summary.pdf"), emit: plot
+        path("qc_summary.tsv.gz"), emit: qc
         path("*_mqc.tsv"), emit: mqc
 
 
