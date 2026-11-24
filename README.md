@@ -218,7 +218,7 @@ The preset alignment settings for both STAR and Bowtie2 are optimized for standa
 #### Ribo-seq quality control options
 
 - `--skip_qc` skips mapping length analysis and generation of ribo-seq QC plots
-- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of ribo-seq QC plots, and for specifying the range of read lengths used for P-site identification  (default: `26:32`). 
+- `--expected_length` expected read length range for QC summaries and plots, and for P-site identification unless overridden by `--psite_length_range` (default: `26:32`).
 
 **Important:**  The `--expected_length` parameter does not filter reads based on this length range for any other analyses, including alignment, gene-level quantification or track data generation.
 
@@ -227,8 +227,9 @@ The preset alignment settings for both STAR and Bowtie2 are optimized for standa
 P-sites are identified with [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/). It is strongly recommended to check the riboWaltz method to ensure the approach is suitable for your data. By default, the reads must be in length bins that satisfy periodicity to be used for P-site offset calculations. Additionally, the user can specify the following options:
 
 - `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
-- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of ribo-seq QC plots, and for specifying the range of RPF lengths used for P-site identification (default: `26:32`). 
-- `--periodicity_threshold` specifies the periodicity threshold for read lengths to be considered for P-site identification (default: `50`)
+- `--expected_length` default read length range for P-site identification; also controls QC (default: `26:32`).
+- `--psite_length_range` optional P-site-only range in `min:max` format. If unset, uses `--expected_length`, preserving existing behaviour. For example, `--expected_length 26:32 --psite_length_range 20:35` keeps QC at 26–32 nt and uses 20–35 nt for P-site analysis.
+- `--periodicity_threshold` specifies the periodicity threshold for read lengths to be considered for P-site identification (default: `50`). Read lengths must pass both this threshold and the selected range, for either P-site method.
 - `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
      - For `ribowaltz` P-site offsets are defined using [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/).
      - For `global_max_5end` P-site offsets are defined by the distances between the first nucleotide of the translation initiation site and the nucleotide corresponding to the global maximum of the read length-specific 5'end profiles (the first step of the riboWaltz method). Compared to riboWaltz-defined offsets, only the 5' extremities of the reads are considered for calculation and no further offset correction is performed after read-length global maximum identification.

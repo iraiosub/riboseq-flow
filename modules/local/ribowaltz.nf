@@ -32,7 +32,7 @@ process IDENTIFY_PSITES {
 
     script:
 
-    length_range = params.expected_length
+    length_range = params.psite_length_range ?: params.expected_length
     periodicity_threshold = params.periodicity_threshold
     method = params.psite_method
 
