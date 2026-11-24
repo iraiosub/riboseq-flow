@@ -5,6 +5,7 @@ nextflow.enable.dsl=2
 
 process IDENTIFY_PSITES {
 
+    tag "${sample_id}"
     label 'process_high'
 
     // conda "bioconda::ribowaltz=1.2.0"
@@ -12,10 +13,10 @@ process IDENTIFY_PSITES {
         'https://depot.galaxyproject.org/singularity/ribowaltz:1.2.0--r42hdfd78af_1' :
         'quay.io/biocontainers/ribowaltz:1.2.0--r42hdfd78af_1' }"
 
-    publishDir "${params.outdir}/psites", mode: 'copy', overwrite: true
+    publishDir { params.psite_per_sample ? "${params.outdir}/psites/per_sample/${sample_id}" : "${params.outdir}/psites" }, mode: 'copy', overwrite: true
 
     input:
-    path(bam_list)
+    tuple val(sample_id), path(bam_list)
     path(gtf)
     path(fasta)
     path(transcript_info)
@@ -28,6 +29,7 @@ process IDENTIFY_PSITES {
     path("codon_coverage_psite.tsv.gz"), emit: codon_coverage_psite, optional: true
     path("cds_coverage_psite.tsv.gz"), emit: cds_coverage, optional: true
     path("*nt_coverage_psite.tsv.gz"), emit: cds_window_coverage, optional: true
+    path("*coverage*.tsv.gz"), emit: coverage_tables, optional: true
     path("ribowaltz_qc/*.pdf"), emit: ribowaltz_qc, optional: true
 
     script:
@@ -42,8 +44,37 @@ process IDENTIFY_PSITES {
 
         INPUT=`echo $bam_list | sed 's/ /,/g'`
 
-        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info
+        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info ${params.psite_per_sample}
 
+        """
+
+}
+
+
+process MERGE_PSITE_TABLES {
+
+    label 'process_medium'
+
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/ribowaltz:1.2.0--r42hdfd78af_1' :
+        'quay.io/biocontainers/ribowaltz:1.2.0--r42hdfd78af_1' }"
+
+    publishDir "${params.outdir}/psites", mode: 'copy', overwrite: true
+
+    input:
+    path(tables, stageAs: 'tables/??/*')
+
+    output:
+    path("psite_offset.tsv.gz"), emit: psite_offset
+    path("codon_coverage_rpf.tsv.gz"), emit: codon_coverage_rpf
+    path("codon_coverage_psite.tsv.gz"), emit: codon_coverage_psite
+    path("cds_coverage_psite.tsv.gz"), emit: cds_coverage
+    path("*nt_coverage_psite.tsv.gz"), emit: cds_window_coverage
+
+    script:
+
+        """
+        Rscript --vanilla ${workflow.projectDir}/bin/merge_psite_tables.R tables
         """
 
 }

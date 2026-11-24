@@ -243,6 +243,8 @@ filtered.ls <- filtered.ls[!names(filtered.ls) %in% exclude.ls]
 if (length(filtered.ls) == 0) {
 
   message("No sample has reads passing filters for P-site identification. Stopping analysis.")
+  # An empty per-sample job is skipped, as when other samples survive a combined run.
+  if (isTRUE(as.logical(options[10]))) quit(save = "no", status = 0)
   stop_quietly()
 }
 
