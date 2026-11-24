@@ -38,6 +38,7 @@ exclude_start <- as.numeric(options[7])
 exclude_stop <- as.numeric(options[8])
 
 longest_cds.df <- options[9]
+keep_read_names <- isTRUE(as.logical(options[11]))
 
 # Usage: Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
@@ -49,6 +50,9 @@ export_psites <- function(name, df_list) {
   
   df <- df_list[[name]]
   df$sample <- name
+  if ("read_name" %in% names(df)) {
+    data.table::setcolorder(df, c(setdiff(names(df), "read_name"), "read_name"))
+  }
   
   data.table::fwrite(df, paste0(getwd(), "/", name, ".psite.tsv.gz"), sep = "\t")
   return(df)
@@ -195,10 +199,30 @@ names(name_of_bams) <- lapply(bams, function(x) strsplit(basename(x), ".bam")[[1
 # Get number of samples
 sample_count <- length(bams)
 
-# Load bams
-reads.ls <- bamtolist(bamfolder = getwd(), 
-                      annotation = annotation.dt,
-                      name_samples = unlist(name_of_bams))
+# Preserve QNAMEs only for genomic tracks, using the same import filters as riboWaltz 1.2.0
+read_bam_with_names <- function(bam, annotation) {
+  alignments <- GenomicAlignments::readGAlignments(bam, use.names = TRUE)
+  df <- data.table::as.data.table(alignments)
+  df[, read_name := as.character(names(alignments))]
+  if (anyNA(df$read_name) || any(df$read_name %in% c("", "*"))) {
+    stop("Genomic P-site tracks require BAM read names")
+  }
+  df <- df[abs(qwidth - width) <= 5 & strand == "+" & seqnames %in% annotation$transcript,
+           .(transcript = seqnames, end5 = start, end3 = end, length = width, read_name)]
+  df[annotation, on = "transcript", c("cds_start", "cds_stop") := list(i.l_utr5 + 1, i.l_utr5 + i.l_cds)]
+  df[cds_start == 1 & cds_stop == 0, cds_start := 0]
+  data.table::setcolorder(df, c("transcript", "end5", "end3", "length", "cds_start", "cds_stop", "read_name"))
+  return(df)
+}
+
+if (keep_read_names) {
+  reads.ls <- lapply(bams, read_bam_with_names, annotation = annotation.dt)
+  names(reads.ls) <- unlist(name_of_bams, use.names = FALSE)
+} else {
+  reads.ls <- bamtolist(bamfolder = getwd(),
+                        annotation = annotation.dt,
+                        name_samples = unlist(name_of_bams))
+}
 
 # Order named list alphabetically
 reads.ls <- reads.ls[order(names(reads.ls))]

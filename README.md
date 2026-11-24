@@ -237,7 +237,7 @@ P-sites are identified with [`riboWaltz`](https://github.com/LabTranslationalArc
 - `exclude_start` specifies the number of nucleotides 3' from the start codon to be excluded from CDS P-site quantification (default: `42`, i.e. exclude the first 14 codons)
 - `exclude_stop` specifies the number of nucleotides 5' from the stop codon to be excluded from CDS P-site quantification (default: `27`, i.e. exclude the last 9 codons)
 
-- `genomic_codon_coverage` convert transcript positions of inferred P-sites mapping on each triplet of annotated CDS and UTR to genomic coordinates and report geomic coordinates and P-site counts in a BED file. By default, not enabled.
+- `--genomic_psite_coverage` exports strand-specific genomic P-site tracks from riboWaltz results (default: disabled). The existing `--genomic_codon_coverage` remains a supported alias; either flag enables the same outputs. Tracks use `--track_format` (`bigwig` by default, or `bedgraph`) and single-nucleotide resolution. The exon map is prepared once; conversion runs separately for each sample in either P-site inference mode. Enabling this option appends `read_name` to the per-read P-site TSVs. Repeated transcript assignments of the same read at the same genomic P-site count once; different read names at that position count separately. Reads with conflicting genomic P-sites are excluded and reported in the mapping statistics. Empty strands produce no track. The existing genomic BED output is also retained.
 
 **Important:** P-sites and information are identified using transcriptomic coordinates. For this, a representative transcript is selected for each gene. The selection is based on the following hierarchy: CDS length > total length > number of exons > 5'UTR length > 3'UTR length. The selection is performed automatically by the pipeline using the information in the provided GTF file, and stored in `*.longest_cds.transcript_info.tsv`. The default representative transcript table can be overriden by the user by providing their own table with `--transcript_info` (see instructions above).
 
@@ -245,7 +245,7 @@ P-sites are identified with [`riboWaltz`](https://github.com/LabTranslationalArc
 #### Coverage tracks options
 
 - `--bin_size` spcifies bin size for calculating coverage (i.e. the number of nt per bin). Bins are short consecutive counting windows of a defined size. (default: `1`)
-- `--track_format` specifies output file type (options: `bigwig`(default) or `bedgraph`)
+- `--track_format` specifies output file type for read coverage and optional genomic P-site tracks (options: `bigwig`(default) or `bedgraph`). P-site tracks always use single-nucleotide resolution; `--bin_size` applies to read coverage only.
 
 ## Pipeline outputs
 
@@ -311,6 +311,7 @@ The pipeline outputs results in a number of folders:
     - `codon_coverage_rpf.tsv.gz` RPF counts on each triplet of annotated CDS and UTR for each transcript
     - `offset_plot` contains plots that detail P-site assignment using the  method
 - `coverage_tracks` contains track files in BED and bigWig or bedGraph format
+    - `psite` contains optional `<sample>.psites.forward/reverse.bigWig` or `.bedgraph` files with raw P-site counts, the legacy `<sample>.codon_coverage_psite.bed.gz`, and `<sample>.psites.mapping_stats.tsv` with read counts and excluded assignments. Counts are positive in both strand tracks. Tool versions are saved in `pipeline_info/psite_tracks`.
     - `*.bigwig` UMI deduplicated genome coverage tracks in bigWig format
     - `*.bedgraph` UMI deduplicated genome coverage tracks in bedGraph format
     - `*.genome.dedup.bed.gz` UMI deduplicated alignments to the genome in BED format

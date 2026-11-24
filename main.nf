@@ -74,6 +74,7 @@ include { DEDUPLICATE } from './subworkflows/dedup.nf'
 include { MAPPING_LENGTH_ANALYSES } from './subworkflows/mapping_length_analyses.nf'
 include { GET_GENE_LEVEL_COUNTS } from './subworkflows/gene_level_counts.nf'
 include { RUN_RIBOCUTTER } from './subworkflows/ribocutter_analysis.nf'
+include { GENOMIC_PSITE_TRACKS } from './subworkflows/genomic_psite_tracks.nf'
 
 /*
 MODULES
@@ -89,7 +90,6 @@ include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { MERGE_PSITE_TABLES } from './modules/local/ribowaltz.nf'
 include { RUST_QC } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
-include { GET_PSITE_TRACKS } from './modules/local/ribowaltz.nf'
 include { PCA } from './modules/local/riboseq_qc.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
 
@@ -361,15 +361,14 @@ workflow RIBOSEQ {
             ch_psite_cds_window_coverage = IDENTIFY_PSITES.out.cds_window_coverage
         }
 
-        // Convert codon coverage from transcriptomic to genomic coordinates
-        if (params.genomic_codon_coverage) {
-        GET_PSITE_TRACKS(
-            IDENTIFY_PSITES.out.psites.flatten(),
-            PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map{ it[1] }.first(),
-            PREPARE_RIBOSEQ_REFERENCE.out.genome_fai.first()
-        )
-
-
+        // Export strand-specific genomic P-site coverage, independently for each sample
+        if (params.genomic_psite_coverage || params.genomic_codon_coverage) {
+            GENOMIC_PSITE_TRACKS(
+                IDENTIFY_PSITES.out.psites.flatten(),
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map { it[1] }.first(),
+                PREPARE_RIBOSEQ_REFERENCE.out.genome_fai.first(),
+                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.first()
+            )
         }
 
     }

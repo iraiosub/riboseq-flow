@@ -1,10 +1,17 @@
 {
-    "name": "",
+    "name": "iraiosub/riboseq-flow",
     "homePage": "",
     "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "bedtools/sort": {
+                        "branch": "master",
+                        "git_sha": "62ca6e796e70c485214b7339612fdac003002711",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
                     "bowtie2/build": {
                         "branch": "master",
                         "git_sha": "1fea64f5132a813ec97c1c6d3a74e0aee7142b6d",
@@ -38,6 +45,13 @@
                     "star/genomegenerate": {
                         "branch": "master",
                         "git_sha": "603ecbd9f45300c9788f197d2a15a005685b4220",
+                        "installed_by": [
+                            "modules"
+                        ]
+                    },
+                    "ucsc/bedgraphtobigwig": {
+                        "branch": "master",
+                        "git_sha": "62ca6e796e70c485214b7339612fdac003002711",
                         "installed_by": [
                             "modules"
                         ]
