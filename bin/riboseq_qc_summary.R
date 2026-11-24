@@ -32,11 +32,9 @@ full_summary.df <- rbindlist(lapply(summary_df.ls, fread), use.names = TRUE)
 
 # If no UMIs, the duplication column has NAs, in that case, the plot should be skipped
 
-if (is.na(unique(full_summary.df$duplication))) {
+has_duplication <- any(!is.na(full_summary.df$duplication))
 
-  dup <- ggplot() + theme_void() + ggtitle("Duplication %") + geom_text(aes(0,0,label='N/A'))
-
-} else {
+if (has_duplication) {
 
   dup <- ggplot(full_summary.df, aes(x = name, y = duplication)) + # , fill = name
     geom_bar(stat="identity") +
@@ -66,22 +64,7 @@ use <- ggplot(full_summary.df, aes(x = name, y = y)) +
   theme(axis.text.x = element_text(angle = 90)) +
   theme(legend.position = "none")
 
-use + exp + dup + 
-  plot_layout(nrow = 3)
-
 fwrite(full_summary.df, "qc_summary.tsv.gz", sep = "\t", row.names = FALSE)
-
-# Set dimensions for plot based on the number of samples
-if (length(unique(full_summary.df$name)) >= 3) {
-
-  plot.width <- length(unique(full_summary.df$name))
-} else {
-
-  plot.width <- 6
-}
-
-ggsave("qc_summary.pdf", dpi = 300, height = 12, width = plot.width)
-# ggsave("qc_summary_mqc.png", dpi = 300, height = 12, width = plot.width)
 
 
 
@@ -307,3 +290,45 @@ if (ncol(length_filter.df) == nrow(length_filter.df) + 1) {
 }
 
 fwrite(length_filter.df, "length_filter_mqc.tsv", row.names = FALSE, sep = "\t")
+
+# Combined QC report, including the same frame metrics as MultiQC
+frame_colours <- c("Expected length range" = "#7cb5ec", "Most abundant length" = "#434348", "Most periodic expected length" = "#90ed7d")
+frame_labels <- c("Expected length range" = "Expected length\nrange", "Most abundant length" = "Most abundant\nlength", "Most periodic expected length" = "Most periodic\nexpected length")
+
+dominant_frame_plot <- ggplot(frame_metrics.df, aes(x = sample, y = dominant_percentage, fill = category)) +
+  geom_bar(stat = "identity", position = "dodge", na.rm = TRUE) +
+  geom_text(aes(label = if_else(category == "Expected length range", "", length)),
+            position = position_dodge(width = 0.9), vjust = -0.3, size = 3, na.rm = TRUE) +
+  scale_fill_manual(values = frame_colours, labels = frame_labels, name = NULL) +
+  scale_y_continuous(limits = c(0, 100), expand = expansion(mult = c(0, 0.1))) +
+  ggtitle("Dominant frame percentage", "Labels show selected lengths; the expected range pools lengths.") +
+  xlab("Sample") + ylab("%") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90), legend.position = "bottom")
+
+frame_ratio_plot.df <- frame_ratio_mqc.df %>%
+  pivot_longer(-sample, names_to = "category", values_to = "ratio") %>%
+  mutate(ratio = as.numeric(ratio))
+
+frame_ratio_plot <- ggplot(frame_ratio_plot.df, aes(x = sample, y = ratio, fill = category)) +
+  geom_bar(stat = "identity", position = "dodge", na.rm = TRUE) +
+  geom_text(aes(y = 0, label = if_else(is.na(ratio), "NA", "")),
+            position = position_dodge(width = 0.9), vjust = -0.3, size = 3) +
+  scale_fill_manual(values = frame_colours, labels = frame_labels, name = NULL) +
+  ggtitle("Dominant / least abundant frame ratio") +
+  labs(caption = "NA: zero reads in the weakest frame, or no eligible read length.") +
+  xlab("Sample") + ylab("Ratio") +
+  theme_classic() +
+  theme(axis.text.x = element_text(angle = 90), legend.position = "bottom")
+
+summary_plot <- use + exp
+if (has_duplication) {
+  summary_plot <- summary_plot + dup
+}
+summary_plot <- summary_plot + dominant_frame_plot + frame_ratio_plot +
+  plot_layout(nrow = if (has_duplication) 5 else 4)
+
+# Allow room for the frame legends and increase width with the number of samples
+plot.width <- max(8, length(unique(full_summary.df$name)))
+ggsave("qc_summary.pdf", plot = summary_plot, dpi = 300, height = if (has_duplication) 18 else 15, width = plot.width)
+# ggsave("qc_summary_mqc.png", dpi = 300, height = 12, width = plot.width)

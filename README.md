@@ -289,6 +289,7 @@ The pipeline outputs results in a number of folders:
     - `*.transcriptome.dedup.sorted.bam` UMI deduplicated alignments to the transcriptome in BAM format
 - `riboseq_qc` contains QC plots informing on read and mapping lengths, frame, periodicity, signal around start and stop codons, contaminants content, duplication, fraction of useful (mapped to protein-coding transcripts) reads, proprtion of reads remaining after alignment steps etc and folders containing other QC results.
     - `*.qc_results.pdf` per-sample QC reports with specialised ribo-seq quality metrics stratified by read length
+    - `qc_summary.pdf` combined QC report, including dominant frame percentages and dominant/least frame ratios for all three read length categories; selected single lengths are labelled on the percentage plot. The duplication panel is omitted when no deduplication percentages are available.
     - `*.qc_results.tsv.gz` and `qc_summary.tsv.gz` contain per-sample and combined QC summary metrics
     - `qc_tables` contains compressed TSV files with frame counts by read length and read length-specific distances from start and stop codons
     - `mapping_length_analysis` contains CSV files with number of raw and mapped reads by length:
