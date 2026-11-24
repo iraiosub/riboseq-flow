@@ -296,6 +296,7 @@ The pipeline outputs results in a number of folders:
         - `*.before_dedup.csv` 
         - `*.after_dedup.csv`
     - `multiqc_tables` contains combined TSV files underlying the MultiQC plots, with all samples in each table
+    - Frame QC uses read 5' ends and reports the most abundant useful read length and the most periodic length within `--expected_length` whose count is at least 10% of the most abundant length's count. Periodicity is the dominant frame percentage; ties favour higher abundance, then shorter length. MultiQC lists both lengths, their frame distributions, dominant frame percentages and dominant/least frame ratios, and warns when the most abundant length is outside the expected range. With no eligible length, its metrics are unavailable; ratios are unavailable when the weakest frame is zero, with affected samples and frame counts noted in the report. These QC metrics do not change P-site selection.
     - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding the yield of useful reads and troubleshooting. 
     - `pca` contains PCA plots and rlog-normalised count tables. Only produced if 3 samples or more are analysed.
     - `rust_analysis` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by read length, using the inferred P-sites.

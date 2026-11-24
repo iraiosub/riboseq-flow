@@ -100,7 +100,22 @@ expected_length_mqc.df <- full_summary.df %>%
   dplyr::rename(sample = name, expected_length_percentage = percent_expected_length) %>%
   dplyr::arrange(sample)
 
-fwrite(expected_length_mqc.df, "expected_length_mqc.tsv", row.names = FALSE, sep = "\t")
+outside_expected_length.df <- full_summary.df %>%
+  dplyr::filter(most_abundant_length_in_expected_range == FALSE) %>%
+  dplyr::arrange(name)
+
+if (nrow(outside_expected_length.df) > 0) {
+  length_warnings <- paste0(htmltools::htmlEscape(outside_expected_length.df$name), ": ",
+                           outside_expected_length.df$most_abundant_length, " nt (expected ",
+                           outside_expected_length.df$expected_length, " nt)")
+  writeLines(c("# description: |",
+               "#   Percentage of useful reads within the expected read length range. The higher the percentage, the better.",
+               paste0('#   <div class="alert alert-warning"><strong>Warning:</strong> Most abundant useful read length outside the expected range: ',
+                      paste(length_warnings, collapse = "; "), ".</div>")), "expected_length_mqc.tsv")
+}
+
+fwrite(expected_length_mqc.df, "expected_length_mqc.tsv", row.names = FALSE, sep = "\t",
+       append = nrow(outside_expected_length.df) > 0, col.names = TRUE)
 
 duplication_mqc.df <- full_summary.df %>%
   dplyr::select(name, duplication) %>%
@@ -205,14 +220,78 @@ if (ncol(most_abundant_frame_mqc.df) == nrow(most_abundant_frame_mqc.df) + 1) {
 
 fwrite(most_abundant_frame_mqc.df, "most_abundant_frame_mqc.tsv", row.names = FALSE, sep = "\t")
 
+# Frame counts for the most periodic supported expected read length
+most_periodic_frame_mqc.df <- full_summary.df %>%
+  dplyr::filter(!is.na(most_periodic_length)) %>%
+  dplyr::select(name, most_periodic_frame_0, most_periodic_frame_1, most_periodic_frame_2) %>%
+  dplyr::rename(sample = name, `frame 0` = most_periodic_frame_0, `frame 1` = most_periodic_frame_1, `frame 2` = most_periodic_frame_2) %>%
+  dplyr::arrange(sample)
+
+writeLines("# plot_type: bargraph", "most_periodic_frame_mqc.tsv")
+fwrite(most_periodic_frame_mqc.df, "most_periodic_frame_mqc.tsv", row.names = FALSE, sep = "\t", append = TRUE, col.names = TRUE)
+
+# Selected read lengths, together for all samples
+selected_lengths_mqc.df <- full_summary.df %>%
+  dplyr::select(name, expected_length, most_abundant_length, most_periodic_length) %>%
+  dplyr::rename(sample = name, `Expected length range (nt)` = expected_length,
+                `Most abundant length (nt)` = most_abundant_length, `Most periodic expected length (nt)` = most_periodic_length) %>%
+  dplyr::arrange(sample)
+
+# Include table configuration here because MultiQC infers and replaces pconfig for TSV tables
+writeLines(c("# plot_type: table",
+             '# pconfig: {id: selected_lengths_table, title: "Selected Read Lengths", scale: false, format: "{:,.0f}"}'),
+           "selected_lengths_mqc.tsv")
+fwrite(selected_lengths_mqc.df, "selected_lengths_mqc.tsv", row.names = FALSE, sep = "\t", append = TRUE, col.names = TRUE)
+
+# Dominant frame percentage for each of the three read length categories
+frame_metrics.df <- bind_rows(
+  frame_counts.df %>%
+    left_join(full_summary.df %>% dplyr::select(sample = name, expected_length), by = "sample") %>%
+    transmute(sample, category = "Expected length range", length = paste0(expected_length, " nt"),
+              frame_0 = `frame 0`, frame_1 = `frame 1`, frame_2 = `frame 2`),
+  full_summary.df %>%
+    transmute(sample = name, category = "Most abundant length", length = paste0(most_abundant_length, " nt"),
+              frame_0 = most_abundant_frame_0, frame_1 = most_abundant_frame_1, frame_2 = most_abundant_frame_2),
+  full_summary.df %>%
+    transmute(sample = name, category = "Most periodic expected length", length = paste0(most_periodic_length, " nt"),
+              frame_0 = most_periodic_frame_0, frame_1 = most_periodic_frame_1, frame_2 = most_periodic_frame_2)
+) %>%
+  mutate(total = frame_0 + frame_1 + frame_2,
+          weakest_frame = pmin(frame_0, frame_1, frame_2),
+          dominant_percentage = if_else(total > 0, 100*pmax(frame_0, frame_1, frame_2) / total, NA_real_))
+
+dominant_frame_mqc.df <- frame_metrics.df %>%
+  dplyr::select(sample, category, dominant_percentage) %>%
+  pivot_wider(names_from = category, values_from = dominant_percentage) %>%
+  dplyr::arrange(sample)
+
+writeLines("# plot_type: bargraph", "dominant_frame_mqc.tsv")
+fwrite(dominant_frame_mqc.df, "dominant_frame_mqc.tsv", row.names = FALSE, sep = "\t", append = TRUE, col.names = TRUE)
+
 # Dominant / least abundant frame ratios
 frame_ratio_mqc.df <- full_summary.df %>%
-  dplyr::select(name, expected_frame_ratio, most_abundant_frame_ratio) %>%
-  dplyr::rename(sample = name, `Expected length range` = expected_frame_ratio, `Most abundant length` = most_abundant_frame_ratio) %>%
+  dplyr::select(name, expected_frame_ratio, most_abundant_frame_ratio, most_periodic_frame_ratio) %>%
+  dplyr::rename(sample = name, `Expected length range` = expected_frame_ratio, `Most abundant length` = most_abundant_frame_ratio,
+                `Most periodic expected length` = most_periodic_frame_ratio) %>%
   dplyr::arrange(sample)
 
 # Keep unavailable ratios from changing MultiQC's inferred plot type
-writeLines("# plot_type: bargraph", "frame_ratio_mqc.tsv")
+frame_ratio_header <- "# plot_type: bargraph"
+zero_frame.df <- frame_metrics.df %>%
+  dplyr::filter(total > 0, weakest_frame == 0) %>%
+  dplyr::arrange(sample, category)
+
+if (nrow(zero_frame.df) > 0) {
+  frame_ratio_notes <- paste0(htmltools::htmlEscape(zero_frame.df$sample), ": ", zero_frame.df$category,
+                             " (", zero_frame.df$length, "; frame counts ", zero_frame.df$frame_0, " / ",
+                             zero_frame.df$frame_1, " / ", zero_frame.df$frame_2, "; n=", zero_frame.df$total, ")")
+  frame_ratio_header <- c(frame_ratio_header, "# description: |",
+                          "#   Ratio of the largest to the smallest 5' end frame count for each read length category. Ratios are unavailable when the smallest count is zero or no eligible length exists.",
+                          paste0('#   <p class="text-muted"><small><strong>Missing ratio bars:</strong> no finite ratio because the weakest frame has zero reads.<br>',
+                                 paste(frame_ratio_notes, collapse = "<br>"), "</small></p>"))
+}
+
+writeLines(frame_ratio_header, "frame_ratio_mqc.tsv")
 fwrite(frame_ratio_mqc.df, "frame_ratio_mqc.tsv", row.names = FALSE, sep = "\t", append = TRUE, col.names = TRUE)
 
 # Length filter counts
