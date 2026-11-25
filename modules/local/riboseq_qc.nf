@@ -75,6 +75,7 @@ process SUMMARISE_RIBOSEQ_QC {
         path(useful_length_tables)
         path(region_counts_tables)
         path(start_dist_tables)
+        path(end_dist_tables)
         path(mapping_counts_tables)
         path(frame_counts_tables)
         path(length_filter_tables)
@@ -93,12 +94,13 @@ process SUMMARISE_RIBOSEQ_QC {
         INPUT_USEFUL_LEN=`echo $useful_length_tables | sed 's/ /,/g'`
         INPUT_REGION=`echo $region_counts_tables | sed 's/ /,/g'`
         INPUT_START_DIST=`echo $start_dist_tables | sed 's/ /,/g'`
+        INPUT_END_DIST=`echo $end_dist_tables | sed 's/ /,/g'`
         INPUT_MAPPING_COUNTS=`echo $mapping_counts_tables | sed 's/ /,/g'`
         INPUT_FRAME=`echo $frame_counts_tables | sed 's/ /,/g'`
         INPUT_LENGTH_FILTER=`echo $length_filter_tables | sed 's/ /,/g'`
         
-        riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN -r \$INPUT_REGION --start_dist_list \$INPUT_START_DIST -m \$INPUT_MAPPING_COUNTS -f \$INPUT_FRAME --length_filter_list \$INPUT_LENGTH_FILTER
-        rm $fq_length_tables $useful_length_tables $region_counts_tables $start_dist_tables $mapping_counts_tables $frame_counts_tables $length_filter_tables
+        riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN -r \$INPUT_REGION --start_dist_list \$INPUT_START_DIST --end_dist_list \$INPUT_END_DIST -m \$INPUT_MAPPING_COUNTS -f \$INPUT_FRAME --length_filter_list \$INPUT_LENGTH_FILTER
+        rm $fq_length_tables $useful_length_tables $region_counts_tables $start_dist_tables $end_dist_tables $mapping_counts_tables $frame_counts_tables $length_filter_tables
         
         """
 

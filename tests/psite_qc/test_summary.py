@@ -54,6 +54,11 @@ class PsiteQCTest(unittest.TestCase):
         self.assertNotIn("sample<B>& | CDS", frames)
         self.assertIn("<strong>sampleA</strong>: 27, 31 nt", regions["extra"])
         self.assertIn("<strong>sample&lt;B&gt;&amp;</strong>: 33 nt", regions["extra"])
+        self.assertEqual(regions["parent_name"], "riboWaltz: P-site QC")
+        self.assertIn("riboWaltz", regions["section_href"])
+        self.assertEqual(regions["categories"], {"5' UTR": {}, "CDS": {}, "3' UTR": {}})
+        self.assertEqual(self.read_plot("frames")["categories"],
+                         {"Frame 0": {}, "Frame 1": {}, "Frame 2": {}})
 
     def test_profile_boundaries_zero_filling_and_normalisation(self):
         self.run_summary(self.a, self.b)

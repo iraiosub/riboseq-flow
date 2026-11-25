@@ -13,6 +13,14 @@ import sys
 
 REGIONS = {"5utr": "5' UTR", "cds": "CDS", "3utr": "3' UTR"}
 WINDOWS = {"start": (-25, 40), "stop": (-40, 25)}
+PARENT = {
+    "parent_id": "psite_qc", "parent_name": "riboWaltz: P-site QC",
+    "section_href": "https://github.com/LabTranslationalArchitectomics/riboWaltz",
+    "parent_description": "P-site positioning and diagnostics from "
+                          "<a href='https://github.com/LabTranslationalArchitectomics/riboWaltz'>riboWaltz</a> "
+                          "(<a href='https://doi.org/10.1371/journal.pcbi.1006169'>Lauria et al., 2018</a>). "
+                          "Plots pool the read lengths retained after length and periodicity filtering for each sample.",
+}
 
 
 def summarise(paths):
@@ -60,20 +68,14 @@ def main(paths):
     retained = "".join("<li><strong>{}</strong>: {} nt</li>".format(
         escape(sample), ", ".join(map(str, sorted(counts["lengths"]))))
         for sample, counts in samples.items())
-    parent = {
-        "parent_id": "psite_qc", "parent_name": "P-site QC",
-        "parent_description": "Assigned P-sites after read-length and periodicity filtering. "
-                              "All plots pool the retained read lengths for each sample.",
-        "extra": "<p><strong>Read lengths retained for riboWaltz</strong></p><ul>" + retained + "</ul>",
-    }
+    parent = dict(PARENT, extra="<p><strong>Read lengths retained for riboWaltz</strong></p><ul>" + retained + "</ul>")
 
     regions = {sample: {label: counts["regions"][region] for region, label in REGIONS.items()}
                for sample, counts in samples.items() if sum(counts["regions"].values())}
     write_plot("psite_regions", "Transcript regions", "bargraph", regions,
                "Proportion of assigned P-sites in each transcript region. Switch to counts "
                "to view the underlying totals.", parent,
-               categories={label: {"color": color} for label, color in
-                           zip(REGIONS.values(), ("#9BBBD4", "#377E8F", "#E4B66A"))},
+               categories={label: {} for label in REGIONS.values()},
                stacking="percent", cpswitch=True, cpswitch_c_active=False, ylab="P-sites (%)",
                height=max(240, 120 + 28 * len(regions)))
 
@@ -84,8 +86,7 @@ def main(paths):
     write_plot("psite_frames", "Reading frames", "bargraph", frames,
                "P-site frames relative to the annotated CDS start, shown separately for "
                "each sample and region. Regions without assigned P-sites are omitted.", parent,
-               categories={"Frame " + str(frame): {"color": color} for frame, color in
-                           enumerate(("#377E8F", "#8D9CB5", "#E4B66A"))},
+               categories={"Frame " + str(frame): {} for frame in range(3)},
                stacking="percent", cpswitch=True, cpswitch_c_active=False, ylab="P-sites (%)",
                sort_samples=False, height=max(280, 120 + 26 * len(frames)))
 
@@ -97,7 +98,7 @@ def main(paths):
                 profiles[sample] = {position: counts[end][position] / total
                                     for position in range(lower, upper + 1)}
         reference = "CDS start" if end == "start" else "CDS end"
-        write_plot("psite_" + end, "Around the " + end + " codon", "linegraph", profiles,
+        write_plot("psite_" + end, "Around " + end + " codon", "linegraph", profiles,
                    "Each sample is normalised within this window. Zero marks the annotated "
                    + reference + ". Samples with no P-sites here are omitted.", parent,
                    xlab="Distance from " + reference + " (nt)", ylab="P-site frequency",

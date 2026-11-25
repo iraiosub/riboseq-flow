@@ -79,6 +79,13 @@ codon_df <- p_sites_df %>%
   ungroup() %>%
   dplyr::filter(n_this_frame == max(n_this_frame))
 
+codon_df %>%
+  group_by(length) %>%
+  summarise(psites_used = sum(reads_this_pos_this_length), .groups = "drop") %>%
+  mutate(sample = sample_id) %>%
+  select(sample, length, psites_used) %>%
+  write_tsv(paste0(sample_id, ".rust_lengths.tsv"))
+
 # Width of region of interest
 offset_start = -10 # codon-wise
 offset_end = 10 # codon-wise

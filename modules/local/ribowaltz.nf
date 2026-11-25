@@ -164,7 +164,7 @@ process SUMMARISE_PSITE_QC {
 
     script:
         """
-        python3 ${workflow.projectDir}/bin/psite_multiqc.py $psites
+        psite_multiqc.py $psites
         """
 }
 
@@ -175,7 +175,7 @@ label 'process_single'
 
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 
-    publishDir "${params.outdir}/riboseq_qc/rust_analysis/", pattern: "*.rust_analysis.{pdf,tsv}", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc/rust_analysis/", pattern: "*.rust_{analysis,lengths}.{pdf,tsv}", mode: 'copy', overwrite: true
     
     input:
     path(transcript_fasta)
@@ -186,6 +186,7 @@ label 'process_single'
     output:
     path("*.rust_analysis.pdf"), emit: rust_analysis
     path("*.rust_analysis.tsv"), emit: rust_table
+    path("*.rust_lengths.tsv"), emit: lengths
 
     script:
 
@@ -194,4 +195,29 @@ label 'process_single'
             
         """
 
+}
+
+
+process SUMMARISE_RUST_QC {
+
+    label 'process_single'
+
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/multiqc:1.19--pyhdfd78af_0' :
+        'quay.io/biocontainers/multiqc:1.19--pyhdfd78af_0' }"
+
+    publishDir "${params.outdir}/riboseq_qc/multiqc_tables", pattern: "rust_*_mqc.json", mode: 'copy', overwrite: true
+
+    input:
+    path(profiles)
+    path(lengths)
+    path(qc_summary)
+
+    output:
+    path("rust_*_mqc.json"), emit: mqc
+
+    script:
+        """
+        rust_multiqc.py --qc-summary $qc_summary --profiles $profiles --lengths $lengths
+        """
 }

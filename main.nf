@@ -90,6 +90,7 @@ include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { MERGE_PSITE_TABLES } from './modules/local/ribowaltz.nf'
 include { SUMMARISE_PSITE_QC } from './modules/local/ribowaltz.nf'
 include { RUST_QC } from './modules/local/ribowaltz.nf'
+include { SUMMARISE_RUST_QC } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { PCA } from './modules/local/riboseq_qc.nf'
 include { MULTIQC } from './modules/local/multiqc.nf'
@@ -279,6 +280,10 @@ workflow RIBOSEQ {
             .map { [ it[1] ] }
             .collect()
 
+        ch_merge_end_dist = RIBOSEQ_QC.out.qc_tables
+            .map { sample_id, tables -> tables.find { it.name.endsWith('_end_dist_qc.tsv.gz') } }
+            .collect()
+
         ch_merge_frame = RIBOSEQ_QC.out.frame_counts
             .map { [ it[1] ] }
             .collect()
@@ -297,6 +302,7 @@ workflow RIBOSEQ {
             ch_merge_useful_length,
             ch_merge_region_counts,
             ch_merge_start_dist,
+            ch_merge_end_dist,
             ch_merge_mapping_counts,
             ch_merge_frame,
             ch_merge_legth_filter
@@ -375,6 +381,7 @@ workflow RIBOSEQ {
     }
 
     ch_psite_qc = Channel.empty()
+    ch_rust_qc = Channel.empty()
     if (!params.skip_psite && !params.skip_qc) {
 
         SUMMARISE_PSITE_QC(IDENTIFY_PSITES.out.psites.flatten().collect())
@@ -385,6 +392,12 @@ workflow RIBOSEQ {
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.first(),
             IDENTIFY_PSITES.out.psites.flatten()
         )
+        SUMMARISE_RUST_QC(
+            RUST_QC.out.rust_table.collect(),
+            RUST_QC.out.lengths.collect(),
+            SUMMARISE_RIBOSEQ_QC.out.qc
+        )
+        ch_rust_qc = SUMMARISE_RUST_QC.out.mqc
     }
 
 
@@ -473,7 +486,7 @@ workflow RIBOSEQ {
             .collect()
     }
 
-    MULTIQC(ch_logs.mix(ch_psite_qc).collect(), ch_multiqc_config)
+    MULTIQC(ch_logs.mix(ch_psite_qc, ch_rust_qc).collect(), ch_multiqc_config)
 
 }
 

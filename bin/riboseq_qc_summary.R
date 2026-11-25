@@ -13,6 +13,7 @@ option_list <- list(make_option(c("-i", "--summary_list"), action = "store", typ
                     make_option(c("-u", "--useful_len_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read length distribution"),
                     make_option(c("-r", "--region_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated region counts"),
                     make_option(c("", "--start_dist_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read count density around start codon"),
+                    make_option(c("", "--end_dist_list"), action = "store", type = "character", default=NA, help = "list of tab separated useful read count density around stop codon"),
                     make_option(c("-m", "--mapping_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated mapping counts"),
                     make_option(c("-f", "--frame_counts_list"), action = "store", type = "character", default=NA, help = "list of tab separated frame counts"),
                     make_option(c("", "--length_filter_list"), action = "store", type = "character", default=NA, help = "list of tab length-filtered counts"))
@@ -141,6 +142,22 @@ start_dist.df <- start_dist.df %>%
   column_to_rownames(var = "sample") %>%
   replace(is.na(.), 0)
 fwrite(start_dist.df, "start_dist_mqc.tsv", row.names = TRUE, sep = "\t")
+
+end_dist.ls <- as.list(strsplit(opt$end_dist_list, ",")[[1]])
+end_dist.df <- rbindlist(lapply(end_dist.ls, function(path) {
+  sample_name <- sub("_end_dist_qc[.]tsv[.]gz$", "", basename(path))
+  length_range <- as.numeric(strsplit(full_summary.df$expected_length[match(sample_name, full_summary.df$name)], ":")[[1]])
+  fread(path) %>%
+    dplyr::filter(rl >= length_range[1], rl <= length_range[2],
+                  distance_from_end >= -50, distance_from_end <= 50) %>%
+    group_by(distance_from_end) %>%
+    summarise(number_of_reads = sum(n), .groups = "drop") %>%
+    mutate(sample = sample_name)
+}), use.names = TRUE) %>%
+  pivot_wider(names_from = distance_from_end, values_from = number_of_reads, values_fill = 0) %>%
+  dplyr::arrange(sample) %>%
+  column_to_rownames(var = "sample")
+fwrite(end_dist.df, "end_dist_mqc.tsv", row.names = TRUE, sep = "\t")
 
 
 # Barplots data for multiqc
