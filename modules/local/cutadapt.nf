@@ -24,6 +24,7 @@ process CUTADAPT {
         tuple val(sample_id), path("${sample_id}.cut.fastq.gz"), emit: cut_fastq // necessary for length analyses
         tuple val(sample_id), path("${sample_id}.filtered.fastq.gz"), emit: filtered_fastq // used as input for pre-mapping
         tuple val(sample_id), path("*.log"), emit: log
+        path("versions.yml"), emit: versions
 
     script:
 
@@ -47,6 +48,12 @@ process CUTADAPT {
     cutadapt ${trim_args}${adapter_args} $reads > ${sample_id}.cutadapt_trim.log
     cutadapt ${cut_args} ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_cut.log
     cutadapt ${filter_args} ${sample_id}.cut.fastq.gz > ${sample_id}.cutadapt_filter.log
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version 2>&1 | sed 's/Python //')
+        cutadapt: \$(cutadapt --version)
+    END_VERSIONS
     """
 
 }

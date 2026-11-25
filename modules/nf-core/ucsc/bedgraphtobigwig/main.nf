@@ -31,7 +31,7 @@ process UCSC_BEDGRAPHTOBIGWIG {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        ucsc: $VERSION
+        bedGraphToBigWig: $VERSION
     END_VERSIONS
     """
 
@@ -43,7 +43,7 @@ process UCSC_BEDGRAPHTOBIGWIG {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        ucsc: $VERSION
+        bedGraphToBigWig: $VERSION
     END_VERSIONS
     """
 }

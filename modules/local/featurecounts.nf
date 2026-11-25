@@ -22,6 +22,7 @@ process GENE_COUNTS_FEATURECOUNTS {
     output:
     tuple val(sample_id), path("*.featureCounts.txt"), emit: counts
     tuple val(sample_id), path("*.featureCounts.txt.summary"), emit: summary
+    path("versions.yml"), emit: versions
 
     script:
 
@@ -45,6 +46,11 @@ process GENE_COUNTS_FEATURECOUNTS {
         """
         featureCounts -a $gtf -s $strandedness -t $feature -T ${task.cpus} -o ${sample_id}.featureCounts.txt $bam
 
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            featureCounts: \$(featureCounts -v 2>&1 | sed -n 's/^featureCounts v//p')
+        END_VERSIONS
+
         """
 
 }
@@ -63,6 +69,7 @@ process MERGE_FEATURECOUNTS {
 
     output:
     path("merged.featureCounts.tsv.gz"), emit: counts
+    path("versions.yml"), emit: versions
 
     script:
 
@@ -70,6 +77,7 @@ process MERGE_FEATURECOUNTS {
         INPUT=`echo $featurecounts_tables | sed 's/ /,/g'`
 
         get_featurecounts_tables.R -i \$INPUT
+        software_versions.R "${task.process}" tidyverse data.table optparse dplyr purrr
         """
 
 

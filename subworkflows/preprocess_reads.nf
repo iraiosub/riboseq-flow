@@ -19,14 +19,17 @@ workflow PREPROCESS_READS {
     reads
 
     main:
+    ch_versions = Channel.empty()
     
     if (params.with_umi && !params.skip_umi_extract) {
 
         UMITOOLS_EXTRACT(reads)
+        ch_versions = ch_versions.mix(UMITOOLS_EXTRACT.out.versions)
 
         if (!params.skip_trimming) {
 
             CUTADAPT(UMITOOLS_EXTRACT.out.fastq)
+            ch_versions = ch_versions.mix(CUTADAPT.out.versions)
 
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
             cut_fastq = CUTADAPT.out.cut_fastq
@@ -51,6 +54,7 @@ workflow PREPROCESS_READS {
         if (!params.skip_trimming) {
 
             CUTADAPT(reads)
+            ch_versions = ch_versions.mix(CUTADAPT.out.versions)
             trimmed_fastq = CUTADAPT.out.trimmed_fastq
             cut_fastq = CUTADAPT.out.cut_fastq
             fastq = CUTADAPT.out.filtered_fastq
@@ -71,6 +75,7 @@ workflow PREPROCESS_READS {
     cut_fastq
     fastq
     logs
+    versions = ch_versions
 
 }
 

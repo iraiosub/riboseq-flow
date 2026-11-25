@@ -31,5 +31,6 @@ workflow RUN_RIBOCUTTER {
     ribocutter_guides = RIBOCUTTER_DEFAULT.out.guides
     ribocutter_guides_min23 = RIBOCUTTER_MIN23.out.guides
     ribocutter_mqc = GET_PROPORTION_TARGETED.out.ribocutter_mqc
+    versions = RIBOCUTTER_DEFAULT.out.versions.mix(RIBOCUTTER_MIN23.out.versions, GET_PROPORTION_TARGETED.out.versions)
 
 }

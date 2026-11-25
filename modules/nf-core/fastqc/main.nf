@@ -35,6 +35,7 @@ process FASTQC {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         fastqc: \$( fastqc --version | sed -e "s/FastQC v//g" )
+        java: \$(java -version 2>&1 | sed -n '1s/.*version //; 1s/^openjdk //; 1s/"//g; 1s/ .*//p')
     END_VERSIONS
     """
 
@@ -47,6 +48,7 @@ process FASTQC {
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         fastqc: \$( fastqc --version | sed -e "s/FastQC v//g" )
+        java: \$(java -version 2>&1 | sed -n '1s/.*version //; 1s/^openjdk //; 1s/"//g; 1s/ .*//p')
     END_VERSIONS
     """
 }

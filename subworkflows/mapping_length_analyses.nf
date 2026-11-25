@@ -24,12 +24,15 @@ workflow MAPPING_LENGTH_ANALYSES {
     
 
     main:
+    ch_versions = Channel.empty()
 
     MAPPING_LENGTH_ANALYSIS_BEFORE_DEDUP(bam.join(reads))
+    ch_versions = ch_versions.mix(MAPPING_LENGTH_ANALYSIS_BEFORE_DEDUP.out.versions)
 
     if (params.with_umi) {
 
         MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP(dedup_bam.join(reads)) // reads not needed here, added to keep cardinality
+        ch_versions = ch_versions.mix(MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP.out.versions)
         after_dedup_length_analysis = MAPPING_LENGTH_ANALYSIS_AFTER_DEDUP.out.length_analysis
         
     } else {
@@ -41,6 +44,7 @@ workflow MAPPING_LENGTH_ANALYSES {
     if (!params.skip_premap) {
 
          MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP(bam.join(unmapped_reads))
+         ch_versions = ch_versions.mix(MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP.out.versions)
          after_premap_length_analysis = MAPPING_LENGTH_ANALYSIS_AFTER_PREMAP.out.length_analysis
 
     } else {
@@ -55,6 +59,7 @@ workflow MAPPING_LENGTH_ANALYSES {
     before_dedup_length_analysis = MAPPING_LENGTH_ANALYSIS_BEFORE_DEDUP.out.length_analysis
     after_premap_length_analysis
     after_dedup_length_analysis
+    versions = ch_versions
     
 
 }

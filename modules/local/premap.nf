@@ -27,6 +27,7 @@ process PREMAP {
     tuple val(sample_id), path("*.seqs.gz"), emit: seqs
     tuple val(sample_id), path("*unmapped.fastq.gz"), emit: unmapped
     tuple val(sample_id), path("*.premap.log"), emit: log
+    path("versions.yml"), emit: versions
 
     script:
 
@@ -47,6 +48,12 @@ process PREMAP {
     samtools index ${sample_id}.bam
     samtools view ${sample_id}.bam | cut -f3-5,10 | pigz > ${sample_id}.bam.seqs.gz
     rm ${sample_id}.sam
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        bowtie2: \$(bowtie2 --version | sed -n '1s/.* version //p')
+        samtools: \$(samtools --version | sed -n '1s/samtools //p')
+    END_VERSIONS
 
     """
 }

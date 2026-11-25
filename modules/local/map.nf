@@ -25,6 +25,7 @@ process MAP {
     tuple val(sample_id), path("*.Aligned.sortedByCoord.out.bam"), path("*.Aligned.sortedByCoord.out.bam.bai"), emit: genome_bam
     tuple val(sample_id), path("*.Aligned.toTranscriptome.sorted.out.bam"), path("*.Aligned.toTranscriptome.sorted.out.bam.bai"), emit: transcriptome_bam
     tuple val(sample_id), path("*.Log.final.out"), emit: log
+    path("versions.yml"), emit: versions
 
     script:
     
@@ -41,6 +42,12 @@ process MAP {
 
     samtools sort -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.out.bam > ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
     samtools index -@ ${task.cpus} ${sample_id}.Aligned.toTranscriptome.sorted.out.bam
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        star: \$(STAR --version | sed 's/^STAR_//')
+        samtools: \$(samtools --version | sed -n '1s/samtools //p')
+    END_VERSIONS
 
     """
 

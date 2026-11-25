@@ -79,6 +79,13 @@ codon_df <- p_sites_df %>%
   ungroup() %>%
   dplyr::filter(n_this_frame == max(n_this_frame))
 
+codon_df %>%
+  group_by(length) %>%
+  summarise(psites_used = sum(reads_this_pos_this_length), .groups = "drop") %>%
+  mutate(sample = sample_id) %>%
+  select(sample, length, psites_used) %>%
+  write_tsv(paste0(sample_id, ".rust_lengths.tsv"))
+
 # Width of region of interest
 offset_start = -10 # codon-wise
 offset_end = 10 # codon-wise
@@ -125,6 +132,11 @@ final_df <- full_offset_df %>%
   dplyr::filter(q > 0) %>%
   mutate(kld = sum(ifelse(p == 0, 0, p*log(p/q)))) %>%
   distinct(kld)
+
+final_df %>%
+  ungroup() %>%
+  transmute(sample = sample_id, length, offset_nt = offset, offset_codon = offset/3, kld) %>%
+  write_tsv(paste0(sample_id, ".rust_analysis.tsv"))
 
 rust.plot <- ggplot(final_df, aes(x = offset/3, y = kld, color = factor(length))) +
   geom_line() +
