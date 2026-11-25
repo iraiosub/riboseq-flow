@@ -67,7 +67,7 @@ process RIBOSEQ_QC {
 process SUMMARISE_RIBOSEQ_QC {
     
     tag "${workflow.runName}"
-    label 'process_low'
+    label 'process_single'
 
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 
@@ -118,7 +118,7 @@ process SUMMARISE_RIBOSEQ_QC {
 process TRACK_READS {
     
     tag "${sample_id}"
-    label 'process_low'
+    label 'process_single'
 
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 

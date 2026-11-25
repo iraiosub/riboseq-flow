@@ -8,6 +8,10 @@ PREPARE INPUTS
 */
 
 // Check mandatory parameters
+if (!(params.psite_transcripts in ['representative', 'all_cds'])) {
+    error("--psite_transcripts must be 'representative' or 'all_cds'")
+}
+
 if (!params.input) {
     exit 1, 'Input samplesheet not specified!'
 } else {
@@ -363,7 +367,7 @@ workflow RIBOSEQ {
             ch_psite_bams,
             PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map { it[1] }.first(),
             PREPARE_RIBOSEQ_REFERENCE.out.genome_fasta.map { it[1] }.first(),
-            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.first()
+            PREPARE_RIBOSEQ_REFERENCE.out.psite_transcript_info.first()
         )
         ch_versions = ch_versions.mix(IDENTIFY_PSITES.out.versions)
 
@@ -386,7 +390,7 @@ workflow RIBOSEQ {
                 IDENTIFY_PSITES.out.psites.flatten(),
                 PREPARE_RIBOSEQ_REFERENCE.out.genome_gtf.map { it[1] }.first(),
                 PREPARE_RIBOSEQ_REFERENCE.out.genome_fai.first(),
-                PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.first()
+                PREPARE_RIBOSEQ_REFERENCE.out.psite_transcript_info.first()
             )
             ch_versions = ch_versions.mix(GENOMIC_PSITE_TRACKS.out.versions)
         }
@@ -401,8 +405,8 @@ workflow RIBOSEQ {
         ch_psite_qc = SUMMARISE_PSITE_QC.out.mqc
 
         RUST_QC(
-            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa.first(),
-            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.first(),
+            PREPARE_RIBOSEQ_REFERENCE.out.psite_transcript_fa.first(),
+            PREPARE_RIBOSEQ_REFERENCE.out.psite_transcript_info.first(),
             IDENTIFY_PSITES.out.psites.flatten()
         )
         ch_versions = ch_versions.mix(RUST_QC.out.versions)
@@ -423,7 +427,7 @@ workflow RIBOSEQ {
             GET_GENE_LEVEL_COUNTS.out.merged_counts_table,
             ch_psite_cds_coverage,
             ch_psite_cds_window_coverage,
-            PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
+            PREPARE_RIBOSEQ_REFERENCE.out.psite_transcript_info
         )
 
     } else {

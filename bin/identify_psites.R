@@ -38,7 +38,9 @@ exclude_start <- as.numeric(options[7])
 exclude_stop <- as.numeric(options[8])
 
 longest_cds.df <- options[9]
+per_sample <- isTRUE(as.logical(options[10]))
 keep_read_names <- isTRUE(as.logical(options[11]))
+transcript_scope <- if (length(options) >= 12) options[12] else "representative"
 
 # Usage: Rscript --vanilla identify_psites.R bam_dir gtf fasta length_range
 
@@ -195,6 +197,10 @@ name_of_bams <- lapply(bams, function(x) strsplit(basename(x), ".transcriptome.d
 name_of_bams <- lapply(name_of_bams, function(x) strsplit(basename(x), ".Aligned.toTranscriptome.sorted.out.bam")[[1]][1])
 
 names(name_of_bams) <- lapply(bams, function(x) strsplit(basename(x), ".bam")[[1]][1])
+if (per_sample && length(options) >= 13) {
+  stopifnot(length(bams) == 1)
+  name_of_bams[] <- list(options[13])
+}
 
 # Get number of samples
 sample_count <- length(bams)
@@ -227,13 +233,19 @@ if (keep_read_names) {
 # Order named list alphabetically
 reads.ls <- reads.ls[order(names(reads.ls))]
 
-# Filter to only transcript with longest CDS per gene
+# Restrict to the selected transcript reference; all_cds includes every annotated CDS
 tx <- data.table::fread(longest_cds.df)
 
 reads.ls <- lapply(reads.ls, function(df, tx.df) {
   df <- df[df$transcript %in% unique(tx.df$transcript_id),]
   return(df)
 }, tx.df = tx)
+
+if (transcript_scope == "all_cds") {
+  observed <- unique(unlist(lapply(reads.ls, function(df) as.character(df$transcript))))
+  annotation.dt <- annotation.dt[transcript %in% observed & l_cds > 0]
+  message("P-site transcript selection: all observed CDS-containing isoforms (", nrow(annotation.dt), " transcripts)")
+}
 
 
 # Get filtered reads: keep only the ones with periodicity evidence, periodicity_threshold = 50
@@ -268,7 +280,7 @@ if (length(filtered.ls) == 0) {
 
   message("No sample has reads passing filters for P-site identification. Stopping analysis.")
   # An empty per-sample job is skipped, as when other samples survive a combined run.
-  if (isTRUE(as.logical(options[10]))) quit(save = "no", status = 0)
+  if (per_sample) quit(save = "no", status = 0)
   stop_quietly()
 }
 
@@ -402,7 +414,7 @@ frames_stratified.gg <- frames_stratified$plot +
   ggplot2::scale_y_continuous(limits = c(min_length - 0.5, max_length + 0.5), breaks = seq(min(min_length + ((min_length) %% 2), max_length), max(min_length + ((min_length) %% 2), max_length), 
                     by = max(2, floor((max_length - min_length) / 7))))
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 600, height = 24 , width = 18)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames_stratified.pdf"), frames_stratified.gg, dpi = 600, height = if (per_sample) 7 else 24, width = if (per_sample) 12 else 18)
 
 
 frames <- frame_psite(filtered_psite.ls, region = "all", length_range = min_length:max_length)
@@ -411,7 +423,7 @@ frames.gg <- frames$plot +
                  panel.grid.minor = ggplot2::element_blank(),
                  panel.grid.major = ggplot2::element_blank())
 
-ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 600, height = 24 , width = 18)
+ggplot2::ggsave(paste0(getwd(), "/ribowaltz_qc/frames.pdf"), frames.gg, dpi = 600, height = if (per_sample) 6 else 24, width = if (per_sample) 10 else 18)
 
 # Plots should show an enrichment of P-sites in the first frame on the coding sequence but not the UTRs, as expected for ribosome protected fragments from protein coding mRNAs.
 

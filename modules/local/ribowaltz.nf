@@ -13,7 +13,14 @@ process IDENTIFY_PSITES {
         'https://depot.galaxyproject.org/singularity/ribowaltz:1.2.0--r42hdfd78af_1' :
         'quay.io/biocontainers/ribowaltz:1.2.0--r42hdfd78af_1' }"
 
-    publishDir { params.psite_per_sample ? "${params.outdir}/psites/per_sample/${sample_id}" : "${params.outdir}/psites" }, saveAs: { filename -> filename == 'versions.yml' ? null : filename }, mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/psites", saveAs: { filename ->
+        if (filename == 'versions.yml') return null
+        if (!params.psite_per_sample) return filename
+        def file = new File(filename)
+        def directory = filename.startsWith('offset_plot/') ? 'offset_plot/' : file.parent ? "${file.parent}/" : ''
+        def name = file.name.startsWith("${sample_id}.") ? file.name : "${sample_id}.${file.name}"
+        file.name.endsWith('.psite.tsv.gz') ? name : "${sample_id}/${directory}${name}"
+    }, mode: 'copy', overwrite: true
 
     input:
     tuple val(sample_id), path(bam_list)
@@ -23,7 +30,7 @@ process IDENTIFY_PSITES {
 
     output:
     path("psite_offset.tsv.gz"), emit: psite_offset, optional: true
-    path("offset_plot/*"), emit: offset_plot, optional: true
+    path("offset_plot/**/*.pdf"), emit: offset_plot, optional: true
     path("*.psite.tsv.gz"), emit: psites, optional: true
     path("codon_coverage_rpf.tsv.gz"), emit: codon_coverage_rpf, optional: true
     path("codon_coverage_psite.tsv.gz"), emit: codon_coverage_psite, optional: true
@@ -39,6 +46,7 @@ process IDENTIFY_PSITES {
     periodicity_threshold = params.periodicity_threshold
     method = params.psite_method
     def genomic_coverage = params.genomic_psite_coverage || params.genomic_codon_coverage
+    def sample_arg = params.psite_per_sample ? " '${sample_id.replace("'", "'\\''")}'" : ''
 
     // identify_p_sites.R -b $bam_folder -g $gtf -f $fasta -l $length_range --qc --method --periodicity
 
@@ -46,7 +54,7 @@ process IDENTIFY_PSITES {
 
         INPUT=`echo $bam_list | sed 's/ /,/g'`
 
-        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info ${params.psite_per_sample} $genomic_coverage
+        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info ${params.psite_per_sample} $genomic_coverage ${params.psite_transcripts}$sample_arg
 
         software_versions.R "${task.process}" riboWaltz data.table ggplot2 GenomicAlignments
 
@@ -89,7 +97,7 @@ process MERGE_PSITE_TABLES {
 
 process PREPARE_PSITE_TRACKS {
 
-    label 'process_medium'
+    label 'process_single'
 
     container 'iraiosub/nf-riboseq@sha256:0c0c33861d533653fb8fe6091f247e302d68c1e9b55ee5f5faf46979a9750a4b'
 
@@ -116,7 +124,7 @@ process PREPARE_PSITE_TRACKS {
 process GET_PSITE_TRACKS {
 
     tag "${meta.id}"
-    label 'process_medium'
+    label 'process_low'
 
     container 'iraiosub/nf-riboseq@sha256:0c0c33861d533653fb8fe6091f247e302d68c1e9b55ee5f5faf46979a9750a4b'
 
@@ -161,7 +169,7 @@ process SUMMARISE_PSITE_QC {
 
     script:
         """
-        psite_multiqc.py $psites
+        psite_multiqc.py --transcripts ${params.psite_transcripts} $psites
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             python: \$(python --version 2>&1 | sed 's/Python //')

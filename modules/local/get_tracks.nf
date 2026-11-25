@@ -7,6 +7,7 @@ process GET_COVERAGE_TRACKS {
     
     tag "${sample_id}"
     label 'process_high'
+    label 'process_low_memory'
 
     // conda "bioconda::deeptools=3.5.1 bioconda::samtools=1.16.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

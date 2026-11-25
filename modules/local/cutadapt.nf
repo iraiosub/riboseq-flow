@@ -6,6 +6,7 @@ nextflow.enable.dsl=2
 process CUTADAPT {
     tag "${sample_id}"
     label 'process_high'
+    label 'process_low_memory'
 
     // conda 'bioconda::cutadapt=4.2'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

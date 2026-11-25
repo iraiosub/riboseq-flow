@@ -5,7 +5,7 @@ nextflow.enable.dsl=2
 
 process MULTIQC {
     // tag "${workflow.runName}"
-    label 'process_medium'
+    label 'process_single'
 
     // conda "bioconda::multiqc=1.19"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

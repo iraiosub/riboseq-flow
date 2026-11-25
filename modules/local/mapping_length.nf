@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 process MAPPING_LENGTH_ANALYSIS {
  
     tag "${sample_id}"
-    label 'process_medium'
+    label 'process_single'
 
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 
