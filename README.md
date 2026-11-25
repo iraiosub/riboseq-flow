@@ -218,7 +218,7 @@ The preset alignment settings for both STAR and Bowtie2 are optimized for standa
 #### Ribo-seq quality control options
 
 - `--skip_qc` skips mapping length analysis and generation of ribo-seq QC plots
-- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of ribo-seq QC plots, and for specifying the range of read lengths used for P-site identification  (default: `26:32`). 
+- `--expected_length` expected read length range for QC summaries and plots, and for P-site identification unless overridden by `--psite_length_range` (default: `26:32`).
 
 **Important:**  The `--expected_length` parameter does not filter reads based on this length range for any other analyses, including alignment, gene-level quantification or track data generation.
 
@@ -227,15 +227,17 @@ The preset alignment settings for both STAR and Bowtie2 are optimized for standa
 P-sites are identified with [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/). It is strongly recommended to check the riboWaltz method to ensure the approach is suitable for your data. By default, the reads must be in length bins that satisfy periodicity to be used for P-site offset calculations. Additionally, the user can specify the following options:
 
 - `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
-- `--expected_length` expected read lengths range. Used to report the proportion of reads of expected lengths in the aligned reads, for the generation of ribo-seq QC plots, and for specifying the range of RPF lengths used for P-site identification (default: `26:32`). 
-- `--periodicity_threshold` specifies the periodicity threshold for read lengths to be considered for P-site identification (default: `50`)
+- `--psite_per_sample` runs one P-site task per sample to reduce inference memory (default: `false`, all samples in one task). Offsets are inferred independently per sample in both modes. Combined offset and coverage tables retain the grouped-mode filenames, columns and values in `psites`; individual results and diagnostics are in `psites/per_sample/<sample>`. The merge step still needs memory for the combined coverage tables.
+- `--expected_length` default read length range for P-site identification; also controls QC (default: `26:32`).
+- `--psite_length_range` optional P-site-only range in `min:max` format. If unset, uses `--expected_length`, preserving existing behaviour. For example, `--expected_length 26:32 --psite_length_range 20:35` keeps QC at 26–32 nt and uses 20–35 nt for P-site analysis.
+- `--periodicity_threshold` specifies the periodicity threshold for read lengths to be considered for P-site identification (default: `50`). Read lengths must pass both this threshold and the selected range, for either P-site method.
 - `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
      - For `ribowaltz` P-site offsets are defined using [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/).
      - For `global_max_5end` P-site offsets are defined by the distances between the first nucleotide of the translation initiation site and the nucleotide corresponding to the global maximum of the read length-specific 5'end profiles (the first step of the riboWaltz method). Compared to riboWaltz-defined offsets, only the 5' extremities of the reads are considered for calculation and no further offset correction is performed after read-length global maximum identification.
 - `exclude_start` specifies the number of nucleotides 3' from the start codon to be excluded from CDS P-site quantification (default: `42`, i.e. exclude the first 14 codons)
 - `exclude_stop` specifies the number of nucleotides 5' from the stop codon to be excluded from CDS P-site quantification (default: `27`, i.e. exclude the last 9 codons)
 
-- `genomic_codon_coverage` convert transcript positions of inferred P-sites mapping on each triplet of annotated CDS and UTR to genomic coordinates and report geomic coordinates and P-site counts in a BED file. By default, not enabled.
+- `--genomic_psite_coverage` exports strand-specific genomic P-site tracks from riboWaltz results (default: disabled). The existing `--genomic_codon_coverage` remains a supported alias; either flag enables the same outputs. Tracks use `--track_format` (`bigwig` by default, or `bedgraph`) and single-nucleotide resolution. The exon map is prepared once; conversion runs separately for each sample in either P-site inference mode. Enabling this option appends `read_name` to the per-read P-site TSVs. Repeated transcript assignments of the same read at the same genomic P-site count once; different read names at that position count separately. Reads with conflicting genomic P-sites are excluded and reported in the mapping statistics. Empty strands produce no track. The existing genomic BED output is also retained.
 
 **Important:** P-sites and information are identified using transcriptomic coordinates. For this, a representative transcript is selected for each gene. The selection is based on the following hierarchy: CDS length > total length > number of exons > 5'UTR length > 3'UTR length. The selection is performed automatically by the pipeline using the information in the provided GTF file, and stored in `*.longest_cds.transcript_info.tsv`. The default representative transcript table can be overriden by the user by providing their own table with `--transcript_info` (see instructions above).
 
@@ -243,7 +245,7 @@ P-sites are identified with [`riboWaltz`](https://github.com/LabTranslationalArc
 #### Coverage tracks options
 
 - `--bin_size` spcifies bin size for calculating coverage (i.e. the number of nt per bin). Bins are short consecutive counting windows of a defined size. (default: `1`)
-- `--track_format` specifies output file type (options: `bigwig`(default) or `bedgraph`)
+- `--track_format` specifies output file type for read coverage and optional genomic P-site tracks (options: `bigwig`(default) or `bedgraph`). P-site tracks always use single-nucleotide resolution; `--bin_size` applies to read coverage only.
 
 ## Pipeline outputs
 
@@ -287,6 +289,7 @@ The pipeline outputs results in a number of folders:
     - `*.transcriptome.dedup.sorted.bam` UMI deduplicated alignments to the transcriptome in BAM format
 - `riboseq_qc` contains QC plots informing on read and mapping lengths, frame, periodicity, signal around start and stop codons, contaminants content, duplication, fraction of useful (mapped to protein-coding transcripts) reads, proprtion of reads remaining after alignment steps etc and folders containing other QC results.
     - `*.qc_results.pdf` per-sample QC reports with specialised ribo-seq quality metrics stratified by read length
+    - `qc_summary.pdf` combined QC report, including dominant frame percentages and dominant/least frame ratios for all three read length categories; selected single lengths are labelled on the percentage plot. The duplication panel is omitted when no deduplication percentages are available.
     - `*.qc_results.tsv.gz` and `qc_summary.tsv.gz` contain per-sample and combined QC summary metrics
     - `qc_tables` contains compressed TSV files with frame counts by read length and read length-specific distances from start and stop codons
     - `mapping_length_analysis` contains CSV files with number of raw and mapped reads by length:
@@ -294,6 +297,7 @@ The pipeline outputs results in a number of folders:
         - `*.before_dedup.csv` 
         - `*.after_dedup.csv`
     - `multiqc_tables` contains combined TSV files underlying the MultiQC plots, with all samples in each table
+    - Frame QC uses read 5' ends and reports the most abundant useful read length and the most periodic length within `--expected_length` whose count is at least 10% of the most abundant length's count. Periodicity is the dominant frame percentage; ties favour higher abundance, then shorter length. MultiQC lists both lengths, their frame distributions, dominant frame percentages and dominant/least frame ratios, and warns when the most abundant length is outside the expected range. With no eligible length, its metrics are unavailable; ratios are unavailable when the weakest frame is zero, with affected samples and frame counts noted in the report. These QC metrics do not change P-site selection.
     - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding the yield of useful reads and troubleshooting. 
     - `pca` contains PCA plots and rlog-normalised count tables. Only produced if 3 samples or more are analysed.
     - `rust_analysis` contains [`RUST`](https://www.nature.com/articles/ncomms12915) metafootprint analysis, with plots showing the Kullback–Leibler divergence (K–L) profiles stratified by read length, using the inferred P-sites.
@@ -307,6 +311,7 @@ The pipeline outputs results in a number of folders:
     - `codon_coverage_rpf.tsv.gz` RPF counts on each triplet of annotated CDS and UTR for each transcript
     - `offset_plot` contains plots that detail P-site assignment using the  method
 - `coverage_tracks` contains track files in BED and bigWig or bedGraph format
+    - `psite` contains optional `<sample>.psites.forward/reverse.bigWig` or `.bedgraph` files with raw P-site counts, the `<sample>.codon_coverage_psite.bed.gz`, and `<sample>.psites.mapping_stats.tsv` with read counts and excluded assignments.
     - `*.bigwig` UMI deduplicated genome coverage tracks in bigWig format
     - `*.bedgraph` UMI deduplicated genome coverage tracks in bedGraph format
     - `*.genome.dedup.bed.gz` UMI deduplicated alignments to the genome in BED format
@@ -333,7 +338,7 @@ For example, you can add the following line to your shell profile or run script:
 ```
 export NXF_SINGULARITY_CACHEDIR=/path/to/image/cache
 ```
-3. Make sure you have `Singularity` installed. Please use the same version you intend to use for running the pipeline. 
+3. Make sure you have `Singularity` installed. Please use the same version you intend to use for running the pipeline.
 4. Run the code below to pre-download and cache the required Docker images:
 
 ```
