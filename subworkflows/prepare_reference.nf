@@ -15,6 +15,8 @@ include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx/main'
 include { GENERATE_REFERENCE_INDEX } from '../subworkflows/generate_index.nf'
 include { GET_TRANSCRIPT_INFO } from '../modules/local/transcript_info.nf'
 include { GET_TRANSCRIPT_FASTA } from '../modules/local/transcript_info.nf'
+include { GET_TRANSCRIPT_INFO as GET_PSITE_TRANSCRIPT_INFO } from '../modules/local/transcript_info.nf'
+include { GET_TRANSCRIPT_FASTA as GET_PSITE_TRANSCRIPT_FASTA } from '../modules/local/transcript_info.nf'
 
 
 workflow PREPARE_RIBOSEQ_REFERENCE {
@@ -73,7 +75,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions, GENERATE_REFERENCE_INDEX.out.versions)
 
     if (!params.transcript_info) {
-        GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] })
+        GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] }, 'representative')
         ch_transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
         ch_transcript_info_gtf = GET_TRANSCRIPT_INFO.out.transcripts_gtf
 
@@ -84,7 +86,17 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     } else {
 
         ch_transcript_info = Channel.fromPath(params.transcript_info, checkIfExists: true)
-        ch_transcript_info_fa = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
+        ch_transcript_info_fa = !params.skip_psite && params.psite_transcripts == 'all_cds' ? Channel.empty() : Channel.fromPath(params.transcript_fasta, checkIfExists: true)
+    }
+
+    ch_psite_transcript_info = ch_transcript_info
+    ch_psite_transcript_fa = ch_transcript_info_fa
+    if (!params.skip_psite && params.psite_transcripts == 'all_cds') {
+        GET_PSITE_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] }, 'all_cds')
+        GET_PSITE_TRANSCRIPT_FASTA(ch_genome_fasta.map{ it[1] }, ch_genome_fai, GET_PSITE_TRANSCRIPT_INFO.out.transcripts_gtf)
+        ch_psite_transcript_info = GET_PSITE_TRANSCRIPT_INFO.out.transcript_info
+        ch_psite_transcript_fa = GET_PSITE_TRANSCRIPT_FASTA.out.transcripts_fa
+        ch_versions = ch_versions.mix(GET_PSITE_TRANSCRIPT_INFO.out.versions, GET_PSITE_TRANSCRIPT_FASTA.out.versions)
     }
 
     emit:
@@ -98,6 +110,8 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     transcript_info = ch_transcript_info
     // transcript_info_gtf = ch_transcript_info_gtf
     transcript_info_fa = ch_transcript_info_fa
+    psite_transcript_info = ch_psite_transcript_info
+    psite_transcript_fa = ch_psite_transcript_fa
     versions = ch_versions
 
 }

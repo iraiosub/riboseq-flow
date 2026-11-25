@@ -2,13 +2,13 @@
 
 """Summarise the retained riboWaltz P-sites for MultiQC."""
 
+import argparse
 import csv
 import gzip
 from collections import Counter
 from html import escape
 import json
 from pathlib import Path
-import sys
 
 
 REGIONS = {"5utr": "5' UTR", "cds": "CDS", "3utr": "3' UTR"}
@@ -32,12 +32,14 @@ def summarise(paths):
                 sample = row["sample"]
                 if sample not in samples:
                     samples[sample] = {
-                        "lengths": set(), "regions": Counter(),
+                        "lengths": set(), "transcripts": set(), "regions": Counter(),
                         "frames": {region: Counter() for region in REGIONS},
                         "start": Counter(), "stop": Counter(),
                     }
                 counts = samples[sample]
                 counts["lengths"].add(int(row["length"]))
+                if row.get("transcript"):
+                    counts["transcripts"].add(row["transcript"])
                 region = row["psite_region"]
                 if region not in REGIONS:
                     continue
@@ -63,12 +65,17 @@ def write_plot(identifier, title, kind, data, description, parent, categories=No
     Path(identifier + "_mqc.json").write_text(json.dumps(content, indent=2) + "\n")
 
 
-def main(paths):
+def main(paths, transcripts="representative"):
     samples = summarise(paths)
-    retained = "".join("<li><strong>{}</strong>: {} nt</li>".format(
-        escape(sample), ", ".join(map(str, sorted(counts["lengths"]))))
+    retained = "".join("<li><strong>{}</strong>: {} nt{}</li>".format(
+        escape(sample), ", ".join(map(str, sorted(counts["lengths"]))),
+        "; {} transcripts with retained P-sites".format(len(counts["transcripts"])) if counts["transcripts"] else "")
         for sample, counts in samples.items())
-    parent = dict(PARENT, extra="<p><strong>Read lengths retained for riboWaltz</strong></p><ul>" + retained + "</ul>")
+    scope = "All BAM-observed transcripts with an annotated CDS" if transcripts == "all_cds" else "Representative/custom transcript reference"
+    parent = dict(PARENT, extra="<p><strong>Transcript selection:</strong> " + scope + ".</p>"
+                               "<p><strong>Read lengths retained for riboWaltz</strong></p><ul>" + retained + "</ul>")
+    if transcripts == "all_cds":
+        parent["parent_description"] += " Counts represent transcript assignments; genomic tracks count each unambiguous read once."
 
     regions = {sample: {label: counts["regions"][region] for region, label in REGIONS.items()}
                for sample, counts in samples.items() if sum(counts["regions"].values())}
@@ -106,4 +113,8 @@ def main(paths):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--transcripts", choices=("representative", "all_cds"), default="representative")
+    parser.add_argument("paths", nargs="*")
+    args = parser.parse_args()
+    main(args.paths, args.transcripts)

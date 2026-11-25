@@ -21,14 +21,16 @@ class PsiteTracksTest(unittest.TestCase):
         for transcript, strand, exons in [
             ("txP", "+", [(101, 110), (201, 210)]),
             ("txPcopy", "+", [(101, 110), (201, 210)]),
+            ("txPalt", "+", [(51, 55), (101, 110), (201, 210)]),
             ("txM", "-", [(301, 310), (401, 410)]),
+            ("txMalt", "-", [(301, 310), (401, 410), (451, 455)]),
         ]:
             for rank, (start, end) in enumerate(exons, 1):
                 gtf.append('chrT\ttest\texon\t{}\t{}\t.\t{}\t.\tgene_id "{}"; transcript_id "{}"; exon_number "{}";'.format(
                     start, end, strand, transcript, transcript, rank))
         (self.root / "genes.gtf").write_text("\n".join(gtf) + "\n")
         (self.root / "genome.fai").write_text("chrT\t1000\t0\t60\t61\n")
-        (self.root / "transcripts.tsv").write_text("transcript_id\ntxP\ntxPcopy\ntxM\n")
+        (self.root / "transcripts.tsv").write_text("transcript_id\ntxP\ntxPcopy\ntxPalt\ntxM\ntxMalt\n")
         self.run_r("prepare_psite_tracks.R", "-g", "genes.gtf", "-f", "genome.fai", "-t", "transcripts.tsv")
 
     def run_r(self, script, *args):
@@ -78,6 +80,36 @@ class PsiteTracksTest(unittest.TestCase):
         self.assertFalse(list(self.root.glob("*.unsorted.bedgraph")))
         with gzip.open(self.root / "sample.codon_coverage_psite.bed.gz", "rt") as handle:
             self.assertEqual(handle.read(), "")
+
+    def test_isoforms_collapse_after_projection_and_bigwig_round_trip(self):
+        self.map_sites([
+            ("a", "txP", 1), ("a", "txPalt", 6), ("b", "txPcopy", 1),
+            ("junction", "txP", 11), ("junction", "txPalt", 16),
+            ("m", "txM", 1), ("m", "txMalt", 6),
+            ("mj", "txM", 11), ("mj", "txMalt", 16),
+            ("ambiguous", "txP", 1), ("ambiguous", "txPalt", 16),
+        ])
+        self.assertEqual(self.track("forward"), {("chrT", "100", "101"): 2, ("chrT", "200", "201"): 1})
+        self.assertEqual(self.track("reverse"), {("chrT", "409", "410"): 1, ("chrT", "309", "310"): 1})
+        with (self.root / "sample.psites.mapping_stats.tsv").open() as handle:
+            stats = next(csv.DictReader(handle, delimiter="\t"))
+        self.assertEqual(int(stats["duplicate_assignments"]), 4)
+        self.assertEqual(int(stats["ambiguous_reads"]), 1)
+        self.assertEqual(int(stats["forward_psites"]) + int(stats["reverse_psites"]), 5)
+        code = '''
+        library(rtracklayer)
+        for (direction in c("forward", "reverse")) {
+          path <- paste0("sample.psites.", direction, ".unsorted.bedgraph")
+          expected <- sort(import(path, format = "bedGraph"))
+          seqlengths(expected) <- c(chrT = 1000)
+          export(expected, paste0(direction, ".bw"), format = "BigWig")
+          actual <- import(paste0(direction, ".bw"))
+          stopifnot(identical(start(expected), start(actual)), identical(end(expected), end(actual)),
+                    identical(as.numeric(score(expected)), as.numeric(score(actual))))
+        }
+        '''
+        result = subprocess.run([RSCRIPT, "-e", code], cwd=self.root, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
 
 if __name__ == "__main__":

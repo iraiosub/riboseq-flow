@@ -29,10 +29,10 @@ class PsiteQCTest(unittest.TestCase):
         opener = gzip.open if filename.endswith(".gz") else open
         with opener(path, "wt") as handle:
             writer = csv.writer(handle, delimiter="\t")
-            writer.writerow(["sample", "length", "psite_from_start", "psite_from_stop", "psite_region"])
-            for length, start in sites:
+            writer.writerow(["sample", "length", "psite_from_start", "psite_from_stop", "psite_region", "transcript"])
+            for index, (length, start) in enumerate(sites):
                 region = "5utr" if start < 0 else "cds" if start <= 100 else "3utr"
-                writer.writerow([sample, length, start, start - 100, region])
+                writer.writerow([sample, length, start, start - 100, region, "tx" + str(index % 2)])
         return path
 
     def run_summary(self, *paths):
@@ -89,6 +89,20 @@ class PsiteQCTest(unittest.TestCase):
         empty = self.write_table("empty.psite.tsv.gz", "empty", [])
         self.run_summary(empty)
         self.assertEqual(list(self.root.glob("*_mqc.json")), [])
+
+    def test_no_input_files_produces_no_sections(self):
+        self.run_summary()
+        self.assertEqual(list(self.root.glob("*_mqc.json")), [])
+
+    def test_all_cds_mode_reports_scope_and_distinct_transcripts(self):
+        self.run_summary(self.a)
+        expected = self.read_plot("regions")["data"]
+        self.run_summary("--transcripts", "all_cds", self.a)
+        section = self.read_plot("regions")
+        self.assertEqual(section["data"], expected)
+        self.assertIn("All BAM-observed transcripts with an annotated CDS", section["extra"])
+        self.assertIn("2 transcripts with retained P-sites", section["extra"])
+        self.assertIn("transcript assignments", section["parent_description"])
 
 
 if __name__ == "__main__":
