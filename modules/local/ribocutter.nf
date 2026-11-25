@@ -13,13 +13,14 @@ process RIBOCUTTER {
         'https://depot.galaxyproject.org/singularity/ribocutter:0.1.1--pyh5e36f6f_0' :
         'quay.io/biocontainers/ribocutter:0.1.1--pyh5e36f6f_0' }"
 
-    publishDir "${params.outdir}/ribocutter"
+    publishDir "${params.outdir}/ribocutter", pattern: "*.csv"
 
     input:
     tuple val(sample_id), path(reads)
 
     output:
     tuple val(sample_id), path("*.csv"), emit: guides
+    path("versions.yml"), emit: versions
     // tuple val(sample_id), path("*stats.csv"), emit: stats
 
 
@@ -46,6 +47,12 @@ process RIBOCUTTER {
 
         ribocutter -i $reads -o ${sample_id}${suffix} $min_read_length_arg $args
 
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            python: \$(python --version 2>&1 | sed 's/Python //')
+            ribocutter: \$(python -c 'from pkg_resources import get_distribution; print(get_distribution("ribocutter").version)')
+        END_VERSIONS
+
         """
 }
 
@@ -56,7 +63,7 @@ process GET_PROPORTION_TARGETED {
 
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 
-    publishDir "${params.outdir}/ribocutter"
+    publishDir "${params.outdir}/ribocutter", pattern: "*.{pdf,tsv}"
 
     input:
     path(guides)
@@ -64,6 +71,7 @@ process GET_PROPORTION_TARGETED {
     output:
     path("*.pdf"), emit: percentage_targeted
     path("ribocutter_mqc.tsv"), emit: ribocutter_mqc
+    path("versions.yml"), emit: versions
 
 
     script:
@@ -75,6 +83,7 @@ process GET_PROPORTION_TARGETED {
         echo \$INPUT
 
         analyse_ribocutter_guides.R -g \$INPUT
+        software_versions.R "${task.process}" tidyverse data.table optparse dplyr
 
         """
 }

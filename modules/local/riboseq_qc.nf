@@ -26,33 +26,39 @@ process RIBOSEQ_QC {
         tuple val(sample_id), path("*_region_counts_mqc.tsv"), emit: region_counts
         tuple val(sample_id), path("*_start_dist_mqc.tsv"), emit: start_dist
         tuple val(sample_id), path("*_frame_mqc.tsv"), emit: frame_counts
+        path("versions.yml"), emit: versions
         
 
     script:
         
         expected_length_range = params.expected_length
+        def version_command = """software_versions.R "${task.process}" tidyverse Rsamtools patchwork data.table optparse dplyr"""
 
         if (params.with_umi && !params.skip_premap) 
 
             """
             riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --after_premap $after_premap_length_analysis --before_dedup $before_dedup_length_analysis --after_dedup $after_dedup_length_analysis --expected_length $expected_length_range
+            $version_command
             """
         
         else if (!params.with_umi && !params.skip_premap) 
 
             """
             riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --after_premap $after_premap_length_analysis --before_dedup $before_dedup_length_analysis --expected_length $expected_length_range
+            $version_command
             """
 
         else if (params.with_umi && params.skip_premap) 
             
             """
             riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --before_dedup $before_dedup_length_analysis --after_dedup $after_dedup_length_analysis --expected_length $expected_length_range
+            $version_command
             """
 
         else 
             """
             riboseq_qc.R -b $bam -t $transcript_info -o ${sample_id} --before_dedup $before_dedup_length_analysis --expected_length $expected_length_range
+            $version_command
             """
 
 }       
@@ -84,6 +90,7 @@ process SUMMARISE_RIBOSEQ_QC {
         path("qc_summary.pdf"), emit: plot
         path("qc_summary.tsv.gz"), emit: qc
         path("*_mqc.tsv"), emit: mqc
+        path("versions.yml"), emit: versions
 
 
     script:
@@ -101,6 +108,7 @@ process SUMMARISE_RIBOSEQ_QC {
         
         riboseq_qc_summary.R -i \$INPUT_QC -l \$INPUT_FQ_LEN -u \$INPUT_USEFUL_LEN -r \$INPUT_REGION --start_dist_list \$INPUT_START_DIST --end_dist_list \$INPUT_END_DIST -m \$INPUT_MAPPING_COUNTS -f \$INPUT_FRAME --length_filter_list \$INPUT_LENGTH_FILTER
         rm $fq_length_tables $useful_length_tables $region_counts_tables $start_dist_tables $end_dist_tables $mapping_counts_tables $frame_counts_tables $length_filter_tables
+        software_versions.R "${task.process}" tidyverse patchwork data.table optparse dplyr htmltools
         
         """
 
@@ -114,7 +122,7 @@ process TRACK_READS {
 
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 
-    publishDir "${params.outdir}/riboseq_qc/read_fate", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/riboseq_qc/read_fate", saveAs: { filename -> filename == 'versions.yml' ? null : filename }, mode: 'copy', overwrite: true
 
     input:
         tuple val(sample_id), path(preprocess_log), path(premap_log), path(map_log), path(dedup_log), path(qc_log)
@@ -123,12 +131,14 @@ process TRACK_READS {
         tuple val(sample_id), path("*_sankey.html"), path("*_sankey_files"), emit: sankey
         tuple val(sample_id), path("*_mapping_counts_mqc.tsv"), emit: mapping_counts
         tuple val(sample_id), path("*_length_filter_mqc.tsv"), emit: length_filter
+        path("versions.yml"), emit: versions
 
 
     script:
 
         """
         plot_sankey.R -d .
+        software_versions.R "${task.process}" networkD3 optparse tidyverse data.table
         """
 
 
@@ -153,11 +163,13 @@ process PCA {
     path("pca.pdf"), emit: pca_plot, optional: true
     path("*rlog.tsv.gz"), emit: rlog, optional: true
     path("*pca_mqc.tsv"), emit: pca_mqc, optional: true
+    path("versions.yml"), emit: versions
 
     script:
 
         """
         plot_pca.R --featurecounts $featurecounts_table --cds $cds_table --cds_window $cds_window_table --transcript_info $transcript_info
+        software_versions.R "${task.process}" DESeq2 optparse tidyverse data.table cowplot dplyr
             
         """
 

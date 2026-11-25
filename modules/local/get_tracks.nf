@@ -13,7 +13,7 @@ process GET_COVERAGE_TRACKS {
         'https://depot.galaxyproject.org/singularity/mulled-v2-eb9e7907c7a753917c1e4d7a64384c047429618a:62d1ebe2d3a2a9d1a7ad31e0b902983fa7c25fa7-0':
         'quay.io/biocontainers/mulled-v2-eb9e7907c7a753917c1e4d7a64384c047429618a:62d1ebe2d3a2a9d1a7ad31e0b902983fa7c25fa7-0' }"
 
-    publishDir "${params.outdir}/coverage_tracks", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage_tracks", pattern: "*.{bigwig,bedgraph}", mode: 'copy', overwrite: true
 
     input:
         tuple val(sample_id), path(bam), path(bai)
@@ -21,6 +21,7 @@ process GET_COVERAGE_TRACKS {
     output:
         tuple val(sample_id), path("*.forward*"), emit: forward
         tuple val(sample_id), path("*.reverse*"), emit: reverse
+        path("versions.yml"), emit: versions
 
     script:
         
@@ -44,6 +45,12 @@ process GET_COVERAGE_TRACKS {
             --outFileFormat $format \
             --numberOfProcessors ${task.cpus} \
             --outFileName ${sample_id}.reverse.$format
+
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            python: \$(python --version 2>&1 | sed 's/Python //')
+            deepTools: \$(bamCoverage --version | sed 's/^bamCoverage //')
+        END_VERSIONS
         """
 
 }

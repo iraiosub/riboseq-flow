@@ -16,11 +16,13 @@ workflow GENERATE_REFERENCE_INDEX {
 
 
     main:
+    ch_versions = Channel.empty()
     
     // Generate small RNA index
     if(!params.skip_premap) {
 
         BOWTIE2_BUILD(smallrna_fasta)
+        ch_versions = ch_versions.mix(BOWTIE2_BUILD.out.versions)
         contaminants_bowtie2_index = BOWTIE2_BUILD.out.index
         
     } else {
@@ -33,6 +35,7 @@ workflow GENERATE_REFERENCE_INDEX {
     if (!params.star_index) {
 
         STAR_GENOMEGENERATE(genome_fasta.map{ it[1] }, genome_gtf.map{ it[1] })
+        ch_versions = ch_versions.mix(STAR_GENOMEGENERATE.out.versions)
         genome_star_index = STAR_GENOMEGENERATE.out.index
 
     } else {
@@ -45,6 +48,7 @@ workflow GENERATE_REFERENCE_INDEX {
 
     contaminants_bowtie2_index
     genome_star_index
+    versions = ch_versions
 
 
 }

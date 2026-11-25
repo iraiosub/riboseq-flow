@@ -112,12 +112,14 @@ workflow RIBOSEQ {
     // Extract UMIs and/or trim adapters and filter on min length, then run FASTQC
     PREPROCESS_READS(ch_input)
     FASTQC(PREPROCESS_READS.out.fastq)
+    ch_versions = PREPARE_RIBOSEQ_REFERENCE.out.versions.mix(PREPROCESS_READS.out.versions, FASTQC.out.versions)
 
     // Run ribocutter on trimmed but not length filtered (for ts_trimming, on trimmed but not rGrGrG-cut or length filtered)
     if (!params.skip_ribocutter) {
         RUN_RIBOCUTTER(
             PREPROCESS_READS.out.trimmed_fastq
             )
+        ch_versions = ch_versions.mix(RUN_RIBOCUTTER.out.versions)
     }
 
     // Align reads
@@ -128,6 +130,7 @@ workflow RIBOSEQ {
             PREPROCESS_READS.out.fastq,
             PREPARE_RIBOSEQ_REFERENCE.out.contaminants_bowtie2_index.collect()
         )
+        ch_versions = ch_versions.mix(PREMAP.out.versions)
 
         MAP(
             PREMAP.out.unmapped,
@@ -149,8 +152,11 @@ workflow RIBOSEQ {
             MAP.out.genome_bam,
             MAP.out.transcriptome_bam
         )
+        ch_versions = ch_versions.mix(DEDUPLICATE.out.versions)
     }
 
+
+    ch_versions = ch_versions.mix(MAP.out.versions)
 
     // riboseq QC
     if (!params.skip_qc) {
@@ -307,6 +313,8 @@ workflow RIBOSEQ {
             ch_merge_frame,
             ch_merge_legth_filter
         )
+        ch_versions = ch_versions.mix(MAPPING_LENGTH_ANALYSES.out.versions, RIBOSEQ_QC.out.versions,
+                                     TRACK_READS.out.versions, SUMMARISE_RIBOSEQ_QC.out.versions)
 
     }
 
@@ -328,6 +336,8 @@ workflow RIBOSEQ {
         GET_COVERAGE_TRACKS(MAP.out.genome_bam)
 
     }
+
+    ch_versions = ch_versions.mix(GET_GENE_LEVEL_COUNTS.out.versions, GET_COVERAGE_TRACKS.out.versions)
 
     // Get P sites
     if (!params.skip_psite) {
@@ -355,12 +365,14 @@ workflow RIBOSEQ {
             PREPARE_RIBOSEQ_REFERENCE.out.genome_fasta.map { it[1] }.first(),
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.first()
         )
+        ch_versions = ch_versions.mix(IDENTIFY_PSITES.out.versions)
 
         if (params.psite_per_sample) {
             MERGE_PSITE_TABLES(
                 IDENTIFY_PSITES.out.psite_offset
                     .mix(IDENTIFY_PSITES.out.coverage_tables).collect().ifEmpty([])
             )
+            ch_versions = ch_versions.mix(MERGE_PSITE_TABLES.out.versions)
             ch_psite_cds_coverage = MERGE_PSITE_TABLES.out.cds_coverage
             ch_psite_cds_window_coverage = MERGE_PSITE_TABLES.out.cds_window_coverage
         } else {
@@ -376,6 +388,7 @@ workflow RIBOSEQ {
                 PREPARE_RIBOSEQ_REFERENCE.out.genome_fai.first(),
                 PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.first()
             )
+            ch_versions = ch_versions.mix(GENOMIC_PSITE_TRACKS.out.versions)
         }
 
     }
@@ -392,12 +405,14 @@ workflow RIBOSEQ {
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info.first(),
             IDENTIFY_PSITES.out.psites.flatten()
         )
+        ch_versions = ch_versions.mix(RUST_QC.out.versions)
         SUMMARISE_RUST_QC(
             RUST_QC.out.rust_table.collect(),
             RUST_QC.out.lengths.collect(),
             SUMMARISE_RIBOSEQ_QC.out.qc
         )
         ch_rust_qc = SUMMARISE_RUST_QC.out.mqc
+        ch_versions = ch_versions.mix(SUMMARISE_PSITE_QC.out.versions, SUMMARISE_RUST_QC.out.versions)
     }
 
 
@@ -420,6 +435,8 @@ workflow RIBOSEQ {
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info
             )
     }
+
+    ch_versions = ch_versions.mix(PCA.out.versions)
 
     // Run MULTIQC
     // if ribocutter skipped, use empty channel in multiqc
@@ -486,7 +503,7 @@ workflow RIBOSEQ {
             .collect()
     }
 
-    MULTIQC(ch_logs.mix(ch_psite_qc, ch_rust_qc).collect(), ch_multiqc_config)
+    MULTIQC(ch_logs.mix(ch_psite_qc, ch_rust_qc).collect(), ch_multiqc_config, ch_versions.collect())
 
 }
 

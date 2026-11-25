@@ -13,7 +13,7 @@ process IDENTIFY_PSITES {
         'https://depot.galaxyproject.org/singularity/ribowaltz:1.2.0--r42hdfd78af_1' :
         'quay.io/biocontainers/ribowaltz:1.2.0--r42hdfd78af_1' }"
 
-    publishDir { params.psite_per_sample ? "${params.outdir}/psites/per_sample/${sample_id}" : "${params.outdir}/psites" }, mode: 'copy', overwrite: true
+    publishDir { params.psite_per_sample ? "${params.outdir}/psites/per_sample/${sample_id}" : "${params.outdir}/psites" }, saveAs: { filename -> filename == 'versions.yml' ? null : filename }, mode: 'copy', overwrite: true
 
     input:
     tuple val(sample_id), path(bam_list)
@@ -31,6 +31,7 @@ process IDENTIFY_PSITES {
     path("*nt_coverage_psite.tsv.gz"), emit: cds_window_coverage, optional: true
     path("*coverage*.tsv.gz"), emit: coverage_tables, optional: true
     path("ribowaltz_qc/*.pdf"), emit: ribowaltz_qc, optional: true
+    path("versions.yml"), emit: versions
 
     script:
 
@@ -47,6 +48,8 @@ process IDENTIFY_PSITES {
 
         Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info ${params.psite_per_sample} $genomic_coverage
 
+        software_versions.R "${task.process}" riboWaltz data.table ggplot2 GenomicAlignments
+
         """
 
 }
@@ -60,7 +63,7 @@ process MERGE_PSITE_TABLES {
         'https://depot.galaxyproject.org/singularity/ribowaltz:1.2.0--r42hdfd78af_1' :
         'quay.io/biocontainers/ribowaltz:1.2.0--r42hdfd78af_1' }"
 
-    publishDir "${params.outdir}/psites", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/psites", pattern: "*.tsv.gz", mode: 'copy', overwrite: true
 
     input:
     path(tables, stageAs: 'tables/??/*')
@@ -71,11 +74,13 @@ process MERGE_PSITE_TABLES {
     path("codon_coverage_psite.tsv.gz"), emit: codon_coverage_psite
     path("cds_coverage_psite.tsv.gz"), emit: cds_coverage
     path("*nt_coverage_psite.tsv.gz"), emit: cds_window_coverage
+    path("versions.yml"), emit: versions
 
     script:
 
         """
         Rscript --vanilla ${workflow.projectDir}/bin/merge_psite_tables.R tables
+        software_versions.R "${task.process}" data.table
         """
 
 }
@@ -89,7 +94,6 @@ process PREPARE_PSITE_TRACKS {
     container 'iraiosub/nf-riboseq@sha256:0c0c33861d533653fb8fe6091f247e302d68c1e9b55ee5f5faf46979a9750a4b'
 
     publishDir "${params.outdir}/annotation", pattern: "*.{rds,sizes}", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/pipeline_info/psite_tracks", pattern: "versions.yml", saveAs: { 'annotation.versions.yml' }, mode: 'copy', overwrite: true
 
     input:
     path(gtf)
@@ -105,10 +109,7 @@ process PREPARE_PSITE_TRACKS {
         """
         Rscript ${workflow.projectDir}/bin/prepare_psite_tracks.R -g $gtf -f $fai -t $transcript_info
 
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            GenomicFeatures: \$(Rscript -e "cat(as.character(packageVersion('GenomicFeatures')))")
-        END_VERSIONS
+        software_versions.R "${task.process}" GenomicFeatures data.table optparse
         """
 }
 
@@ -120,7 +121,6 @@ process GET_PSITE_TRACKS {
     container 'iraiosub/nf-riboseq@sha256:0c0c33861d533653fb8fe6091f247e302d68c1e9b55ee5f5faf46979a9750a4b'
 
     publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.{bed.gz,mapping_stats.tsv}", mode: 'copy', overwrite: true
-    publishDir "${params.outdir}/pipeline_info/psite_tracks", pattern: "versions.yml", saveAs: { 'mapping.versions.yml' }, mode: 'copy', overwrite: true
 
     input:
     tuple val(meta), path(psite_table)
@@ -138,11 +138,7 @@ process GET_PSITE_TRACKS {
         """
         Rscript ${workflow.projectDir}/bin/get_psite_tracks.R -p $psite_table -a $annotation -s $sizes -o ${meta.id}
 
-        cat <<-END_VERSIONS > versions.yml
-        "${task.process}":
-            GenomicFeatures: \$(Rscript -e "cat(as.character(packageVersion('GenomicFeatures')))")
-            rtracklayer: \$(Rscript -e "cat(as.character(packageVersion('rtracklayer')))")
-        END_VERSIONS
+        software_versions.R "${task.process}" GenomicFeatures rtracklayer data.table optparse
         """
 }
 
@@ -161,10 +157,15 @@ process SUMMARISE_PSITE_QC {
 
     output:
     path("psite_*_mqc.json"), emit: mqc, optional: true
+    path("versions.yml"), emit: versions
 
     script:
         """
         psite_multiqc.py $psites
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            python: \$(python --version 2>&1 | sed 's/Python //')
+        END_VERSIONS
         """
 }
 
@@ -187,11 +188,14 @@ label 'process_single'
     path("*.rust_analysis.pdf"), emit: rust_analysis
     path("*.rust_analysis.tsv"), emit: rust_table
     path("*.rust_lengths.tsv"), emit: lengths
+    path("versions.yml"), emit: versions
 
     script:
 
         """
         make_rust_ratio_plots.R -f $transcript_fasta -t $transcript_info -p $psites
+
+        software_versions.R "${task.process}" tidyverse Biostrings optparse dplyr
             
         """
 
@@ -215,9 +219,14 @@ process SUMMARISE_RUST_QC {
 
     output:
     path("rust_*_mqc.json"), emit: mqc
+    path("versions.yml"), emit: versions
 
     script:
         """
         rust_multiqc.py --qc-summary $qc_summary --profiles $profiles --lengths $lengths
+        cat <<-END_VERSIONS > versions.yml
+        "${task.process}":
+            python: \$(python --version 2>&1 | sed 's/Python //')
+        END_VERSIONS
         """
 }
