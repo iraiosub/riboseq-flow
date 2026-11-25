@@ -338,7 +338,7 @@ For example, you can add the following line to your shell profile or run script:
 ```
 export NXF_SINGULARITY_CACHEDIR=/path/to/image/cache
 ```
-3. Make sure you have `Singularity` installed. Please use the same version you intend to use for running the pipeline. 
+3. Make sure you have `Singularity` installed. Please use the same version you intend to use for running the pipeline.
 4. Run the code below to pre-download and cache the required Docker images:
 
 ```
