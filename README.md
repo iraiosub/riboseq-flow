@@ -311,7 +311,7 @@ The pipeline outputs results in a number of folders:
     - `codon_coverage_rpf.tsv.gz` RPF counts on each triplet of annotated CDS and UTR for each transcript
     - `offset_plot` contains plots that detail P-site assignment using the  method
 - `coverage_tracks` contains track files in BED and bigWig or bedGraph format
-    - `psite` contains optional `<sample>.psites.forward/reverse.bigWig` or `.bedgraph` files with raw P-site counts, the legacy `<sample>.codon_coverage_psite.bed.gz`, and `<sample>.psites.mapping_stats.tsv` with read counts and excluded assignments. Counts are positive in both strand tracks. Tool versions are saved in `pipeline_info/psite_tracks`.
+    - `psite` contains optional `<sample>.psites.forward/reverse.bigWig` or `.bedgraph` files with raw P-site counts, the `<sample>.codon_coverage_psite.bed.gz`, and `<sample>.psites.mapping_stats.tsv` with read counts and excluded assignments.
     - `*.bigwig` UMI deduplicated genome coverage tracks in bigWig format
     - `*.bedgraph` UMI deduplicated genome coverage tracks in bedGraph format
     - `*.genome.dedup.bed.gz` UMI deduplicated alignments to the genome in BED format
