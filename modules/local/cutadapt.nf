@@ -34,8 +34,8 @@ process CUTADAPT {
 
     // Append adapter-specific args
     adapter_args = ""
-    if (params.adapter_threeprime) adapter_args += " -a ${params.adapter_threeprime}"
-    if (params.adapter_fiveprime) adapter_args += " -g ${params.adapter_fiveprime}"
+    if (params.adapter_threeprime) adapter_args += " -a '${params.adapter_threeprime.replace("'", "'\\''")}'"
+    if (params.adapter_fiveprime) adapter_args += " -g '${params.adapter_fiveprime.replace("'", "'\\''")}'"
     if (params.adapter_threeprime && params.adapter_fiveprime && params.times_trimmed < 2) params.times_trimmed = 2
     adapter_args += " -n ${params.times_trimmed}"
 

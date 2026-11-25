@@ -22,7 +22,7 @@ process UMITOOLS_EXTRACT {
         path("versions.yml"), emit: versions
 
     script:
-    args = " --bc-pattern='${params.umi_pattern}'"
+    args = " --bc-pattern='${params.umi_pattern.replace("'", "'\\''")}'"
     args += " --extract-method=" + params.umi_extract_method
 
     """
