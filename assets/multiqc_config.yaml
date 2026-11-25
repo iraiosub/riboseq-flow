@@ -21,6 +21,7 @@ custom_data:
     - useful_length
     - pca
     - riboseq_qc
+    - psite_qc
     - ribocutter
   frame:
     parent_id: riboseq_qc
@@ -345,6 +346,7 @@ module_order:
     - read_length
     - pca
     - riboseq_qc
+    - psite_qc
     - ribocutter
     - fastqc
     - bowtie2
@@ -361,5 +363,15 @@ report_section_order:
     order: 998
   riboseq_qc:
     order: 997
+  psite_qc:
+    order: 996
+  psite_regions:
+    order: 1
+  psite_frames:
+    order: 2
+  psite_start:
+    order: 3
+  psite_stop:
+    order: 4
 
 export_plots: false

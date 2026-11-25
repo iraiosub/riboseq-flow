@@ -126,6 +126,11 @@ final_df <- full_offset_df %>%
   mutate(kld = sum(ifelse(p == 0, 0, p*log(p/q)))) %>%
   distinct(kld)
 
+final_df %>%
+  ungroup() %>%
+  transmute(sample = sample_id, length, offset_nt = offset, offset_codon = offset/3, kld) %>%
+  write_tsv(paste0(sample_id, ".rust_analysis.tsv"))
+
 rust.plot <- ggplot(final_df, aes(x = offset/3, y = kld, color = factor(length))) +
   geom_line() +
   xlab('Codon position relative to P-site') +

@@ -88,6 +88,7 @@ include { SUMMARISE_RIBOSEQ_QC } from './modules/local/riboseq_qc.nf'
 include { TRACK_READS } from './modules/local/riboseq_qc.nf'
 include { IDENTIFY_PSITES } from './modules/local/ribowaltz.nf'
 include { MERGE_PSITE_TABLES } from './modules/local/ribowaltz.nf'
+include { SUMMARISE_PSITE_QC } from './modules/local/ribowaltz.nf'
 include { RUST_QC } from './modules/local/ribowaltz.nf'
 include { GET_COVERAGE_TRACKS } from './modules/local/get_tracks.nf'
 include { PCA } from './modules/local/riboseq_qc.nf'
@@ -373,7 +374,11 @@ workflow RIBOSEQ {
 
     }
 
+    ch_psite_qc = Channel.empty()
     if (!params.skip_psite && !params.skip_qc) {
+
+        SUMMARISE_PSITE_QC(IDENTIFY_PSITES.out.psites.flatten().collect())
+        ch_psite_qc = SUMMARISE_PSITE_QC.out.mqc
 
         RUST_QC(
             PREPARE_RIBOSEQ_REFERENCE.out.transcript_info_fa.first(),
@@ -468,7 +473,7 @@ workflow RIBOSEQ {
             .collect()
     }
 
-    MULTIQC(ch_logs, ch_multiqc_config)
+    MULTIQC(ch_logs.mix(ch_psite_qc).collect(), ch_multiqc_config)
 
 }
 
