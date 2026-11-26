@@ -49,7 +49,7 @@ class RustQCTest(unittest.TestCase):
         self.assertEqual(len(section["data"][0]), 21)
         self.assertAlmostEqual(section["data"][0][0], 0.0269)
         self.assertAlmostEqual(section["data"][0][-1], 0.0271)
-        self.assertIn("A: 28 nt (999 P-sites)", section["extra"])
+        self.assertNotIn("extra", section)
 
     def test_qc_selections_are_preserved_without_substitution(self):
         self.run_summary()

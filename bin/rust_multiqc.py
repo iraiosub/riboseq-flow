@@ -38,14 +38,8 @@ def build_report(qc_summary, profiles, lengths):
             if counts.get(key, 0) >= MIN_PSITES:
                 data.setdefault(key, {})[int(row["offset_codon"])] = float(row["kld"])
 
-    omitted = ["{}: {} nt ({} P-sites)".format(escape(sample), length, count)
-               for (sample, length), count in sorted(counts.items()) if count < MIN_PSITES]
-    parent = dict(PARENT)
-    if omitted:
-        parent["extra"] = "<p><strong>Below display minimum:</strong> " + "; ".join(omitted) + ".</p>"
-
     def write_section(identifier, title, kind, values, description, xcats=None, ycats=None, **config):
-        content = dict(parent, id=identifier, section_name=title, plot_type=kind,
+        content = dict(PARENT, id=identifier, section_name=title, plot_type=kind,
                        data=values, description=description, xcats=xcats, ycats=ycats,
                        pconfig=dict(id=identifier + "_plot", title="RUST-inspired QC: " + title, **config))
         Path(identifier + "_mqc.json").write_text(json.dumps(content, indent=2) + "\n")

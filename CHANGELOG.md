@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Adjusted CPU and memory requests for preprocessing, QC, reporting and track generation.
 
 ### Fixed
+- Released genomic P-site mapping intermediates sooner and increased all-CDS track conversion memory to 72 GB with retry scaling, retaining representative-mode resource settings and read-deduplication rules.
 - Reduced RUST memory use by reading only required P-site columns and joining transcript sequences after subsampling; increased its default resource allocation to 36 GB with retry scaling.
 - Quoted the P-site inference script path so it can be launched from repository directories containing spaces.
 - Fixed merging of gzipped per-sample P-site tables while preserving sample/transcript identifiers and coverage counts.

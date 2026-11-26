@@ -124,7 +124,7 @@ process PREPARE_PSITE_TRACKS {
 process GET_PSITE_TRACKS {
 
     tag "${meta.id}"
-    label 'process_low'
+    label(params.psite_transcripts == 'all_cds' ? 'process_high' : 'process_low')
 
     container 'iraiosub/nf-riboseq@sha256:0c0c33861d533653fb8fe6091f247e302d68c1e9b55ee5f5faf46979a9750a4b'
 
