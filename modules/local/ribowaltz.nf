@@ -180,7 +180,7 @@ process SUMMARISE_PSITE_QC {
 
 process RUST_QC {
 
-label 'process_single'
+label 'process_medium'
 
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 
