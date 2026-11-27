@@ -32,7 +32,6 @@ If you use **riboseq-flow**, please cite:
 8. [Authors and contact](#authors-and-contact)
 9. [Issues and contributions](#issues-and-contributions)
 10. [Contributing guidelines](#contributing-guidelines)
-11. [Why use riboseq-flow](#why-use-riboseq-flow)
 
 ## Introduction
 
@@ -69,7 +68,7 @@ We recommend using Nextflow with `Java 17.0.9` or later.
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq-flow -r v1.3.0
+nextflow pull iraiosub/riboseq-flow -r v1.4.0
 ```
 
 3. Run the pipeline on the provided test dataset:
@@ -77,13 +76,13 @@ nextflow pull iraiosub/riboseq-flow -r v1.3.0
 Using Singularity:
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.3.0 -profile test,singularity
+nextflow run iraiosub/riboseq-flow -r v1.4.0 -profile test,singularity
 ```
 
 or using Docker:
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.3.0 -profile test,docker
+nextflow run iraiosub/riboseq-flow -r v1.4.0 -profile test,docker
 ```
 
 4. Check succesful execution.
@@ -95,7 +94,7 @@ nextflow run iraiosub/riboseq-flow -r v1.3.0 -profile test,docker
 2. Pull the desired version of the pipeline from the GitHub repository:
 
 ```
-nextflow pull iraiosub/riboseq-flow -r v1.3.0
+nextflow pull iraiosub/riboseq-flow -r v1.4.0
 ```
 
 3. Create a samplesheet `samplesheet.csv` with information about the samples you would like to analyse before running the pipeline. It has to be a comma-separated file with 2 columns, and a header row as shown in the example below.
@@ -112,7 +111,7 @@ sample3,/path/to/file3.fastq.gz
 4. Run the pipeline. The typical command for running the pipeline is as follows (the minimum parameters have been specified):
 
 ```
-nextflow run iraiosub/riboseq-flow -r v1.3.0 \
+nextflow run iraiosub/riboseq-flow -r v1.4.0 \
 -profile singularity,crick \
 -resume \
 --input samplesheet.csv \
@@ -187,7 +186,9 @@ Read trimming steps are executed in the following order: (i) adaptors and low qu
 - `--adapter_threeprime` sequence of 3' adapter (equivalent to `-a` in `cutadapt`)
 - `--adapter_fiveprime` sequence of 5' adapter (equivalent to `-g` in `cutadapt`)
 - `--times_trimmed` number of times a read will be adaptor trimmed (default: `1`)
-- `--cut_end` number of nucleotides to be trimmed from 5' or 3' end of reads (equivalent to `-u` in `cutadapt`). Supply positive values for trimming from the 5' end, and negative values for trimming from the 3'end (default `0`, no residues are trimmed). **Important:**: This step is perfomed after adapter trimming, and after UMIs have been moved to the read header. Useful for libraries where non-templated nucleotides are part of the read and need trimming (e.g. template-switching, OTTR libraries).
+- `--cut_end` number of nucleotides to be trimmed from 5' or 3' end of reads (equivalent to `-u` in `cutadapt`). Supply positive values for trimming from the 5' end, and negative values for trimming from the 3'end (default `0`, no residues are trimmed). 
+
+**Important:**: This step is perfomed after adapter trimming, and after UMIs have been moved to the read header. Useful for libraries where non-templated nucleotides are part of the read and need trimming (e.g. template-switching, OTTR libraries).
 - `--minimum_quality` cutoff value for trimming low-quality ends from reads (default: `10`)
 - `--minimum_length` minimum read length after trimming (default: `20`)
 
@@ -226,27 +227,27 @@ The preset alignment settings for both STAR and Bowtie2 are optimized for standa
 
 P-sites are identified with [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/). It is strongly recommended to check the riboWaltz method to ensure the approach is suitable for your data. By default, the reads must be in length bins that satisfy periodicity to be used for P-site offset calculations. Additionally, the user can specify the following options:
 
-- `--skip_psite` skips P-site identification and riboWaltz diagnotics plots
-- `--psite_per_sample` runs one P-site task per sample to reduce inference memory (default: `false`, all samples in one task). Offsets are inferred independently per sample in both modes. Combined offset and coverage tables retain the grouped-mode filenames, columns and values directly in `psites`, alongside each `<sample_id>.psite.tsv.gz`. Individual tables and diagnostics are under `psites/<sample_id>/`, with the samplesheet sample ID as a filename prefix, e.g. `human_brain_ribo_1/human_brain_ribo_1.psite_offset.tsv.gz`. Each sample's plots are in its `ribowaltz_qc` and `offset_plot` folders; there is no enclosing `per_sample` directory. Per-sample frame plots use compact landscape sizes. The merge step still needs memory for the combined coverage tables.
-- `--psite_transcripts` selects `representative` (default, including any custom `--transcript_info` selection) or `all_cds`. In `all_cds` mode, P-sites use every transcript observed in the transcriptome BAM that has an annotated CDS, regardless of transcript biotype, including NMD isoforms. The pipeline builds a separate `*.all_cds.transcript_info.tsv` and matching GTF/FASTA from the supplied GTF; preset representative tables do not restrict this mode. RUST, P-site PCA and genomic P-site tracks use the matching reference; standard read QC and featureCounts retain their existing reference selection. Transcript-level counts can include multiple isoform assignments of a read; genomic tracks count each unambiguous read once. MultiQC reports the selection mode and the number of transcripts with retained P-sites per sample. Existing alignment, length and periodicity filters still apply, and only isoforms included in the STAR annotation can be recovered.
+- `--skip_psite` skips P-site identification and riboWaltz diagnostic plots
+- `--psite_per_sample` runs one P-site task per sample to reduce inference memory (default: `false`, all samples in one task). Offsets are inferred independently per sample in both modes; merging the combined coverage tables still requires memory.
+- `--psite_transcripts` selects `representative` (default, including any custom `--transcript_info` selection) or `all_cds`. In `all_cds` mode, P-sites use every transcript observed in the transcriptome BAM that has an annotated CDS, regardless of transcript biotype, including NMD isoforms.
 - `--expected_length` default read length range for P-site identification; also controls QC (default: `26:32`).
 - `--psite_length_range` optional P-site-only range in `min:max` format. If unset, uses `--expected_length`, preserving existing behaviour. For example, `--expected_length 26:32 --psite_length_range 20:35` keeps QC at 26–32 nt and uses 20–35 nt for P-site analysis.
 - `--periodicity_threshold` specifies the periodicity threshold for read lengths to be considered for P-site identification (default: `50`). Read lengths must pass both this threshold and the selected range, for either P-site method.
 - `--psite_method` specifies method used for P-site offsets identification (options: `ribowaltz` (default) or `global_max_5end`).
      - For `ribowaltz` P-site offsets are defined using [`riboWaltz`](https://github.com/LabTranslationalArchitectomics/riboWaltz/).
      - For `global_max_5end` P-site offsets are defined by the distances between the first nucleotide of the translation initiation site and the nucleotide corresponding to the global maximum of the read length-specific 5'end profiles (the first step of the riboWaltz method). Compared to riboWaltz-defined offsets, only the 5' extremities of the reads are considered for calculation and no further offset correction is performed after read-length global maximum identification.
-- `exclude_start` specifies the number of nucleotides 3' from the start codon to be excluded from CDS P-site quantification (default: `42`, i.e. exclude the first 14 codons)
-- `exclude_stop` specifies the number of nucleotides 5' from the stop codon to be excluded from CDS P-site quantification (default: `27`, i.e. exclude the last 9 codons)
+- `--exclude_start` specifies the number of nucleotides 3' from the start codon to be excluded from CDS P-site quantification (default: `42`, i.e. exclude the first 14 codons)
+- `--exclude_end` specifies the number of nucleotides 5' from the stop codon to be excluded from CDS P-site quantification (default: `27`, i.e. exclude the last 9 codons)
 
-- `--genomic_psite_coverage` exports strand-specific genomic P-site tracks from riboWaltz results (default: disabled). The existing `--genomic_codon_coverage` remains a supported alias; either flag enables the same outputs. Tracks use `--track_format` (`bigwig` by default, or `bedgraph`) and single-nucleotide resolution. The exon map is prepared once; conversion runs separately for each sample in either P-site inference mode. Enabling this option appends `read_name` to the per-read P-site TSVs. Repeated transcript assignments of the same read at the same genomic P-site count once; different read names at that position count separately. Reads with conflicting genomic P-sites are excluded and reported in the mapping statistics. Empty strands produce no track. The existing genomic BED output is also retained.
+- `--genomic_psite_coverage` exports strand-specific genomic P-site tracks from riboWaltz results (default: disabled). The existing `--genomic_codon_coverage` remains a supported alias; either flag enables the same outputs. Tracks use `--track_format` (`bigwig` by default, or `bedgraph`) and single-nucleotide resolution.
 
-**Important:** P-sites and information are identified using transcriptomic coordinates. By default, a representative transcript is selected for each gene. The selection is based on the following hierarchy: CDS length > total length > number of exons > 5'UTR length > 3'UTR length. The selection is performed automatically by the pipeline using the information in the provided GTF file, and stored in `*.longest_cds.transcript_info.tsv`. The default representative transcript table can be overriden by the user by providing their own table with `--transcript_info` (see instructions above).
+**Important:** P-sites and information are identified using transcriptomic coordinates. By default, a representative transcript is selected for each gene. The selection is based on the following hierarchy: CDS length > total length > number of exons > 5'UTR length > 3'UTR length. The selection is performed automatically by the pipeline using the information in the provided GTF file, and stored in `*.longest_cds.transcript_info.tsv`. The default representative transcript table can be overriden by the user by providing their own table with `--transcript_info` (see instructions above). Use `--psite_transcripts all_cds` to override this behaviour (see above).
 
 
 #### Coverage tracks options
 
 - `--bin_size` spcifies bin size for calculating coverage (i.e. the number of nt per bin). Bins are short consecutive counting windows of a defined size. (default: `1`)
-- `--track_format` specifies output file type for read coverage and optional genomic P-site tracks (options: `bigwig`(default) or `bedgraph`). P-site tracks always use single-nucleotide resolution; `--bin_size` applies to read coverage only.
+- `--track_format` specifies output file type for read coverage and optional genomic P-site tracks (options: `bigwig`(default) or `bedgraph`). P-site tracks always use single-nucleotide resolution; `--bin_size` applies to read coverage only (not P-sites).
 
 ## Pipeline outputs
 
@@ -297,27 +298,23 @@ The pipeline outputs results in a number of folders:
         - `*.after_premap.csv` 
         - `*.before_dedup.csv` 
         - `*.after_dedup.csv`
-    - `multiqc_tables` contains combined TSV files underlying the MultiQC plots, including read 5' end profiles around both start and stop codons, plus `psite_*_mqc.json` and `rust_*_mqc.json` files. When P-site inference and QC are enabled, the linked riboWaltz section reports the read lengths actually retained per sample, P-site region proportions, reading frames by region, and normalised P-site profiles around the CDS start and end.
-    - Frame QC uses read 5' ends and reports the most abundant useful read length and the most periodic length within `--expected_length` whose count is at least 10% of the most abundant length's count. Periodicity is the dominant frame percentage; ties favour higher abundance, then shorter length. MultiQC lists both lengths, their frame distributions, dominant frame percentages and dominant/least frame ratios, and warns when the most abundant length is outside the expected range. With no eligible length, its metrics are unavailable; ratios are unavailable when the weakest frame is zero, with affected samples and frame counts noted in the report. These QC metrics do not change P-site selection.
-    - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding the yield of useful reads and troubleshooting. 
+    - `multiqc_tables` contains combined TSV files underlying the MultiQC plots.
+    - `read_fate` contains sample-specific html files tracking read fate through the pipeline steps, a visualisation that helps understanding the yield of useful reads and troubleshooting.
     - `pca` contains PCA plots and rlog-normalised count tables. Only produced if 3 samples or more are analysed.
-    - `rust_analysis` contains a local reimplementation of sequence-bias QC inspired by [RUST (O'Connor et al., 2016)](https://doi.org/10.1038/ncomms12915), using read-count-weighted codon frequencies. Each `<sample>.rust_analysis.pdf` has a corresponding `<sample>.rust_analysis.tsv` with `sample`, `length` (nt), `offset_nt`, `offset_codon` and `kld`; `<sample>.rust_lengths.tsv` records the CDS P-site observations used after subsampling and dominant-frame selection. MultiQC shows an overview heatmap and separate comparisons for the most frequent and most periodic lengths selected by Ribo-seq QC. Only lengths with at least 1,000 analysed P-sites appear in these views; full PDFs and TSVs retain every analysed length. A selected QC length without sufficient RUST support is reported as unavailable, without substituting another length. This display minimum does not change riboWaltz inference.
+    - `rust_analysis` contains a local reimplementation of sequence-bias QC inspired by [RUST (O'Connor et al., 2016)](https://doi.org/10.1038/ncomms12915), using read-count-weighted codon frequencies. Each `<sample>.rust_analysis.pdf` has a corresponding `<sample>.rust_analysis.tsv` with `sample`, `length` (nt), `offset_nt`, `offset_codon` and `kld`; `<sample>.rust_lengths.tsv` records the CDS P-site observations used after subsampling and dominant-frame selection.
 - `featurecounts` contains gene-level quantification of the UMI deduplicated alignments to the genome
-- `psites` contains P-sites information, codon coverage and CDS coverage tables, and riboWaltz diagnostic plots:
-    - `psite_offset.tsv.gz` P-site offsets for each read-length for all samples
-    - `*psite.tsv.gz` ample-specific P-site information for each read
-    - `ribowaltz_qc` folder containing P-site diagnostic plots generated by riboWaltz
-    - `*.coverage_psite.tsv.gz` P-site counts over the CDS of representative transcripts, or over a CDS window excluding a spcified region downstream start codons and upstream stop codons
-    - `codon_coverage_psite.tsv.gz` P-sites counts on each triplet of annotated CDS and UTR for each transcript
-    - `codon_coverage_rpf.tsv.gz` RPF counts on each triplet of annotated CDS and UTR for each transcript
-    - `offset_plot` contains plots that detail P-site assignment using the  method
+- `psites` contains transcript-coordinate P-site results in both execution modes. Combined tables and `<sample_id>.psite.tsv.gz` are stored here. With `--psite_per_sample`, individual tables and diagnostic folders are under `<sample_id>/`, with sample-prefixed filenames; otherwise diagnostic folders are directly under `psites`:
+    - `psite_offset.tsv.gz` P-site offsets by sample and read length
+    - `<sample_id>.psite.tsv.gz` per-read P-site information
+    - `cds_coverage_psite.tsv.gz` and `cds_*nt_coverage_psite.tsv.gz` in-frame P-site counts over the full CDS and the window defined by `--exclude_start` and `--exclude_end`, for transcripts selected by `--psite_transcripts`
+    - `codon_coverage_psite.tsv.gz` and `codon_coverage_rpf.tsv.gz` P-site and read counts per triplet across CDS and UTRs
+    - `ribowaltz_qc/` and `offset_plot/` diagnostic plots and offset assignment plots (the latter for `--psite_method ribowaltz`)
 - `coverage_tracks` contains track files in BED and bigWig or bedGraph format
-    - `psite` contains optional `<sample>.psites.forward/reverse.bigWig` or `.bedgraph` files with raw P-site counts, the `<sample>.codon_coverage_psite.bed.gz`, and `<sample>.psites.mapping_stats.tsv` with read counts and excluded assignments.
+    - `psite` contains optional `<sample>.psites.forward/reverse.bigWig` or `.bedgraph` tracks and `<sample>.psites.mapping_stats.tsv` with read counts and excluded assignments (enabled by `--genomic_psite_coverage` or its alias `--genomic_codon_coverage`, in either execution mode).
     - `*.bigwig` UMI deduplicated genome coverage tracks in bigWig format
     - `*.bedgraph` UMI deduplicated genome coverage tracks in bedGraph format
     - `*.genome.dedup.bed.gz` UMI deduplicated alignments to the genome in BED format
     - `*.transcriptome.dedup.bed.gz` UMI deduplicated alignments to the transcriptomie in BED format
-    - `psite/*.codon_coverage_psite.bed.gz` folder containing BED files with the genomic coordinates and counts of inferred P-sites mapping on each triplet of annotated CDS and UTR for each transcript. Obtained by converting transcriptomic positions from `codon_coverage_psite.tsv.gz` to genomic coordinates.
 - `ribocutter` contains results of Ribocutter run on the pre-processed reads of minimum length defined by user, and minimum length of 23 nt, respectively
     - `*.csv` CSV files with the designed oligo sequences, their target sequence, the fraction of the library that each oligo targets and the total fraction of the library targeted by all oligos
     - `ribocutter.pdf` plot showing the estimated fraction of the library that is estimated to be targeted by the guides designed using Ribocutter
@@ -326,7 +323,7 @@ The pipeline outputs results in a number of folders:
     - `execution_report.html`
     - `execution_timeline.html`
     - `execution_trace.txt`
-    - `software_versions.yml`: one consolidated list of runtime software versions, grouped by process in this file and the MultiQC table. This includes R and its script dependencies, Python, the analysis tools and bedGraphToBigWig when used. Repeated samples are deduplicated within each process; different versions are retained. A Workflow group contains pipeline and Nextflow versions from the current run metadata; the pipeline entry also includes its Git revision and short commit ID when Nextflow provides them. Individual task version files remain in the Nextflow work directory and are not published elsewhere in results.
+    - `software_versions.yml`: one consolidated list of runtime software versions, grouped by process in this file and the MultiQC table.
 
 ## Pre-download container images
 
@@ -386,13 +383,3 @@ If you wish to make an addition or change to the pipeline, please follow these s
 7. The pull request will trigger a workflow execution on GitHub Actions for continuous integration (CI) of the pipeline.
 This is designed to automatically test riboseq-flow whenever a pull request is made to the `main` or `dev` branches of the repository.
 It ensures that the pipeline runs correctly in an Ubuntu environment, helping to catch any issues or errors early in the development process.
-
-## Why use riboseq-flow
-
-- **End-to-end ribo-seq analysis:** runs preprocessing, contaminant filtering, genome alignment, gene-level counting, P-site assignment, coverage track generation and ribo-seq-specific QC in a single workflow.
-- **Reproducible execution:** uses pinned software containers and version-controlled configuration to make analyses easier to rerun, review and share.
-- **Portable by design:** runs with Docker or Singularity across local workstations, servers and cluster environments.
-- **Scales to multi-sample studies:** uses Nextflow to parallelise independent samples and resume completed work when runs are interrupted.
-- **QC built into the workflow:** reports read fate, length distributions, frame periodicity, regional enrichment and other checks needed to assess ribo-seq data quality.
-- **Transparent outputs:** keeps intermediate logs, summary tables and MultiQC-compatible reports so downstream analyses can be traced back to each processing step.
-- **Open and citable:** maintained as an open, versioned workflow with a published citation for scientific reuse.

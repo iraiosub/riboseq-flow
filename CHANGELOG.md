@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
+## [v1.4.0] - 2026-11-25
+### Added
+- `--psite_length_range` for P-site length filtering independently of read QC.
+- `--psite_per_sample` for separate inference tasks, sample-specific diagnostics and merged offset/coverage tables.
+- `--psite_transcripts all_cds` for transcripts present in the transcriptome BAM with an annotated CDS; representative selection remains the default.
+- Strand-specific genomic P-site BigWig/bedGraph tracks and mapping statistics via `--genomic_psite_coverage` (alias: `--genomic_codon_coverage`), counting each unambiguous read once.
+- riboWaltz MultiQC diagnostics: region/frame distributions, start/stop profiles and retained read lengths.
+- RUST-inspired MultiQC heatmaps and most frequent/periodic length profiles, displaying lengths with at least 1,000 CDS P-sites. Full profiles and support tables are exported as TSVs.
+- QC for the most periodic expected read length, a selected-length table, warnings for most abundant lengths outside the expected range, and a read 5' end profile around stop codons.
+- Software versions grouped by process in the dedicated MultiQC section and `pipeline_info/software_versions.yml`.
+
+### Changed
+- Expanded the QC summary PDF with dominant-frame percentages and frame ratios for the expected range and selected lengths.
+- Revised CPU/memory requests and reduced memory use in RUST and genomic P-site conversion.
+
+### Fixed
+- Safely quoted UMI patterns, Cutadapt adapter settings and the P-site inference script path to prevent shell-parsing errors.
+
+---
 ## [v1.3.0] - 2026-11-23
 ### Added
 - Added frame distributions and dominant-frame percentages for the most abundant useful read length.
@@ -119,6 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - The first main release of **riboseq-flow**.
 
+[v1.4.0]: https://github.com/iraiosub/riboseq-flow/releases/tag/v1.4.0
 [v1.3.0]: https://github.com/iraiosub/riboseq-flow/releases/tag/v1.3.0
 [v1.2.3]: https://github.com/iraiosub/riboseq-flow/releases/tag/v1.2.3
 [v1.2.2]: https://github.com/iraiosub/riboseq-flow/releases/tag/v1.2.2

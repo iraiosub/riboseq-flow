@@ -94,14 +94,15 @@ class PsiteQCTest(unittest.TestCase):
         self.run_summary()
         self.assertEqual(list(self.root.glob("*_mqc.json")), [])
 
-    def test_all_cds_mode_reports_scope_and_distinct_transcripts(self):
+    def test_all_cds_mode_reports_scope_and_retained_lengths(self):
         self.run_summary(self.a)
         expected = self.read_plot("regions")["data"]
         self.run_summary("--transcripts", "all_cds", self.a)
         section = self.read_plot("regions")
         self.assertEqual(section["data"], expected)
         self.assertIn("All BAM-observed transcripts with an annotated CDS", section["extra"])
-        self.assertIn("2 transcripts with retained P-sites", section["extra"])
+        self.assertIn("<strong>sampleA</strong>: 27, 31 nt</li>", section["extra"])
+        self.assertNotIn("transcripts with retained P-sites", section["extra"])
         self.assertIn("transcript assignments", section["parent_description"])
 
 

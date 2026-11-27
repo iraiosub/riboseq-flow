@@ -54,7 +54,7 @@ process IDENTIFY_PSITES {
 
         INPUT=`echo $bam_list | sed 's/ /,/g'`
 
-        Rscript --vanilla ${workflow.projectDir}/bin/identify_psites.R \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info ${params.psite_per_sample} $genomic_coverage ${params.psite_transcripts}$sample_arg
+        Rscript --vanilla "${workflow.projectDir}/bin/identify_psites.R" \$INPUT $gtf $fasta $length_range $periodicity_threshold $method ${params.exclude_start} ${params.exclude_end} $transcript_info ${params.psite_per_sample} $genomic_coverage ${params.psite_transcripts}$sample_arg
 
         software_versions.R "${task.process}" riboWaltz data.table ggplot2 GenomicAlignments
 
@@ -124,11 +124,11 @@ process PREPARE_PSITE_TRACKS {
 process GET_PSITE_TRACKS {
 
     tag "${meta.id}"
-    label 'process_low'
+    label(params.psite_transcripts == 'all_cds' ? 'process_high' : 'process_low')
 
     container 'iraiosub/nf-riboseq@sha256:0c0c33861d533653fb8fe6091f247e302d68c1e9b55ee5f5faf46979a9750a4b'
 
-    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.{bed.gz,mapping_stats.tsv}", mode: 'copy', overwrite: true
+    publishDir "${params.outdir}/coverage_tracks/psite", pattern: "*.psites.mapping_stats.tsv", mode: 'copy', overwrite: true
 
     input:
     tuple val(meta), path(psite_table)
@@ -180,7 +180,7 @@ process SUMMARISE_PSITE_QC {
 
 process RUST_QC {
 
-label 'process_single'
+label 'process_medium'
 
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 

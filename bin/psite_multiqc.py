@@ -32,14 +32,12 @@ def summarise(paths):
                 sample = row["sample"]
                 if sample not in samples:
                     samples[sample] = {
-                        "lengths": set(), "transcripts": set(), "regions": Counter(),
+                        "lengths": set(), "regions": Counter(),
                         "frames": {region: Counter() for region in REGIONS},
                         "start": Counter(), "stop": Counter(),
                     }
                 counts = samples[sample]
                 counts["lengths"].add(int(row["length"]))
-                if row.get("transcript"):
-                    counts["transcripts"].add(row["transcript"])
                 region = row["psite_region"]
                 if region not in REGIONS:
                     continue
@@ -67,9 +65,8 @@ def write_plot(identifier, title, kind, data, description, parent, categories=No
 
 def main(paths, transcripts="representative"):
     samples = summarise(paths)
-    retained = "".join("<li><strong>{}</strong>: {} nt{}</li>".format(
-        escape(sample), ", ".join(map(str, sorted(counts["lengths"]))),
-        "; {} transcripts with retained P-sites".format(len(counts["transcripts"])) if counts["transcripts"] else "")
+    retained = "".join("<li><strong>{}</strong>: {} nt</li>".format(
+        escape(sample), ", ".join(map(str, sorted(counts["lengths"]))))
         for sample, counts in samples.items())
     scope = "All BAM-observed transcripts with an annotated CDS" if transcripts == "all_cds" else "Representative/custom transcript reference"
     parent = dict(PARENT, extra="<p><strong>Transcript selection:</strong> " + scope + ".</p>"
