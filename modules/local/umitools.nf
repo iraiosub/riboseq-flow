@@ -19,9 +19,10 @@ process UMITOOLS_EXTRACT {
     output:
         tuple val(sample_id), path("${sample_id}.umi_extract.fastq.gz"), emit: fastq
         tuple val(sample_id), path("*.umi_extract.log"), emit: log
+        path("versions.yml"), emit: versions
 
     script:
-    args = " --bc-pattern=" + params.umi_pattern
+    args = " --bc-pattern='${params.umi_pattern.replace("'", "'\\''")}'"
     args += " --extract-method=" + params.umi_extract_method
 
     """
@@ -31,6 +32,12 @@ process UMITOOLS_EXTRACT {
         -S ${sample_id}.umi_extract.fastq.gz \
         $args \
         -L ${sample_id}.umi_extract.log
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version 2>&1 | sed 's/Python //')
+        umi_tools: \$(umi_tools --version | sed 's/^.*version: *//')
+    END_VERSIONS
     """
 }
 
@@ -55,6 +62,7 @@ process UMITOOLS_DEDUPLICATE {
     tuple val(sample_id), path("*.dedup.sorted.bam"), path("*dedup.sorted.bam.bai"), emit: dedup_bam
     tuple val(sample_id), path("*.dedup.bed.gz"), emit: dedup_bed
     tuple val(sample_id), path("*.log"), emit: log
+    path("versions.yml"), emit: versions
 
 
     script:
@@ -68,6 +76,14 @@ process UMITOOLS_DEDUPLICATE {
 
     bedtools bamtobed -i ${sample_id}.${suffix}.dedup.sorted.bam | bedtools sort > ${sample_id}.${suffix}.dedup.bed
     gzip ${sample_id}.${suffix}.dedup.bed
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version 2>&1 | sed 's/Python //')
+        umi_tools: \$(umi_tools --version | sed 's/^.*version: *//')
+        samtools: \$(samtools --version | sed -n '1s/samtools //p')
+        bedtools: \$(bedtools --version | sed 's/^bedtools v//')
+    END_VERSIONS
     """
 
 

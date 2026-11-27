@@ -37,5 +37,6 @@ workflow DEDUPLICATE {
     // Transcriptome dedup
     dedup_transcriptome_bam = DEDUPLICATE_TRANSCRIPTOME.out.dedup_bam
     dedup_transcriptome_bed = DEDUPLICATE_TRANSCRIPTOME.out.dedup_bed
+    versions = DEDUPLICATE_GENOME.out.versions.mix(DEDUPLICATE_TRANSCRIPTOME.out.versions)
 
 }

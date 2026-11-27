@@ -23,6 +23,7 @@ workflow GET_GENE_LEVEL_COUNTS {
     emit:
 
     merged_counts_table = MERGE_FEATURECOUNTS.out.counts
+    versions = GENE_COUNTS_FEATURECOUNTS.out.versions.mix(MERGE_FEATURECOUNTS.out.versions)
 
 
 }

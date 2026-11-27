@@ -144,3 +144,6 @@ res_nf*
 local_test.sh
 full_test_run.sh
 slurm-*
+
+# Agents
+AGENTS.md

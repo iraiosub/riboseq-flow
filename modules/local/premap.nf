@@ -7,6 +7,7 @@ process PREMAP {
 
     tag "${sample_id}"
     label 'process_medium'
+    label 'process_low_memory'
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/mulled-v2-ac74a7f02cebcfcc07d8e8d1d750af9c83b4d45a:a0ffedb52808e102887f6ce600d092675bf3528a-0' :
@@ -27,6 +28,7 @@ process PREMAP {
     tuple val(sample_id), path("*.seqs.gz"), emit: seqs
     tuple val(sample_id), path("*unmapped.fastq.gz"), emit: unmapped
     tuple val(sample_id), path("*.premap.log"), emit: log
+    path("versions.yml"), emit: versions
 
     script:
 
@@ -47,6 +49,12 @@ process PREMAP {
     samtools index ${sample_id}.bam
     samtools view ${sample_id}.bam | cut -f3-5,10 | pigz > ${sample_id}.bam.seqs.gz
     rm ${sample_id}.sam
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        bowtie2: \$(bowtie2 --version | sed -n '1s/.* version //p')
+        samtools: \$(samtools --version | sed -n '1s/samtools //p')
+    END_VERSIONS
 
     """
 }

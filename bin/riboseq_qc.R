@@ -264,11 +264,31 @@ most_abundant_frame.df <- riboseq_info$frame %>%
   dplyr::select(frame, number_of_reads = n) %>%
   complete(frame = 0:2, fill = list(number_of_reads = 0))
 
+expected_periodicity <- if (sum(expected_frame.df$number_of_reads) > 0) 100*max(expected_frame.df$number_of_reads) / sum(expected_frame.df$number_of_reads) else NA_real_
 most_abundant_periodicity <- if (sum(most_abundant_frame.df$number_of_reads) > 0) 100*max(most_abundant_frame.df$number_of_reads) / sum(most_abundant_frame.df$number_of_reads) else NA_real_
+
+# Most periodic expected length with at least 10% of the most abundant length's useful reads
+# Break periodicity ties by abundance, then by shorter length
+most_periodic_length.df <- riboseq_info$frame %>%
+  group_by(read_length) %>%
+  summarise(number_of_reads = sum(n), periodicity = 100*max(n) / sum(n)) %>%
+  dplyr::filter(read_length >= as.numeric(min_length) & read_length <= as.numeric(max_length),
+                number_of_reads >= 0.1*sum(most_abundant_frame.df$number_of_reads)) %>%
+  dplyr::arrange(desc(periodicity), desc(number_of_reads), read_length) %>%
+  dplyr::slice_head(n = 1)
+
+most_periodic_length <- most_periodic_length.df %>% pull(read_length) %>% dplyr::first(default = NA_integer_)
+most_periodic_periodicity <- most_periodic_length.df %>% pull(periodicity) %>% dplyr::first(default = NA_real_)
+
+most_periodic_frame.df <- riboseq_info$frame %>%
+  dplyr::filter(read_length == most_periodic_length) %>%
+  dplyr::select(frame, number_of_reads = n) %>%
+  complete(frame = 0:2, fill = list(number_of_reads = 0))
 
 # Ratios are unavailable when the least abundant frame has no reads
 expected_frame_ratio <- if (min(expected_frame.df$number_of_reads) > 0) max(expected_frame.df$number_of_reads) / min(expected_frame.df$number_of_reads) else NA_real_
 most_abundant_frame_ratio <- if (min(most_abundant_frame.df$number_of_reads) > 0) max(most_abundant_frame.df$number_of_reads) / min(most_abundant_frame.df$number_of_reads) else NA_real_
+most_periodic_frame_ratio <- if (min(most_periodic_frame.df$number_of_reads) > 0) max(most_periodic_frame.df$number_of_reads) / min(most_periodic_frame.df$number_of_reads) else NA_real_
 
 
 # =========
@@ -404,13 +424,21 @@ summary_df <- useful_df %>%
           expected_length = opt$expected_length,
           percent_expected_length = tx_map_expected_length_perc,
           expected_length_n = tx_map_expected_length_count,
+          expected_periodicity = expected_periodicity,
           most_abundant_length = most_abundant_length,
+          most_abundant_length_in_expected_range = most_abundant_length >= as.numeric(min_length) & most_abundant_length <= as.numeric(max_length),
           most_abundant_periodicity = most_abundant_periodicity,
           most_abundant_frame_0 = most_abundant_frame.df$number_of_reads[most_abundant_frame.df$frame == 0],
           most_abundant_frame_1 = most_abundant_frame.df$number_of_reads[most_abundant_frame.df$frame == 1],
           most_abundant_frame_2 = most_abundant_frame.df$number_of_reads[most_abundant_frame.df$frame == 2],
+          most_periodic_length = most_periodic_length,
+          most_periodic_periodicity = most_periodic_periodicity,
+          most_periodic_frame_0 = most_periodic_frame.df$number_of_reads[most_periodic_frame.df$frame == 0],
+          most_periodic_frame_1 = most_periodic_frame.df$number_of_reads[most_periodic_frame.df$frame == 1],
+          most_periodic_frame_2 = most_periodic_frame.df$number_of_reads[most_periodic_frame.df$frame == 2],
           expected_frame_ratio = expected_frame_ratio,
-          most_abundant_frame_ratio = most_abundant_frame_ratio)
+          most_abundant_frame_ratio = most_abundant_frame_ratio,
+          most_periodic_frame_ratio = most_periodic_frame_ratio)
 
 
 # Customise sub-title based on whether UMIs were used or not
@@ -432,8 +460,10 @@ useful_plot <- ggplot(useful_df, aes(x= x, y = y)) +
 # Pull together plots
 fig <- ((p1 + ggtitle(paste("Sample:", actual_name),
   paste0("Most abundant length: ", most_abundant_length, " nt (dominant frame: ", round(most_abundant_periodicity, 1), "%)\n",
+         "Most periodic expected length: ", most_periodic_length, " nt (dominant frame: ", round(most_periodic_periodicity, 1), "%)\n",
          "Dominant / least frame: expected lengths = ", round(expected_frame_ratio, 2),
-         "; most abundant length = ", round(most_abundant_frame_ratio, 2))) | useful_plot) +  plot_layout(widths = c(3, 1))) / (p2|p3) /
+         "; most abundant = ", round(most_abundant_frame_ratio, 2),
+         "; most periodic = ", round(most_periodic_frame_ratio, 2))) | useful_plot) +  plot_layout(widths = c(3, 1))) / (p2|p3) /
   (length_plot | rRNA_plot) /
   (premapping_plot | mapping_plot | duplication_plot)
 

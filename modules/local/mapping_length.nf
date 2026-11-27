@@ -6,7 +6,7 @@ nextflow.enable.dsl=2
 process MAPPING_LENGTH_ANALYSIS {
  
     tag "${sample_id}"
-    label 'process_medium'
+    label 'process_single'
 
     container 'iraiosub/nf-riboseq-qc@sha256:719e18799ff01b3071cb2187fcae78efaafe53faa604ca4a0bf224663f0cefba'
 
@@ -17,17 +17,27 @@ process MAPPING_LENGTH_ANALYSIS {
 
     output:
     tuple val(sample_id), path("*.csv"), emit: length_analysis
+    path("versions.yml"), emit: versions
 
     script:
     
     def analysis_type = params.length_analysis_type
+    def version_command = """
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version 2>&1 | sed 's/Python //')
+        mapping-length-analysis: \$(python -c 'from pkg_resources import get_distribution; print(get_distribution("mapping-length-analysis").version)')
+    END_VERSIONS
+    """
 
     if (analysis_type == 'after_dedup') 
         """
         mapping_length_analysis -b $bam -o ${sample_id}.${analysis_type}.csv
+        $version_command
         """
     else
         """
         mapping_length_analysis -f $fastq -b $bam -o ${sample_id}.${analysis_type}.csv
+        $version_command
         """
 }

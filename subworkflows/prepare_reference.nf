@@ -15,6 +15,8 @@ include { SAMTOOLS_FAIDX } from '../modules/nf-core/samtools/faidx/main'
 include { GENERATE_REFERENCE_INDEX } from '../subworkflows/generate_index.nf'
 include { GET_TRANSCRIPT_INFO } from '../modules/local/transcript_info.nf'
 include { GET_TRANSCRIPT_FASTA } from '../modules/local/transcript_info.nf'
+include { GET_TRANSCRIPT_INFO as GET_PSITE_TRANSCRIPT_INFO } from '../modules/local/transcript_info.nf'
+include { GET_TRANSCRIPT_FASTA as GET_PSITE_TRANSCRIPT_FASTA } from '../modules/local/transcript_info.nf'
 
 
 workflow PREPARE_RIBOSEQ_REFERENCE {
@@ -25,11 +27,13 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     contaminants_fasta
 
     main:
+    ch_versions = Channel.empty()
 
     // Prepare annotation: unzip annotation and genome files if necessary
     ch_genome_fasta = Channel.empty()
     if (genome_fasta.toString().endsWith('.gz')) {
         ch_genome_fasta = GUNZIP_FASTA ( [ [:], genome_fasta ] ).gunzip
+        ch_versions = ch_versions.mix(GUNZIP_FASTA.out.versions)
     } else {
         ch_genome_fasta = Channel.from( [ [ [:], genome_fasta ] ] )
     }
@@ -38,6 +42,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     ch_genome_gtf = Channel.empty()
     if (genome_gtf.toString().endsWith('.gz')) {
         ch_genome_gtf = GUNZIP_GTF ( [ [:], genome_gtf ] ).gunzip
+        ch_versions = ch_versions.mix(GUNZIP_GTF.out.versions)
 
         // println "DEBUG: genome_gtf type: ${genome_gtf.getClass()}"
         // println "DEBUG: params.gtf type: ${params.gtf.getClass()}"
@@ -54,6 +59,7 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     if (!params.skip_premap) {
         if (contaminants_fasta.toString().endsWith('.gz')) {
             ch_contaminants_fasta = GUNZIP_CONTAMINANTS_FASTA ( [ [:], contaminants_fasta ] ).gunzip
+            ch_versions = ch_versions.mix(GUNZIP_CONTAMINANTS_FASTA.out.versions)
         } else {
             // ch_contaminants_fasta = file(params.contaminants_fasta)
             ch_contaminants_fasta = Channel.from( [ [ [:], contaminants_fasta ] ] )
@@ -66,19 +72,31 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
 
     // Prepare annotation: create index for alignment
     GENERATE_REFERENCE_INDEX(ch_contaminants_fasta, ch_genome_fasta, ch_genome_gtf)
+    ch_versions = ch_versions.mix(SAMTOOLS_FAIDX.out.versions, GENERATE_REFERENCE_INDEX.out.versions)
 
     if (!params.transcript_info) {
-        GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] })
+        GET_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] }, 'representative')
         ch_transcript_info = GET_TRANSCRIPT_INFO.out.transcript_info
         ch_transcript_info_gtf = GET_TRANSCRIPT_INFO.out.transcripts_gtf
 
         GET_TRANSCRIPT_FASTA(ch_genome_fasta.map{ it[1] }, ch_genome_fai, ch_transcript_info_gtf)
+        ch_versions = ch_versions.mix(GET_TRANSCRIPT_INFO.out.versions, GET_TRANSCRIPT_FASTA.out.versions)
         ch_transcript_info_fa = GET_TRANSCRIPT_FASTA.out.transcripts_fa
 
     } else {
 
         ch_transcript_info = Channel.fromPath(params.transcript_info, checkIfExists: true)
-        ch_transcript_info_fa = Channel.fromPath(params.transcript_fasta, checkIfExists: true)
+        ch_transcript_info_fa = !params.skip_psite && params.psite_transcripts == 'all_cds' ? Channel.empty() : Channel.fromPath(params.transcript_fasta, checkIfExists: true)
+    }
+
+    ch_psite_transcript_info = ch_transcript_info
+    ch_psite_transcript_fa = ch_transcript_info_fa
+    if (!params.skip_psite && params.psite_transcripts == 'all_cds') {
+        GET_PSITE_TRANSCRIPT_INFO(ch_genome_gtf.map{ it[1] }, 'all_cds')
+        GET_PSITE_TRANSCRIPT_FASTA(ch_genome_fasta.map{ it[1] }, ch_genome_fai, GET_PSITE_TRANSCRIPT_INFO.out.transcripts_gtf)
+        ch_psite_transcript_info = GET_PSITE_TRANSCRIPT_INFO.out.transcript_info
+        ch_psite_transcript_fa = GET_PSITE_TRANSCRIPT_FASTA.out.transcripts_fa
+        ch_versions = ch_versions.mix(GET_PSITE_TRANSCRIPT_INFO.out.versions, GET_PSITE_TRANSCRIPT_FASTA.out.versions)
     }
 
     emit:
@@ -92,5 +110,8 @@ workflow PREPARE_RIBOSEQ_REFERENCE {
     transcript_info = ch_transcript_info
     // transcript_info_gtf = ch_transcript_info_gtf
     transcript_info_fa = ch_transcript_info_fa
+    psite_transcript_info = ch_psite_transcript_info
+    psite_transcript_fa = ch_psite_transcript_fa
+    versions = ch_versions
 
 }

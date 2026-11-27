@@ -6,6 +6,7 @@ nextflow.enable.dsl=2
 process CUTADAPT {
     tag "${sample_id}"
     label 'process_high'
+    label 'process_low_memory'
 
     // conda 'bioconda::cutadapt=4.2'
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -24,6 +25,7 @@ process CUTADAPT {
         tuple val(sample_id), path("${sample_id}.cut.fastq.gz"), emit: cut_fastq // necessary for length analyses
         tuple val(sample_id), path("${sample_id}.filtered.fastq.gz"), emit: filtered_fastq // used as input for pre-mapping
         tuple val(sample_id), path("*.log"), emit: log
+        path("versions.yml"), emit: versions
 
     script:
 
@@ -32,8 +34,8 @@ process CUTADAPT {
 
     // Append adapter-specific args
     adapter_args = ""
-    if (params.adapter_threeprime) adapter_args += " -a ${params.adapter_threeprime}"
-    if (params.adapter_fiveprime) adapter_args += " -g ${params.adapter_fiveprime}"
+    if (params.adapter_threeprime) adapter_args += " -a '${params.adapter_threeprime.replace("'", "'\\''")}'"
+    if (params.adapter_fiveprime) adapter_args += " -g '${params.adapter_fiveprime.replace("'", "'\\''")}'"
     if (params.adapter_threeprime && params.adapter_fiveprime && params.times_trimmed < 2) params.times_trimmed = 2
     adapter_args += " -n ${params.times_trimmed}"
 
@@ -47,6 +49,12 @@ process CUTADAPT {
     cutadapt ${trim_args}${adapter_args} $reads > ${sample_id}.cutadapt_trim.log
     cutadapt ${cut_args} ${sample_id}.trimmed.fastq.gz > ${sample_id}.cutadapt_cut.log
     cutadapt ${filter_args} ${sample_id}.cut.fastq.gz > ${sample_id}.cutadapt_filter.log
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        python: \$(python --version 2>&1 | sed 's/Python //')
+        cutadapt: \$(cutadapt --version)
+    END_VERSIONS
     """
 
 }

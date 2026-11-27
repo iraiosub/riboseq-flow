@@ -1,127 +1,76 @@
 #!/usr/bin/env Rscript
 
-# get genomic coordinates of Psites identified by ribowaltz
+# Map inferred P-sites to the genome and count each read once
 # Author: Ira Iosub
-
 suppressPackageStartupMessages(library(GenomicFeatures))
-suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(rtracklayer))
 suppressPackageStartupMessages(library(data.table))
-suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(optparse))
 
+option_list <- list(make_option(c("-p", "--psite"), type = "character"),
+                    make_option(c("-a", "--annotation"), type = "character"),
+                    make_option(c("-s", "--sizes"), type = "character"),
+                    make_option(c("-o", "--output_prefix"), type = "character"))
+opt <- parse_args(OptionParser(option_list = option_list))
 
-# =========
-# Options and paths
-# =========
+psites <- fread(opt$psite, select = c("read_name", "transcript", "psite"),
+                colClasses = list(character = c("read_name", "transcript")))
+if (!"read_name" %in% names(psites) || anyNA(psites$read_name) || any(psites$read_name %in% c("", "*"))) {
+  stop("Genomic P-site tracks require read names; regenerate P-sites with --genomic_psite_coverage")
+}
+input_records <- nrow(psites)
+input_read_names <- uniqueN(psites$read_name)
+exons <- readRDS(opt$annotation)
+sizes <- fread(opt$sizes, col.names = c("chrom", "size"))
 
-option_list <- list(make_option(c("-p", "--psite"), action = "store", type = "character", default=NA, help = "P-sites table"),
-                    make_option(c("-g", "--gtf"), action = "store", type = "character", default=NA, help = "GTF file"),
-                    make_option(c("-f", "--fai"), action = "store", type = "character", default=NA, help = "FASTA index file"))
+# Map each transcript position once, then restore read identities before counting
+positions <- unique(psites[, .(transcript, psite)])
+tx <- GRanges(seqnames = positions$transcript, ranges = IRanges(positions$psite, width = 1), strand = "*")
+mapped <- mapFromTranscripts(tx, exons, ignore.strand = FALSE)
+loci <- cbind(positions[mapped$xHits], data.table(chrom = as.character(seqnames(mapped)),
+              position = start(mapped), strand = as.character(strand(mapped))))
+rm(positions, tx, mapped, exons)
+gc()
+assignments <- merge(psites, loci, by = c("transcript", "psite"))
+mapped_records <- nrow(assignments)
+sites <- unique(assignments[, .(read_name, chrom, position, strand)])
+duplicate_assignments <- mapped_records - nrow(sites)
+rm(psites, loci, assignments)
+gc()
 
-opt_parser = OptionParser(option_list = option_list)
-opt <- parse_args(opt_parser)
+# Transcript copies of the same read count once; conflicting P-sites are excluded
+ambiguous <- sites[, .N, by = read_name][N > 1, read_name]
+sites <- sites[!read_name %in% ambiguous]
+if (any(!sites$chrom %in% sizes$chrom) ||
+    any(sites$position < 1 | sites$position > sizes$size[match(sites$chrom, sizes$chrom)]) ||
+    any(!sites$strand %in% c("+", "-"))) {
+  stop("Mapped P-sites do not match the genome chromosome sizes or strands")
+}
+coverage <- sites[, .(count = .N), by = .(chrom, position, strand)]
 
-make_txdb <- function(gtf, org) {
-  
-  # Get name of db
-  name <- paste0(str_split(gtf, ".gtf")[[1]][1], ".sqlite")
-  
-  if (file.exists(name)) {
-    
-    TxDb <- loadDb(name)
-    
-  } else {
-    
-    TxDb <- makeTxDbFromGFF(opt$gtf, format="gtf",
-                            organism = org) # chrominfo = seqinfo(TxDb.Hsapiens.UCSC.hg38.knownGene
-    
-    saveDb(TxDb, file=name)
-    # TxDb <- loadDb(name)
+stats <- data.table(sample = opt$output_prefix, input_records = input_records,
+                    input_read_names = input_read_names, mapped_records = mapped_records,
+                    unmapped_records = input_records - mapped_records,
+                    duplicate_assignments = duplicate_assignments, ambiguous_reads = length(ambiguous),
+                    forward_psites = sum(sites$strand == "+"), reverse_psites = sum(sites$strand == "-"))
+fwrite(stats, paste0(opt$output_prefix, ".psites.mapping_stats.tsv"), sep = "\t")
+if (length(ambiguous) > 0 || stats$unmapped_records > 0) {
+  message("Excluded ", length(ambiguous), " reads with conflicting genomic P-sites; ",
+          stats$unmapped_records, " input records could not be mapped. See mapping_stats.tsv.")
+}
+rm(sites, ambiguous)
+gc()
+
+# Keep the legacy BED output, with counts in its score column
+genomic <- GRanges(seqnames = coverage$chrom, ranges = IRanges(coverage$position, width = 1),
+                   strand = coverage$strand, score = coverage$count)
+export.bed(genomic, paste0(opt$output_prefix, ".codon_coverage_psite.bed.gz"))
+
+for (direction in c("forward", "reverse")) {
+  strand_value <- if (direction == "forward") "+" else "-"
+  track <- coverage[strand == strand_value, .(chrom, start = position - 1L, end = position, count)]
+  if (nrow(track) > 0) {
+    fwrite(track, paste0(opt$output_prefix, ".psites.", direction, ".unsorted.bedgraph"),
+           sep = "\t", col.names = FALSE)
   }
-  
-  TxDb <- keepStandardChromosomes(TxDb, pruning.mode="coarse")
-  return(TxDb)
 }
-
-
-
-# A function that makes a GRanges object for each sample from the psite tsv from ribowaltz
-table_to_granges <- function(df) {
-  
-  df <- df %>%
-    dplyr::select(transcript, psite, sample) %>%
-    mutate(strand = "*", start = psite, end = psite, score = 1, seqnames = transcript)
-  
-  df.gr <- GRanges(df)
-  names(df.gr) <- df.gr$transcript
-  
-  return(df.gr)
-  
-}
-
-# A function that sums scores of identical position in a GRanges object
-sum_scores <- function(gr) {
-  
-  hits <- findOverlaps(gr, gr)
-  agg.gr <- aggregate(gr, hits, score=sum(score))
-  gr$score <- agg.gr$score
-  gr.unique <- gr[!duplicated(gr)]
-  
-  return(gr.unique)
-  
-}
-
-# A function that converts transcript to genomic coordinates and exports bed and bigwig files
-convert_coordinates <- function(tx.gr, annotation, chr_lengths) {
-  
-  genomic.gr <- mapFromTranscripts(tx.gr, annotation, ignore.strand = FALSE)
-  genomic.gr$score <- 1L
-  
-  # Sum up scores for identical positions
-  genomic.gr <- sum_scores(genomic.gr)
-  export.bed(genomic.gr, paste0(unique(tx.gr$sample), ".codon_coverage_psite.bed.gz"))
-  
-  # Separate plus and minus strand and export bigwigs
-  plus.gr <- genomic.gr[strand(genomic.gr) == "+" ]
-  minus.gr <- genomic.gr[strand(genomic.gr) == "-" ]
-  
-  # Set chr lengths based on fai
-  # seqlengths(plus.gr) <- chr_lengths[names(seqlengths(plus.gr))]
-  # seqlengths(minus.gr) <- chr_lengths[names(seqlengths(minus.gr))]
-  
-  # export.bw(plus.gr, paste0(unique(tx.gr$sample), ".psites.forward.bigwig"))
-  # export.bw(minus.gr, paste0(unique(tx.gr$sample), ".psites.reverse.bigwig"))
-  
-  return(genomic.gr)
-  
-}
-
-
-# Load psites
-# psites.ls <- as.list(strsplit(opt$psite, ",")[[1]])
-# psites.df.ls <- lapply(psites.ls, fread)
-# psites.df <- rbindlist(psites.df.ls)
-
-psites.df <- fread(opt$psite)
-
-# Load annotation and subset transcripts of interest
-txdb <- make_txdb(opt$gtf, org = 'Homo sapiens')
-
-# Load fai and extract chromosome lengths
-fai <- fread(opt$fai)
-chr_lengths <- fai$V2
-names(chr_lengths) <- fai$V1
-
-# Get structure of the transcripts in the form of a GRangesList
-# If we use only tx.gr <- transcripts(txdb, columns = c("exon_id", "tx_name")), that will extract the pre-mRNAs coordinates for each isoform, the transcript structure (i.e. what is intron and what is exon is not automatically inferred)
-exons.grl <- exonsBy(txdb, "tx", use.names = T)
-exons.grl <- exons.grl[names(exons.grl) %in% unique(psites.df$transcript)]
-
-# Get transcriptomic GRanges
-# psites.tx.grl <- lapply(psites.df.ls, table_to_granges)
-psites.tx.gr <- table_to_granges(psites.df)
-
-# Mapping transcript coordinates to genomic coordinates
-# psites.genomic.grl <- lapply(psites.tx.grl, convert_coordinates, annotation = exons.grl, chr_lengths = chr_lengths)
-
-psites.genomic.gr <- convert_coordinates(psites.tx.gr, annotation = exons.grl, chr_lengths = chr_lengths)
